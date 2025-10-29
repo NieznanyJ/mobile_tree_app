@@ -20,7 +20,7 @@ const InputIcon = ({
   onPress: () => void;
   showPassword?: boolean;
 }) => {
-  const iconName = showPassword ? "eye" : "eye-invisible";
+  const iconName = !showPassword ? "eye" : "eye-invisible";
   return (
     <Pressable className="absolute bottom-11 right-0" onPress={onPress}>
       <AntDesign
@@ -76,7 +76,7 @@ const SimpleInput = ({
       />
       {type === "password" && (
         <InputIcon
-          showPassword={secureTextEntry}
+          showPassword={showPassword}
           onPress={handleShowPassword}
         />
       )}

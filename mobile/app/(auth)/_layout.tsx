@@ -1,19 +1,18 @@
-import { AntDesign } from "@expo/vector-icons"; // Importujemy ikonę strzałki
-import { Stack, Tabs, useRouter } from "expo-router";
+import { AntDesign } from "@expo/vector-icons";
+import { Stack, useRouter } from "expo-router";
 import { Pressable } from "react-native";
 
 const AuthLayout = () => {
   const router = useRouter();
 
   return (
-    <Tabs
+    <Stack
       screenOptions={{
         headerShown: true,
         headerTitle: "",
-        tabBarStyle: { display: "none" },
+        headerShadowVisible: false,
         headerStyle: {
           backgroundColor: "#FFFFFF",
-          shadowColor: "transparent",
         },
         headerLeft: () => (
           <Pressable onPress={() => router.push("/")}>
@@ -29,7 +28,7 @@ const AuthLayout = () => {
     >
       <Stack.Screen name="login" />
       <Stack.Screen name="register" />
-    </Tabs>
+    </Stack>
   );
 };
 
