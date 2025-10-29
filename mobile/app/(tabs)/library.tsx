@@ -1,12 +1,12 @@
 import React from "react";
 import { Text, View } from "react-native";
 
-const history = () => {
+const library = () => {
   return (
     <View>
-      <Text>history</Text>
+      <Text>library</Text>
     </View>
   );
 };
 
-export default history;
+export default library;
