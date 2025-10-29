@@ -1,12 +1,12 @@
 import React from "react";
 import { Text, View } from "react-native";
 
-const history = () => {
+const profile = () => {
   return (
     <View>
-      <Text>history</Text>
+      <Text>profile</Text>
     </View>
   );
 };
 
-export default history;
+export default profile;

@@ -1,0 +1,102 @@
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Link } from "expo-router";
+import React from "react";
+import { Controller, useForm } from "react-hook-form";
+import {
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Text,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+
+import Button from "@/components/ui/Button";
+import SimpleInput from "@/components/ui/input/SimpleInput";
+import { LoginFormValues, loginSchema } from "@/lib/authSchema";
+
+const Register = () => {
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginFormValues>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { email: "", password: "" },
+  });
+
+  const onSubmit = (data: LoginFormValues) => {
+    console.log(data);
+  };
+
+  const formFields = [
+    {
+      id: "email",
+      type: "emailAddress",
+      label: "Email",
+      placeholder: "email@example.com",
+    },
+    {
+      id: "password",
+      type: "password",
+      label: "Password",
+      placeholder: "Password",
+    },
+  ];
+
+  return (
+    <SafeAreaView className="flex-1 bg-background">
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        className="flex-1"
+      >
+        <ScrollView
+          className="flex-1"
+          contentContainerStyle={{
+            flexGrow: 1,
+            justifyContent: "space-between",
+            padding: 16,
+          }}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View className="w-full p-4 flex items-center gap-10 justify-center ">
+            <Text className="text-3xl font-bold text-secondary text-center ">
+              Załóż konto i odkryj pełne możliwości aplikacji
+            </Text>
+
+            <View className="w-full flex flex-col gap-2">
+              {formFields.map((item) => (
+                <Controller
+                  key={item.id}
+                  control={control}
+                  name={item.id as keyof LoginFormValues}
+                  render={({ field: { onChange, value } }) => (
+                    <SimpleInput
+                      label={item.label}
+                      placeholder={item.placeholder}
+                      value={value}
+                      onChangeText={onChange}
+                      type={item.type}
+                      error={errors[item.id as keyof LoginFormValues]?.message}
+                    />
+                  )}
+                />
+              ))}
+            </View>
+
+            <Button title="Załóż konto" onPress={handleSubmit(onSubmit)} />
+          </View>
+
+          <Text className="mt-10 text-xl text-textPrimary text-center">
+            Masz już konto?{" "}
+            <Link href="/login" className="text-secondary font-bold">
+              Zaloguj się
+            </Link>
+          </Text>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
+  );
+};
+
+export default Register;

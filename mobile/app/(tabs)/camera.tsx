@@ -1,12 +1,12 @@
-import React from 'react'
-import { Text, View } from 'react-native'
+import React from "react";
+import { Text, View } from "react-native";
 
 const camera = () => {
-    return (
-        <View>
-            <Text>camera</Text>
-        </View>
-    )
-}
+  return (
+    <View>
+      <Text>camera</Text>
+    </View>
+  );
+};
 
-export default camera
+export default camera;

@@ -3,13 +3,7 @@
 @tailwind utilities;
 
 @layer components {
-    .main-button {
-        @apply w-2/3 text-center mt-5 px-4 py-4 bg-secondary rounded-full border-2 border-secondary;
-    }
-    .main-button-text {
-        @apply text-xl  text-background font-medium text-center;
-    }
-    .form-input {
-        @apply w-full py-4 rounded-lg;
-    }
+  .form-input {
+    @apply w-full py-4 rounded-lg;
+  }
 }
