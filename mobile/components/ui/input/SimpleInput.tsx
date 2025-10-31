@@ -75,10 +75,7 @@ const SimpleInput = ({
         style={{ borderColor: error ? "#dc2626" : "#d1d5db" }}
       />
       {type === "password" && (
-        <InputIcon
-          showPassword={showPassword}
-          onPress={handleShowPassword}
-        />
+        <InputIcon showPassword={showPassword} onPress={handleShowPassword} />
       )}
 
       <View className="h-5 ">
