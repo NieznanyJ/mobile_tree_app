@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link } from "expo-router";
-import React from "react";
+import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
   KeyboardAvoidingView,
@@ -16,6 +16,8 @@ import SimpleInput from "@/components/ui/input/SimpleInput";
 import { LoginFormValues, loginSchema } from "@/lib/authSchema";
 
 const Login = () => {
+  const [isLoading, setIsLoading] = useState(false);
+
   const {
     control,
     handleSubmit,
@@ -26,7 +28,15 @@ const Login = () => {
   });
 
   const onSubmit = (data: LoginFormValues) => {
-    console.log(data);
+    setIsLoading(true);
+    try {
+      // Registration logic here
+      console.log(data);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const formFields = [
@@ -84,7 +94,11 @@ const Login = () => {
               ))}
             </View>
 
-            <Button title="Zaloguj się" onPress={handleSubmit(onSubmit)} />
+            <Button
+              title="Zaloguj się"
+              onPress={handleSubmit(onSubmit)}
+              isLoading={isLoading}
+            />
           </View>
 
           <Text className="mt-10 text-xl text-textPrimary text-center">
