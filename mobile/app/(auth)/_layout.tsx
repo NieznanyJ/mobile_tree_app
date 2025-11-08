@@ -1,6 +1,7 @@
-import { AntDesign } from "@expo/vector-icons";
 import { Stack, useRouter } from "expo-router";
-import { Pressable } from "react-native";
+import { View } from "react-native";
+
+import GoBackButton from "@/components/ui/GoBackButton";
 
 const AuthLayout = () => {
   const router = useRouter();
@@ -15,14 +16,9 @@ const AuthLayout = () => {
           backgroundColor: "#FFFFFF",
         },
         headerLeft: () => (
-          <Pressable onPress={() => router.push("/")}>
-            <AntDesign
-              style={{ marginLeft: 15 }}
-              name="arrow-left"
-              size={28}
-              color="black"
-            />
-          </Pressable>
+          <View style={{ marginLeft: 10 }}>
+            <GoBackButton onPress={() => router.back()} />
+          </View>
         ),
       }}
     >
