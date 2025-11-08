@@ -31,6 +31,8 @@ export default function RootLayout() {
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="(auth)" options={{ headerShown: false }} />
         <Stack.Screen name="profile" options={{ headerShown: false }} />
+        <Stack.Screen name="all-photos" options={{ headerShown: false }} />
+        <Stack.Screen name="all-albums" options={{ headerShown: false }} />
       </Stack>
     </SafeAreaProvider>
   );

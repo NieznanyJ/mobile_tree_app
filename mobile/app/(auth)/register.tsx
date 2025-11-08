@@ -13,7 +13,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import Button from "@/components/ui/Button";
 import SimpleInput from "@/components/ui/input/SimpleInput";
-import { LoginFormValues, loginSchema } from "@/lib/authSchema";
+import { RegisterFormValues, registerSchema } from "@/lib/schemas/authSchema";
 
 const Register = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -22,12 +22,12 @@ const Register = () => {
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: { email: "", password: "" },
+  } = useForm<RegisterFormValues>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: { username: "", email: "", password: "", confirmPassword: "" },
   });
 
-  const onSubmit = (data: LoginFormValues) => {
+  const onSubmit = (data: RegisterFormValues) => {
     setIsLoading(true);
     try {
       // Registration logic here
@@ -41,6 +41,12 @@ const Register = () => {
 
   const formFields = [
     {
+      id: "username",
+      type: "text",
+      label: "Nazwa użytkownika",
+      placeholder: "Nazwa użytkownika",
+    },
+    {
       id: "email",
       type: "emailAddress",
       label: "Email",
@@ -49,8 +55,14 @@ const Register = () => {
     {
       id: "password",
       type: "password",
-      label: "Password",
-      placeholder: "Password",
+      label: "Hasło",
+      placeholder: "Hasło",
+    },
+    {
+      id: "confirmPassword",
+      type: "password",
+      label: "Potwierdź hasło",
+      placeholder: "Potwierdź hasło",
     },
   ];
 
@@ -58,10 +70,10 @@ const Register = () => {
     <SafeAreaView className="flex-1 bg-background">
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        className="flex-1"
+
       >
         <ScrollView
-          className="flex-1"
+
           contentContainerStyle={{
             flexGrow: 1,
             justifyContent: "space-between",
@@ -79,7 +91,7 @@ const Register = () => {
                 <Controller
                   key={item.id}
                   control={control}
-                  name={item.id as keyof LoginFormValues}
+                  name={item.id as keyof RegisterFormValues}
                   render={({ field: { onChange, value } }) => (
                     <SimpleInput
                       label={item.label}
@@ -87,29 +99,31 @@ const Register = () => {
                       value={value}
                       onChangeText={onChange}
                       type={item.type}
-                      error={errors[item.id as keyof LoginFormValues]?.message}
+                      error={errors[item.id as keyof RegisterFormValues]?.message}
                     />
                   )}
                 />
               ))}
             </View>
 
-            <Button
-              title="Załóż konto"
-              onPress={handleSubmit(onSubmit)}
-              isLoading={isLoading}
-            />
+            <View className="w-full flex-col items-center justify-between gap-8">
+              <Button
+                title="Załóż konto"
+                onPress={handleSubmit(onSubmit)}
+                isLoading={isLoading}
+              />
+              <Text className=" text-xl text-textPrimary text-center">
+                Masz już konto?{" "}
+                <Link href="/login" className="text-secondary font-bold">
+                  Zaloguj się
+                </Link>
+              </Text>
+            </View>
           </View>
 
-          <Text className="mt-10 text-xl text-textPrimary text-center">
-            Masz już konto?{" "}
-            <Link href="/login" className="text-secondary font-bold">
-              Zaloguj się
-            </Link>
-          </Text>
         </ScrollView>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+      </KeyboardAvoidingView >
+    </SafeAreaView >
   );
 };
 

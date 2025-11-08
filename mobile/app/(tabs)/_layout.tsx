@@ -4,8 +4,10 @@ import Octicons from "@expo/vector-icons/Octicons";
 import { Tabs, useRouter } from "expo-router";
 import React from "react";
 import { Pressable, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const online = false;
+const username = "Użytkownik";
 
 const CustomIcon = ({
   focused,
@@ -51,15 +53,17 @@ const TabLayout = () => {
           backgroundColor: "#FFFFFF",
           shadowColor: "transparent",
         },
-        headerRight: () => (
-          <Pressable onPress={() => router.push("/profile")}>
-            <Ionicons
-              name="settings-outline"
-              size={28}
-              color="#030712"
-              style={{ marginRight: 15 }}
-            />
-          </Pressable>
+        header: () => (
+          <SafeAreaView className="w-full px-4 pt-8 flex-row items-center justify-between">
+            <Text className="text-xl font-semibold text-textPrimary">Witaj z powrotem, {username}!</Text>
+            <Pressable onPress={() => router.push("/profile")}>
+              <Ionicons
+                name="settings-outline"
+                size={28}
+                color="#030712"
+              />
+            </Pressable>
+          </SafeAreaView>
         ),
         tabBarStyle: {
           backgroundColor: "#FFFFFF",
@@ -68,7 +72,7 @@ const TabLayout = () => {
           paddingHorizontal: 20,
           marginBottom: 40,
           position: "absolute",
-          bottom: 30,
+          bottom: 0,
           shadowColor: "#000",
           shadowOffset: { width: 0, height: 2 },
           shadowOpacity: 0.25,
@@ -106,6 +110,7 @@ const TabLayout = () => {
       <Tabs.Screen
         name="camera"
         options={{
+          headerShown: false,
           title: "Camera",
           tabBarIcon: ({ focused }) => (
             <CustomIcon

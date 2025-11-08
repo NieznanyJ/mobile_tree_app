@@ -31,11 +31,11 @@ export default function Index() {
         <Button
           title="Kontynuuj jako gość"
           onPress={() => router.push("/(tabs)")}
-        ></Button>
+        />
         <Button
           title="Zaloguj się"
           onPress={() => router.push("/(auth)/login")}
-        ></Button>
+        />
 
         <Text className="mt-10 text-xl text-textPrimary text-center ">
           Nie masz konta?{" "}

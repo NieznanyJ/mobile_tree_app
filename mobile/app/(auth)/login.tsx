@@ -13,7 +13,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import Button from "@/components/ui/Button";
 import SimpleInput from "@/components/ui/input/SimpleInput";
-import { LoginFormValues, loginSchema } from "@/lib/authSchema";
+import { LoginFormValues, loginSchema } from "@/lib/schemas/authSchema";
 
 const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -94,19 +94,21 @@ const Login = () => {
               ))}
             </View>
 
-            <Button
-              title="Zaloguj się"
-              onPress={handleSubmit(onSubmit)}
-              isLoading={isLoading}
-            />
+            <View className="w-full flex-col items-center justify-between gap-8">
+              <Button
+                title="Zaloguj się"
+                onPress={handleSubmit(onSubmit)}
+                isLoading={isLoading}
+              />
+              <Text className="text-xl text-textPrimary text-center">
+                Nie masz konta?{" "}
+                <Link href="/register" className="text-secondary font-bold">
+                  Zarejestruj się
+                </Link>
+              </Text>
+            </View>
           </View>
 
-          <Text className="mt-10 text-xl text-textPrimary text-center">
-            Nie masz konta?{" "}
-            <Link href="/register" className="text-secondary font-bold">
-              Zarejestruj się
-            </Link>
-          </Text>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
