@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --font-primary: "Roboto", sans-serif;
+  --font-secondary: "Poppins", sans-serif;
+  --color-secondary: #00964a;
+}
+
 @layer components {
   .form-input {
     @apply w-full py-4 rounded-lg;

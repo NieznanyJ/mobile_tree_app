@@ -1,0 +1,12 @@
+# Plik ze zmiennymi środowiskowymi
+.env
+
+# Folder wirtualnego środowiska
+.venv/
+
+# Pliki cache Pythona
+__pycache__/
+*.pyc
+
+# Pliki generowane przez IDE (np. PyCharm)
+.idea/

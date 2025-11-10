@@ -1,7 +1,5 @@
-import { zodResolver } from "@hookform/resolvers/zod";
 import { Link } from "expo-router";
-import React, { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import React from "react";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -11,108 +9,48 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import Button from "@/components/ui/Button";
-import SimpleInput from "@/components/ui/input/SimpleInput";
-import { LoginFormValues, loginSchema } from "@/lib/schemas/authSchema";
+import AuthForm from "@/components/forms/auth/AuthForm";
+import { loginFormFields } from "@/constants/formFields";
 
-const Login = () => {
-  const [isLoading, setIsLoading] = useState(false);
-
-  const {
-    control,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: { email: "", password: "" },
-  });
-
-  const onSubmit = (data: LoginFormValues) => {
-    setIsLoading(true);
-    try {
-      // Registration logic here
-      console.log(data);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const formFields = [
-    {
-      id: "email",
-      type: "emailAddress",
-      label: "Email",
-      placeholder: "email@example.com",
-    },
-    {
-      id: "password",
-      type: "password",
-      label: "Password",
-      placeholder: "Password",
-    },
-  ];
+const LoginScreen = () => {
 
   return (
     <SafeAreaView className="flex-1 bg-background">
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        className="flex-1"
       >
         <ScrollView
-          className="flex-1"
           contentContainerStyle={{
             flexGrow: 1,
-            justifyContent: "space-between",
+            justifyContent: "center",
             padding: 16,
           }}
           keyboardShouldPersistTaps="handled"
         >
-          <View className="w-full p-4 flex items-center gap-10 justify-center">
+          <View className="w-full p-4 flex items-center gap-10 justify-center ">
             <Text className="text-3xl font-bold text-secondary text-center ">
-              Zaloguj się na swoje konto
+              Witaj ponownie!
             </Text>
 
-            <View className="w-full flex flex-col gap-2">
-              {formFields.map((item) => (
-                <Controller
-                  key={item.id}
-                  control={control}
-                  name={item.id as keyof LoginFormValues}
-                  render={({ field: { onChange, value } }) => (
-                    <SimpleInput
-                      label={item.label}
-                      placeholder={item.placeholder}
-                      value={value}
-                      onChangeText={onChange}
-                      type={item.type}
-                      error={errors[item.id as keyof LoginFormValues]?.message}
-                    />
-                  )}
-                />
-              ))}
-            </View>
+            {/* Używamy naszego nowego, reużywalnego komponentu */}
 
-            <View className="w-full flex-col items-center justify-between gap-8">
-              <Button
-                title="Zaloguj się"
-                onPress={handleSubmit(onSubmit)}
-                isLoading={isLoading}
-              />
-              <Text className="text-xl text-textPrimary text-center">
+            <AuthForm formType="login" formFields={loginFormFields}>
+
+              <Text className=" text-xl text-textPrimary text-center">
                 Nie masz konta?{" "}
                 <Link href="/register" className="text-secondary font-bold">
                   Zarejestruj się
                 </Link>
               </Text>
-            </View>
-          </View>
+            </AuthForm>
 
+
+
+          </View>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
 
-export default Login;
+export default LoginScreen;

@@ -8,7 +8,7 @@ export default function Index() {
 
 
   return (
-    <SafeAreaView className='flex-1'>
+    <SafeAreaView className='flex-1 bg-background'>
       <ScrollView contentContainerStyle={{ flexGrow: 1, padding: 8, paddingTop: 0 }}>
 
         <MediaBrowser />

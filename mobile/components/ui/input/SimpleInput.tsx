@@ -6,6 +6,7 @@ export interface InputProps {
   placeholder: string;
   value: string;
   onChangeText: (text: string) => void;
+  editable?: boolean;
   type?: string;
   label?: string;
   error?: string;
@@ -42,6 +43,7 @@ const SimpleInput = ({
   type = "default",
   error,
   setError,
+  editable = true,
 }: InputProps) => {
   const onChange = (value: string) => {
     onChangeText(value);
@@ -66,10 +68,12 @@ const SimpleInput = ({
     <View className="w-full flex flex-col gap-3">
       {label && <Text className="text-gray-600 ">{label}</Text>}
       <TextInput
+        editable={editable ? true : false}
         keyboardType={keyboardType}
         secureTextEntry={secureTextEntry}
         className={`form-input border-b-2 text-xl  ${className}`}
         placeholder={placeholder}
+        placeholderTextColor={'#9ca3af'}
         value={value}
         onChangeText={onChange}
         style={{ borderColor: error ? "#dc2626" : "#d1d5db" }}

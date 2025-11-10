@@ -1,21 +1,18 @@
 
 import * as MediaLibrary from 'expo-media-library';
-import React, { useState } from 'react';
+import React from 'react';
 import {
     Button,
     Dimensions,
-    FlatList,
     Image,
     Modal,
     StyleSheet,
-    Text,
-    TouchableOpacity,
     View,
 } from 'react-native';
-
-import GoBackButton from '../ui/GoBackButton';
+import { useRouter } from 'expo-router';
 import { useAssetsStore } from '@/lib/store/assetsStore';
-import { set } from 'react-hook-form';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
 
 interface AssetModalProps {
     visible: boolean;
@@ -32,6 +29,7 @@ export default function AssetModal({
 }: AssetModalProps) {
 
     const { image, setImage } = useAssetsStore();
+    const router = useRouter();
 
     const handleClose = () => {
         onClose();
@@ -40,6 +38,7 @@ export default function AssetModal({
     const handlePhotoSelect = (asset: MediaLibrary.Asset | null) => {
         setImage(asset);
         console.log("Selected photo in ImageModal:", image?.filename);
+        router.push('/predict');
         handleClose();
     };
 
@@ -47,15 +46,17 @@ export default function AssetModal({
 
     return (
         <Modal visible={visible} animationType="slide" onRequestClose={handleClose}>
-            <View style={styles.container}>
-                <Button title="Wróć do siatki" onPress={() => handlePhotoSelect(null)} />
-                <Image
-                    source={{ uri: selectedPhoto?.uri }}
-                    style={styles.fullScreenImage}
-                    resizeMode="contain"
-                />
-                <Button title="Użyj tego zdjęcia" onPress={() => handlePhotoSelect(selectedPhoto!)} />
-            </View>
+            <SafeAreaView className='flex-1'>
+                <View style={styles.container}>
+                    <Button title="Wróć do siatki" onPress={() => handleClose()} />
+                    <Image
+                        source={{ uri: selectedPhoto?.uri }}
+                        style={styles.fullScreenImage}
+                        resizeMode="cover"
+                    />
+                    <Button title="Użyj tego zdjęcia" onPress={() => handlePhotoSelect(selectedPhoto!)} />
+                </View>
+            </SafeAreaView>
         </Modal>
     );
 }
@@ -66,6 +67,8 @@ const styles = StyleSheet.create({
         padding: 16,
         paddingTop: 50,
         backgroundColor: '#fff',
+        display: 'flex',
+        justifyContent: 'space-between',
     },
     title: {
         fontSize: 24,
@@ -82,6 +85,7 @@ const styles = StyleSheet.create({
         flex: 1,
         width: '100%',
         height: '100%',
+        maxHeight: 300,
         marginVertical: 10,
         borderRadius: 10,
     },
