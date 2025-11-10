@@ -1,29 +1,25 @@
-import { Stack, useRouter } from "expo-router";
-import { View } from "react-native";
-
-import GoBackButton from "@/components/ui/GoBackButton";
+import { Stack } from "expo-router";
+import React from "react";
 
 const AuthLayout = () => {
-  const router = useRouter();
-
   return (
-    <Stack
-      screenOptions={{
-        headerShown: true,
-        headerTitle: "",
-        headerShadowVisible: false,
-        headerStyle: {
-          backgroundColor: "#FFFFFF",
-        },
-        headerLeft: () => (
-          <View style={{ marginLeft: 10 }}>
-            <GoBackButton onPress={() => router.back()} />
-          </View>
-        ),
-      }}
-    >
-      <Stack.Screen name="login" />
-      <Stack.Screen name="register" />
+    <Stack>
+      <Stack.Screen
+        name="login"
+        options={{
+          headerTitle: "",
+          headerShadowVisible: false,
+          headerShown: true, // Upewniamy się, że nagłówek jest widoczny
+        }}
+      />
+      <Stack.Screen
+        name="register"
+        options={{
+          headerTitle: "",
+          headerShadowVisible: false,
+          headerShown: true,
+        }}
+      />
     </Stack>
   );
 };

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Children } from "react";
 import {
   ActivityIndicator,
   Text,
@@ -11,6 +11,7 @@ interface ButtonProps extends TouchableOpacityProps {
   className?: string;
   textClassName?: string;
   isLoading?: boolean;
+  children?: React.ReactNode;
 }
 
 const Button = ({
@@ -19,9 +20,11 @@ const Button = ({
   className,
   textClassName,
   isLoading,
+  children,
   ...props
 }: ButtonProps) => {
   const renderContent = (isLoading: boolean = false) => {
+
     if (isLoading) {
       return <ActivityIndicator size="small" color="#fff" />;
     }
@@ -44,6 +47,7 @@ const Button = ({
       {...props}
     >
       {renderContent(isLoading)}
+      {children}
     </TouchableOpacity>
   );
 };

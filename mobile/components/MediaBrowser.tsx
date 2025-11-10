@@ -9,8 +9,12 @@ import ImageModal from '@/components/modals/ImageModal';
 import RecentPhotosRow from '@/components/RecentPhotosRow';
 import { useMediaLibrary } from '@/lib/hooks/useMediaLibrary';
 import { useAssetsStore } from '@/lib/store/assetsStore';
+import { useSettingsStore } from '@/lib/store/settingsStore';
+import { router } from 'expo-router';
 
 const MediaBrowser = () => {
+
+  const { albumsPerPage } = useSettingsStore();
 
   const { albums, assets, getAssets, getAlbums } = useMediaLibrary();
   const { album, setAlbum } = useAssetsStore();
@@ -22,7 +26,11 @@ const MediaBrowser = () => {
   const handleAlbumSelected = (album: MediaLibrary.Album) => {
     setAlbum(album);
     getAssets(album);
-    setAssetsModalVisible(true);
+    // setAssetsModalVisible(true);
+    router.push({
+      pathname: '/(media-browser)/[albumId]',
+      params: { albumId: album.id }
+    });
   };
 
   const handlePhotoSelected = (asset: MediaLibrary.Asset) => {
@@ -30,18 +38,18 @@ const MediaBrowser = () => {
   };
 
   return (
-    <View className='flex flex-col  gap-10'>
+    <View className='flex flex-col gap-10 '>
       <RecentPhotosRow onPhotoSelected={handlePhotoSelected} />
 
-      <AlbumGrid albums={albums} onAlbumSelected={handleAlbumSelected} onRefresh={getAlbums} albumsPerPage={4} />
+      <AlbumGrid albums={albums} onAlbumSelected={handleAlbumSelected} onRefresh={getAlbums} albumsPerPage={albumsPerPage} />
 
-      <AssetModal
+      {/* <AssetModal
         visible={isAssetsModalVisible}
         album={album}
         assets={assets}
         onClose={() => setAssetsModalVisible(false)}
         onPhotoSelected={handlePhotoSelected}
-      />
+      /> */}
 
       <ImageModal
         visible={!!selectedImage}

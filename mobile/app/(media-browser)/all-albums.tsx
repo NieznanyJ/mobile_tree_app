@@ -1,23 +1,22 @@
 
 import * as MediaLibrary from 'expo-media-library';
-import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, Image, ScrollView, Text, TouchableOpacity, View } from 'react-native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { ScrollView, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import AlbumGrid from '@/components/AlbumGrid';
 import AssetModal from '@/components/modals/AssetModal';
-import GoBackButton from '@/components/ui/GoBackButton';
+import SearchInput from '@/components/ui/input/SearchInput';
 import { useMediaLibrary } from '@/lib/hooks/useMediaLibrary';
 
 export default function AllAlbumsScreen() {
   const [selectedImage, setSelectedImage] = useState<MediaLibrary.Asset | null>(null);
-  const router = useRouter();
   const [loading, setLoading] = useState(true);
 
   // State for controlling the modal
   const [selectedAlbum, setSelectedAlbum] = useState<MediaLibrary.Album | null>(null);
   const [isModalVisible, setModalVisible] = useState(false);
+  const [searchText, setSearchText] = useState('');
 
   // Single source of truth hook
   const { albums, assets, getAssets, getAlbums } = useMediaLibrary();
@@ -45,25 +44,29 @@ export default function AllAlbumsScreen() {
   }, []);
 
 
+  const filteredAlbums = albums.filter(album =>
+    album.title.toLowerCase().includes(searchText.toLowerCase())
+  );
+
+
 
   return (
-    <SafeAreaView className='flex-1 p-4 bg-background'>
+    <SafeAreaView className='flex-1  p-4 bg-background'>
       <ScrollView>
-        <View className="flex-row items-center justify-between px-4 py-2">
-          <GoBackButton onPress={() => router.back()} />
-          <Text className="text-xl font-bold">Wszystkie foldery</Text>
-          <View style={{ width: 40 }} />
+        <View className='flex flex-col gap-4'>
+
+          <SearchInput value={searchText} onChangeText={setSearchText} placeholder='Szukaj' handleReset={() => setSearchText('')} />
+          <AlbumGrid albums={filteredAlbums} onAlbumSelected={handleAlbumSelected} onRefresh={getAlbums} albumsPerPage={'all'} headerShown={false} />
+
         </View>
-        <AlbumGrid albums={albums} onAlbumSelected={handleAlbumSelected} onRefresh={getAlbums} albumsPerPage={'all'} headerShown={false} />
 
-
-        <AssetModal
+        {/* <AssetModal
           visible={isModalVisible}
           album={selectedAlbum}
           assets={assets}
           onClose={() => setModalVisible(false)}
           onPhotoSelected={handlePhotoSelected}
-        />
+        /> */}
       </ScrollView>
     </SafeAreaView>
   );

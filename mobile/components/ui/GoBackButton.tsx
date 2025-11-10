@@ -6,9 +6,9 @@ const GoBackButton = ({ onPress }: { onPress: () => void }) => {
     return (
         <Pressable onPress={onPress}>
             <AntDesign
-
+                style={{ fontWeight: 'bold' }}
                 name="arrow-left"
-                size={28}
+                size={18}
                 color="black"
             />
         </Pressable>

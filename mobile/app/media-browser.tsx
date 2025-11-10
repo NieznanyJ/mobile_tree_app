@@ -1,4 +1,5 @@
 
+import { MaterialIcons } from '@expo/vector-icons';
 import * as MediaLibrary from 'expo-media-library';
 import React, { useEffect, useState } from 'react';
 import {
@@ -113,7 +114,10 @@ export default function MediaBrowser() {
           )}
         />
       ) : (
-        <Text>Nie znaleziono albumów lub nie udzielono dostępu.</Text>
+        <View className='flex flex-col items-center justify-center gap-2'>
+          <MaterialIcons name="folder-off" size={24} color="black" />
+          <Text>Nie znaleziono albumów lub nie udzielono dostępu.</Text>
+        </View>
       )}
       <Button title="Odśwież" onPress={getAlbums} />
     </View>

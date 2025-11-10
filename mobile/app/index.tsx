@@ -4,9 +4,13 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import Button from "@/components/ui/Button";
 import { IMAGES } from "@/constants/images";
+import { useAuth } from "@/lib/context/AuthContext";
 
 export default function Index() {
   const router = useRouter();
+  const { enterAsGuest } = useAuth(); // Pobieramy funkcję z naszego kontekstu
+
+
 
   return (
     <SafeAreaView className="flex-1 flex-col justify-between items-center bg-background ">
@@ -30,7 +34,7 @@ export default function Index() {
       <View className=" flex-col justify-center items-center gap-4  w-full  ">
         <Button
           title="Kontynuuj jako gość"
-          onPress={() => router.push("/(tabs)")}
+          onPress={enterAsGuest} // Poprawiona logika - wywołujemy funkcję z kontekstu
         />
         <Button
           title="Zaloguj się"

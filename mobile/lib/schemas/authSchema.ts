@@ -1,29 +1,34 @@
 import { z } from "zod";
 
-// Schemat dla logowania
-export const loginSchema = z.object({
-  email: z
-    .string()
-    .min(1, "Email jest wymagany")
-    .email("Niepoprawny format emaila"),
-  password: z.string().min(6, "Hasło musi mieć co najmniej 6 znaków"),
-});
+const requiredError = "To pole jest wymagane";
 
-// Schemat dla rejestracji
 export const registerSchema = z
   .object({
-    username: z.string().min(1, "Nazwa użytkownika jest wymagana"),
+    username: z
+      .string()
+      .trim()
+      .min(1, requiredError)
+      .min(3, "Nazwa użytkownika musi mieć co najmniej 3 znaki"),
     email: z
       .string()
-      .min(1, "Email jest wymagany")
-      .email("Niepoprawny format emaila"),
-    password: z.string().min(6, "Hasło musi mieć co najmniej 6 znaków"),
-    confirmPassword: z.string().min(6, "Potwierdzenie hasła jest wymagane"),
+      .trim()
+      .min(1, requiredError)
+      .email("Nieprawidłowy adres email"),
+    password: z
+      .string()
+      .min(1, requiredError)
+      .min(8, "Hasło musi mieć co najmniej 8 znaków"),
+    confirmPassword: z.string().min(1, requiredError),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Hasła nie są takie same",
+    message: "Hasła nie są identyczne",
     path: ["confirmPassword"],
   });
 
-export type LoginFormValues = z.infer<typeof loginSchema>;
+export const loginSchema = z.object({
+  username: z.string().trim().min(1, requiredError),
+  password: z.string().min(1, requiredError),
+});
+
 export type RegisterFormValues = z.infer<typeof registerSchema>;
+export type LoginFormValues = z.infer<typeof loginSchema>;

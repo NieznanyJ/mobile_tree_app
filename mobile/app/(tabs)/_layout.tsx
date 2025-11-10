@@ -1,84 +1,63 @@
-import Feather from "@expo/vector-icons/Feather";
+import { FontAwesome5 } from "@expo/vector-icons";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import Octicons from "@expo/vector-icons/Octicons";
 import { Tabs, useRouter } from "expo-router";
 import React from "react";
-import { Pressable, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-const online = false;
-const username = "Użytkownik";
+import CustomIcon from "@/components/ui/icons/CustomIcon";
+import { useAuth } from "@/lib/context/AuthContext";
 
-const CustomIcon = ({
-  focused,
-  title,
-  icon,
-}: {
-  focused: boolean;
-  title: string;
-  icon: React.ReactNode;
-}) => {
-  if (focused) {
-    return (
-      <View
-        className={`min-h-[56px] w-full flex flex-row rounded-full mt-9 flex-1 items-center justify-center overflow-hidden gap-2 ${focused ? "bg-secondary" : "bg-transparent"} ${online ? "min-w-[100px]" : "min-w-[116px]"}`}
-      >
-        {icon}
-        <Text
-          className={`text-lg font-medium ${focused ? "text-white" : "text-gray-300"}`}
-        >
-          {title}
-        </Text>
-      </View>
-    );
-  }
+
+
+const ICON_SIZE = 24;
+
+const Header = ({ isGuest, username, onPress, icon }: { isGuest: boolean, username: string, onPress: () => void, icon: React.ReactNode }) => {
   return (
-    <View className="min-h-14 w-full flex flex-row  rounded-full mt-9 flex-1 items-center justify-center overflow-hidden gap-2 ">
-      {icon}
-    </View>
-  );
-};
+    <SafeAreaView className="w-full p-2 pt-8  flex-row items-center justify-end bg-background">
+      {/* <Text className="text-xl font-semibold text-textPrimary">
+        {isGuest ? "Witaj!" : `Cześć, ${username}!`}
+      </Text> */}
+      <Pressable onPress={() => onPress()}>
+        {icon}
+      </Pressable>
+    </SafeAreaView>
+  )
+}
+  ;
 
 const TabLayout = () => {
   const router = useRouter();
-  const iconSize = 20;
+  const { user, isGuest } = useAuth();
+
+
+
+
+  // Dynamicznie ustalamy nazwę użytkownika i status 'online'
+  const username = user?.username || "Gościu";
+  const isOnline = !!user; // 'online' oznacza zalogowanego użytkownika (nie gościa)
 
   return (
     <Tabs
       screenOptions={{
+        animation: 'shift',
+        header: () => (
+          <Header isGuest={isGuest} username={username} onPress={() => router.push("/settings")} icon={<Ionicons name="settings-outline" size={28} color="#030712" />} />
+        ),
         headerShown: true,
-        tabBarShowLabel: false,
         headerTitle: "",
         headerStyle: {
           backgroundColor: "#FFFFFF",
           shadowColor: "transparent",
         },
-        header: () => (
-          <SafeAreaView className="w-full px-4 pt-8 flex-row items-center justify-between">
-            <Text className="text-xl font-semibold text-textPrimary">Witaj z powrotem, {username}!</Text>
-            <Pressable onPress={() => router.push("/profile")}>
-              <Ionicons
-                name="settings-outline"
-                size={28}
-                color="#030712"
-              />
-            </Pressable>
-          </SafeAreaView>
-        ),
+        tabBarShowLabel: false,
         tabBarStyle: {
-          backgroundColor: "#FFFFFF",
-          borderRadius: 50,
-          marginHorizontal: 16,
-          paddingHorizontal: 20,
-          marginBottom: 40,
-          position: "absolute",
-          bottom: 0,
-          shadowColor: "#000",
-          shadowOffset: { width: 0, height: 2 },
-          shadowOpacity: 0.25,
-          shadowRadius: 3.84,
-          elevation: 1,
-          height: 70,
+          paddingHorizontal: 10,
+          paddingBottom: 20,
+          height: 84,
+          // backgroundColor: 'red',
+          boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.1)",
         },
         tabBarItemStyle: {
           width: "100%",
@@ -94,13 +73,14 @@ const TabLayout = () => {
           title: "Index",
           tabBarIcon: ({ focused }) => (
             <CustomIcon
+              isOnline={isOnline}
               focused={focused}
               title="Start"
               icon={
-                <Feather
-                  name="home"
-                  size={iconSize}
-                  color={focused ? "#FFFFFF" : "#737373"}
+                <Octicons
+                  name={focused ? "home-fill" : "home"}
+                  size={ICON_SIZE}
+                  color={focused ? styles.iconColorFocused.color : styles.iconColor.color}
                 />
               }
             />
@@ -113,33 +93,43 @@ const TabLayout = () => {
           headerShown: false,
           title: "Camera",
           tabBarIcon: ({ focused }) => (
-            <CustomIcon
-              focused={focused}
-              title="Aparat"
-              icon={
-                <Feather
-                  name="camera"
-                  size={iconSize}
-                  color={focused ? "#FFFFFF" : "#737373"}
-                />
-              }
-            />
+
+            <View
+              className={`size-[70px] rounded-full flex items-center justify-center border border-gray-200 ${focused ? "bg-secondary" : "bg-background"}`}
+
+            >
+              <Ionicons
+                name={focused ? "camera" : "camera-outline"}
+                size={32}
+                color={focused ? '#fff' : styles.iconColor.color}
+              />
+            </View>
+
           ),
         }}
       />
       <Tabs.Screen
         name="history"
         options={{
+          href: null,
           title: "History",
+        }}
+      />
+      <Tabs.Screen
+        name="library"
+        options={{
+          href: null,
+          title: "Library",
           tabBarIcon: ({ focused }) => (
             <CustomIcon
+              isOnline={isOnline}
               focused={focused}
-              title="Historia"
+              title="Atlas"
               icon={
-                <Octicons
-                  name="history"
-                  size={iconSize}
-                  color={focused ? "#FFFFFF" : "#737373"}
+                <Ionicons
+                  name="library-outline"
+                  size={ICON_SIZE}
+                  color={focused ? styles.iconColorFocused.color : styles.iconColor.color}
                 />
               }
             />
@@ -147,19 +137,20 @@ const TabLayout = () => {
         }}
       />
       <Tabs.Screen
-        name="library"
+        name="profile"
         options={{
-          href: online ? { pathname: "/(tabs)/library" } : null,
-          title: "Library",
+          href: "/(tabs)/profile",
+          title: "Profile",
           tabBarIcon: ({ focused }) => (
             <CustomIcon
+              isOnline={isOnline}
               focused={focused}
-              title="Atlas"
+              title="Profil"
               icon={
-                <Ionicons
-                  name="library-outline"
-                  size={iconSize}
-                  color={focused ? "#FFFFFF" : "#737373"}
+                <FontAwesome5
+                  name={focused ? "user-alt" : "user"}
+                  size={ICON_SIZE}
+                  color={focused ? styles.iconColorFocused.color : styles.iconColor.color}
                 />
               }
             />
@@ -171,3 +162,8 @@ const TabLayout = () => {
 };
 
 export default TabLayout;
+
+const styles = StyleSheet.create({
+  iconColorFocused: { color: "#00964a" },
+  iconColor: { color: "#737373" },
+});
