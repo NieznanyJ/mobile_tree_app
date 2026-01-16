@@ -11,13 +11,12 @@ const ProfileScreen = () => {
   const { token, isGuest, logout } = useAuth();
   const [isModalVisible, setModalVisible] = useState(false);
 
-  // TODO: add theme change later 
+  // TODO: add theme change later
   // const { theme, toggleTheme } = useTheme();
 
-
   useEffect(() => {
-    if (token) setModalVisible(false)
-  }, [token])
+    if (token) setModalVisible(false);
+  }, [token]);
 
   return (
     <SafeAreaView className="flex-1 bg-background p-4 ">
@@ -26,14 +25,9 @@ const ProfileScreen = () => {
           {token ? "Jesteś zalogowany" : "Jesteś w trybie gościa"}
         </Text>
 
-
         <View className="w-full items-center">
           {token ? (
-            <Button
-              title="Wyloguj"
-              onPress={logout}
-              className="w-full"
-            />
+            <Button title="Wyloguj" onPress={logout} className="w-full" />
           ) : isGuest ? (
             <Button
               title="Zaloguj się"
@@ -42,7 +36,6 @@ const ProfileScreen = () => {
             />
           ) : null}
         </View>
-
       </View>
       {/* --- LOGIN MODAL --- */}
       <Modal
@@ -51,9 +44,6 @@ const ProfileScreen = () => {
         visible={isModalVisible}
         onRequestClose={() => setModalVisible(false)}
       >
-
-
-
         <View className="flex-1 justify-center items-center bg-black/50">
           <View className="w-11/12 bg-white p-6 rounded-lg shadow-lg">
             <Text className="text-2xl font-bold text-secondary text-center mb-6">
@@ -67,7 +57,6 @@ const ProfileScreen = () => {
                 <Text className="text-center text-gray-500">Anuluj</Text>
               </Pressable>
             </AuthForm>
-
           </View>
         </View>
       </Modal>

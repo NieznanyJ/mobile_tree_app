@@ -11,11 +11,11 @@ module.exports = {
         accent: "#05DF72",
         background: {
           DEFAULT: "#FFFFFF", // Light mode background
-          dark: "#030712",    // Dark mode background
+          dark: "#030712", // Dark mode background
         },
         textPrimary: {
           DEFAULT: "#030712", // Light mode text
-          dark: "#FFFFFF",    // Dark mode text
+          dark: "#FFFFFF", // Dark mode text
         },
         textGray: "#737373",
       },

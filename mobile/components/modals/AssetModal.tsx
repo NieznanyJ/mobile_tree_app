@@ -1,8 +1,6 @@
-
-import * as MediaLibrary from 'expo-media-library';
-import React, { useState } from 'react';
+import * as MediaLibrary from "expo-media-library";
+import React, { useState } from "react";
 import {
-  Button,
   Dimensions,
   FlatList,
   Image,
@@ -11,12 +9,11 @@ import {
   Text,
   TouchableOpacity,
   View,
-} from 'react-native';
+} from "react-native";
 
-import GoBackButton from '@/components/ui/GoBackButton';
-import { useAssetsStore } from '@/lib/store/assetsStore';
+import GoBackButton from "@/components/ui/GoBackButton";
 
-import ImageModal from './ImageModal';
+import ImageModal from "./ImageModal";
 
 interface AssetModalProps {
   visible: boolean;
@@ -33,16 +30,13 @@ export default function AssetModal({
   onClose,
   onPhotoSelected,
 }: AssetModalProps) {
-  const [selectedImage, setSelectedImage] = useState<MediaLibrary.Asset | null>(null);
+  const [selectedImage, setSelectedImage] = useState<MediaLibrary.Asset | null>(
+    null,
+  );
 
   const handleClose = () => {
     setSelectedImage(null);
     onClose();
-  };
-
-  const handlePhotoSelect = (asset: MediaLibrary.Asset) => {
-    onPhotoSelected(asset);
-    handleClose();
   };
 
   const renderContent = () => {
@@ -60,9 +54,12 @@ export default function AssetModal({
     return (
       <View style={styles.container}>
         <GoBackButton onPress={handleClose} />
-        <View className='flex flex-row items-center justify-between'>
+        <View className="flex flex-row items-center justify-between">
           <Text style={styles.title}>{album?.title}</Text>
-          <Text className='text-sm '>{album?.assetCount} {album?.assetCount === 1 ? "zdjęcie" : "zdjęcia"}</Text>
+          <Text className="text-sm ">
+            {album?.assetCount}{" "}
+            {album?.assetCount === 1 ? "zdjęcie" : "zdjęcia"}
+          </Text>
         </View>
         <FlatList
           key="asset-grid"
@@ -91,23 +88,23 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
     paddingTop: 50,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 16,
   },
   assetTile: {
-    width: Dimensions.get('window').width / 3 - 16,
-    height: Dimensions.get('window').width / 3 - 16,
+    width: Dimensions.get("window").width / 3 - 16,
+    height: Dimensions.get("window").width / 3 - 16,
     margin: 2,
     borderRadius: 5,
   },
   fullScreenImage: {
     flex: 1,
-    width: '100%',
-    height: '100%',
+    width: "100%",
+    height: "100%",
     marginVertical: 10,
     borderRadius: 10,
   },

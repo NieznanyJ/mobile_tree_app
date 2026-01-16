@@ -13,7 +13,6 @@ import AuthForm from "@/components/forms/auth/AuthForm";
 import { loginFormFields } from "@/constants/formFields";
 
 const LoginScreen = () => {
-
   return (
     <SafeAreaView className="flex-1 bg-background">
       <KeyboardAvoidingView
@@ -35,7 +34,6 @@ const LoginScreen = () => {
             {/* Używamy naszego nowego, reużywalnego komponentu */}
 
             <AuthForm formType="login" formFields={loginFormFields}>
-
               <Text className=" text-xl text-textPrimary text-center">
                 Nie masz konta?{" "}
                 <Link href="/register" className="text-secondary font-bold">
@@ -43,9 +41,6 @@ const LoginScreen = () => {
                 </Link>
               </Text>
             </AuthForm>
-
-
-
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

@@ -50,7 +50,6 @@ function RootLayoutNav() {
     const inApp = segments[0] === "(tabs)";
     const isPublic = isPublicRoute(segments[0]);
 
-
     if (token && !inApp) {
       // User logged in but outside main app
       if (!isPublic) {
@@ -83,24 +82,33 @@ function RootLayoutNav() {
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-        <Stack.Screen name="(media-browser)" options={{
-          headerShown: false,
-          headerTitle: "",
-          headerTitleAlign: "center",
-          headerShadowVisible: false,
-        }} />
-        <Stack.Screen name="settings" options={{
-          headerShown: true,
-          headerTitle: "Ustawienia",
-          headerTitleAlign: "center",
-          headerShadowVisible: false,
-        }} />
-        <Stack.Screen name="predict" options={{
-          headerShown: true,
-          headerTitle: "",
-          headerTitleAlign: "center",
-          headerShadowVisible: false,
-        }} />
+        <Stack.Screen
+          name="(media-browser)"
+          options={{
+            headerShown: false,
+            headerTitle: "",
+            headerTitleAlign: "center",
+            headerShadowVisible: false,
+          }}
+        />
+        <Stack.Screen
+          name="settings"
+          options={{
+            headerShown: true,
+            headerTitle: "Ustawienia",
+            headerTitleAlign: "center",
+            headerShadowVisible: false,
+          }}
+        />
+        <Stack.Screen
+          name="predict"
+          options={{
+            headerShown: true,
+            headerTitle: "",
+            headerTitleAlign: "center",
+            headerShadowVisible: false,
+          }}
+        />
       </Stack>
     </SafeAreaProvider>
   );

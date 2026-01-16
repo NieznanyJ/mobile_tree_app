@@ -1,4 +1,4 @@
-import React, { Children } from "react";
+import React from "react";
 import {
   ActivityIndicator,
   Text,
@@ -24,7 +24,6 @@ const Button = ({
   ...props
 }: ButtonProps) => {
   const renderContent = (isLoading: boolean = false) => {
-
     if (isLoading) {
       return <ActivityIndicator size="small" color="#fff" />;
     }

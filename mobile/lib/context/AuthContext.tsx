@@ -22,11 +22,15 @@ export interface ApiError {
 }
 interface AuthContextType {
   login: (
-    data: LoginData
-  ) => Promise<{ success: true; data: any } | { success: false; error: ApiError }>;
+    data: LoginData,
+  ) => Promise<
+    { success: true; data: any } | { success: false; error: ApiError }
+  >;
   register: (
-    data: RegisterData
-  ) => Promise<{ success: true; data: any } | { success: false; error: ApiError }>;
+    data: RegisterData,
+  ) => Promise<
+    { success: true; data: any } | { success: false; error: ApiError }
+  >;
   logout: () => void;
   enterAsGuest: () => void;
   user: User | null;
@@ -36,7 +40,7 @@ interface AuthContextType {
 }
 
 // --- STAŁE ---
-const API_URL = "http://172.28.16.1:8008";
+const API_URL = "http://172.21.16.1:8008";
 const TOKEN_KEY = "user-token";
 
 // --- KONTEKST ---
@@ -70,8 +74,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const register = async (
-    userData: RegisterData
-  ): Promise<{ success: true; data: any } | { success: false; error: ApiError }> => {
+    userData: RegisterData,
+  ): Promise<
+    { success: true; data: any } | { success: false; error: ApiError }
+  > => {
     try {
       const response = await fetch(`${API_URL}/auth/register`, {
         method: "POST",
@@ -97,12 +103,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const login = async (
-    data: LoginData
-  ): Promise<{ success: true; data: any } | { success: false; error: ApiError }> => {
-
+    data: LoginData,
+  ): Promise<
+    { success: true; data: any } | { success: false; error: ApiError }
+  > => {
     try {
       const formBody = `username=${encodeURIComponent(
-        data.username
+        data.username,
       )}&password=${encodeURIComponent(data.password)}`;
       const response = await fetch(`${API_URL}/auth/login`, {
         method: "POST",
@@ -115,7 +122,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const responseData = await response.json();
 
       if (!response.ok) {
-
         // Zwracamy obiekt błędu, zamiast rzucać wyjątkiem
         return {
           success: false,
@@ -125,7 +131,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           },
         };
       }
-
 
       const { access_token } = responseData;
       setToken(access_token);
@@ -138,10 +143,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     } catch (e: any) {
       return {
         success: false,
-        error: { field: "generic", message: e.message || "Wystąpił nieznany błąd" },
+        error: {
+          field: "generic",
+          message: e.message || "Wystąpił nieznany błąd",
+        },
       };
     }
-
   };
 
   const logout = async () => {
