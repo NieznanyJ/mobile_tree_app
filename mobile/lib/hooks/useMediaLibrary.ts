@@ -1,6 +1,5 @@
-
-import * as MediaLibrary from 'expo-media-library';
-import { useState, useEffect } from 'react';
+import * as MediaLibrary from "expo-media-library";
+import { useEffect, useState } from "react";
 
 export function useMediaLibrary() {
   const [permissionResponse, requestPermission] = MediaLibrary.usePermissions();
@@ -8,7 +7,10 @@ export function useMediaLibrary() {
   const [assets, setAssets] = useState<MediaLibrary.Asset[]>([]);
 
   async function getAlbums() {
-    if (permissionResponse?.status !== 'granted' && permissionResponse?.canAskAgain) {
+    if (
+      permissionResponse?.status !== "granted" &&
+      permissionResponse?.canAskAgain
+    ) {
       const permission = await requestPermission();
       if (!permission.granted) {
         // User denied permission, do nothing or show a message
@@ -16,8 +18,10 @@ export function useMediaLibrary() {
       }
     }
     // Check if permission is granted before fetching
-    if (permissionResponse?.status === 'granted') {
-      const fetchedAlbums = await MediaLibrary.getAlbumsAsync({ includeSmartAlbums: true });
+    if (permissionResponse?.status === "granted") {
+      const fetchedAlbums = await MediaLibrary.getAlbumsAsync({
+        includeSmartAlbums: true,
+      });
       setAlbums(fetchedAlbums);
     }
   }
@@ -34,13 +38,16 @@ export function useMediaLibrary() {
   }
 
   async function getRecentAssets(count: number = 10) {
-    if (permissionResponse?.status !== 'granted' && permissionResponse?.canAskAgain) {
+    if (
+      permissionResponse?.status !== "granted" &&
+      permissionResponse?.canAskAgain
+    ) {
       const permission = await requestPermission();
       if (!permission.granted) {
         return [];
       }
     }
-    if (permissionResponse?.status === 'granted') {
+    if (permissionResponse?.status === "granted") {
       const recentAssets = await MediaLibrary.getAssetsAsync({
         first: count,
         sortBy: [MediaLibrary.SortBy.creationTime],

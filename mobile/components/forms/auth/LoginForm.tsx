@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import React, { Children, useState } from "react";
+import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Text, View } from "react-native";
 
@@ -14,7 +14,7 @@ interface LoginFormProps {
 }
 
 const LoginForm = ({ onLoginSuccess, children }: LoginFormProps) => {
-  const { login, isLoading, enterAsGuest } = useAuth();
+  const { login, isLoading } = useAuth();
   // const [isLoading, setIsLoading] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
 
@@ -26,7 +26,6 @@ const LoginForm = ({ onLoginSuccess, children }: LoginFormProps) => {
     resolver: zodResolver(loginSchema),
     defaultValues: { username: "", password: "" },
   });
-
 
   const onSubmit = async (data: LoginFormValues) => {
     setApiError(null);
@@ -80,9 +79,7 @@ const LoginForm = ({ onLoginSuccess, children }: LoginFormProps) => {
         )}
       />
 
-      {apiError && (
-        <Text className="text-red-600 text-center">{apiError}</Text>
-      )}
+      {apiError && <Text className="text-red-600 text-center">{apiError}</Text>}
 
       <Button
         title="Zaloguj się"

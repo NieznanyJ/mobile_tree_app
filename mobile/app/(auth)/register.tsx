@@ -14,8 +14,6 @@ import AuthForm from "@/components/forms/auth/AuthForm";
 import { registerFormFields } from "@/constants/formFields";
 
 const Register = () => {
-
-
   return (
     <SafeAreaView className="flex-1 bg-background">
       <KeyboardAvoidingView
@@ -41,7 +39,7 @@ const Register = () => {
                 Alert.alert(
                   "Rejestracja pomyślna!",
                   "Możesz się teraz zalogować.",
-                  [{ text: "OK", onPress: () => router.push("/login") }]
+                  [{ text: "OK", onPress: () => router.push("/login") }],
                 );
               }}
             >
@@ -52,7 +50,6 @@ const Register = () => {
                 </Link>
               </Text>
             </AuthForm>
-
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

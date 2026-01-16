@@ -1,13 +1,12 @@
+import { MaterialIcons } from "@expo/vector-icons";
+import * as MediaLibrary from "expo-media-library";
+import { Link } from "expo-router";
+import React from "react";
+import { FlatList, Text, View } from "react-native";
 
-import { AntDesign, FontAwesome, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
-import * as MediaLibrary from 'expo-media-library';
-import { Link } from 'expo-router';
-import React from 'react';
-import { Dimensions, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useSettingsStore } from "@/lib/store/settingsStore";
 
-import { useSettingsStore } from '@/lib/store/settingsStore';
-
-import AlbumItem from './ui/AlbumItem';
+import AlbumItem from "./ui/AlbumItem";
 
 interface AlbumGridProps {
   albums: MediaLibrary.Album[];
@@ -17,17 +16,29 @@ interface AlbumGridProps {
   headerShown?: boolean;
 }
 
-export default function AlbumGrid({ albums, onAlbumSelected, onRefresh, albumsPerPage = 4, headerShown = true }: AlbumGridProps) {
-  const displayAlbums = albumsPerPage === 'all' ? albums : albums.slice(0, albumsPerPage as number);
+export default function AlbumGrid({
+  albums,
+  onAlbumSelected,
+  onRefresh,
+  albumsPerPage = 4,
+  headerShown = true,
+}: AlbumGridProps) {
+  const displayAlbums =
+    albumsPerPage === "all" ? albums : albums.slice(0, albumsPerPage as number);
 
   const { displayOption } = useSettingsStore();
 
   return (
     <View>
       {headerShown && (
-        <View className='w-full flex flex-row items-center justify-between mb-4'>
-          <Text className='text-xl font-bold'>Foldery</Text>
-          <Link href="/(media-browser)/all-albums" className='text-sm text-gray-600'>Więcej</Link>
+        <View className="w-full flex flex-row items-center justify-between mb-4">
+          <Text className="text-xl font-bold">Foldery</Text>
+          <Link
+            href="/(media-browser)/all-albums"
+            className="text-sm text-gray-600"
+          >
+            Więcej
+          </Link>
         </View>
       )}
 
@@ -36,15 +47,18 @@ export default function AlbumGrid({ albums, onAlbumSelected, onRefresh, albumsPe
           key={displayOption}
           data={displayAlbums}
           keyExtractor={(item) => item.id}
-          numColumns={displayOption === 'grid' ? 2 : 1}
+          numColumns={displayOption === "grid" ? 2 : 1}
           scrollEnabled={false}
           renderItem={({ item: album }) => (
-
-            <AlbumItem album={album} onAlbumSelected={onAlbumSelected} displayOption={displayOption} />
+            <AlbumItem
+              album={album}
+              onAlbumSelected={onAlbumSelected}
+              displayOption={displayOption}
+            />
           )}
         />
       ) : (
-        <View className='flex flex-col items-center justify-center gap-2 my-4'>
+        <View className="flex flex-col items-center justify-center gap-2 my-4">
           <MaterialIcons name="folder-off" size={36} color="#e5e7eb" />
           <Text>Nie znaleziono albumów lub nie udzielono dostępu.</Text>
         </View>
@@ -52,4 +66,3 @@ export default function AlbumGrid({ albums, onAlbumSelected, onRefresh, albumsPe
     </View>
   );
 }
-

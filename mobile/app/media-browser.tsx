@@ -1,7 +1,6 @@
-
-import { MaterialIcons } from '@expo/vector-icons';
-import * as MediaLibrary from 'expo-media-library';
-import React, { useEffect, useState } from 'react';
+import { MaterialIcons } from "@expo/vector-icons";
+import * as MediaLibrary from "expo-media-library";
+import React, { useEffect, useState } from "react";
 import {
   Button,
   Dimensions,
@@ -11,20 +10,24 @@ import {
   Text,
   TouchableOpacity,
   View,
-} from 'react-native';
+} from "react-native";
 
 export default function MediaBrowser() {
   const [permissionResponse, requestPermission] = MediaLibrary.usePermissions();
   const [albums, setAlbums] = useState<MediaLibrary.Album[]>([]);
-  const [selectedAlbum, setSelectedAlbum] = useState<MediaLibrary.Album | null>(null);
+  const [selectedAlbum, setSelectedAlbum] = useState<MediaLibrary.Album | null>(
+    null,
+  );
   const [assets, setAssets] = useState<MediaLibrary.Asset[]>([]);
-  const [selectedPhoto, setSelectedPhoto] = useState<MediaLibrary.Asset | null>(null);
+  const [selectedPhoto, setSelectedPhoto] = useState<MediaLibrary.Asset | null>(
+    null,
+  );
 
   async function getAlbums() {
-    if (permissionResponse?.status !== 'granted') {
+    if (permissionResponse?.status !== "granted") {
       const permission = await requestPermission();
       if (!permission.granted) {
-        alert('Permission to access media library is required!');
+        alert("Permission to access media library is required!");
         return;
       }
     }
@@ -79,7 +82,10 @@ export default function MediaBrowser() {
   if (selectedAlbum) {
     return (
       <View style={styles.container}>
-        <Button title="Wróć do albumów" onPress={() => setSelectedAlbum(null)} />
+        <Button
+          title="Wróć do albumów"
+          onPress={() => setSelectedAlbum(null)}
+        />
         <Text style={styles.title}>{selectedAlbum.title}</Text>
         <FlatList
           data={assets}
@@ -114,7 +120,7 @@ export default function MediaBrowser() {
           )}
         />
       ) : (
-        <View className='flex flex-col items-center justify-center gap-2'>
+        <View className="flex flex-col items-center justify-center gap-2">
           <MaterialIcons name="folder-off" size={24} color="black" />
           <Text>Nie znaleziono albumów lub nie udzielono dostępu.</Text>
         </View>
@@ -128,30 +134,30 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 16,
   },
   albumContainer: {
     padding: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: "#eee",
   },
   albumTitle: {
     fontSize: 18,
   },
   assetTile: {
-    width: Dimensions.get('window').width / 3 - 16,
-    height: Dimensions.get('window').width / 3 - 16,
+    width: Dimensions.get("window").width / 3 - 16,
+    height: Dimensions.get("window").width / 3 - 16,
     margin: 2,
   },
   fullScreenImage: {
     flex: 1,
-    width: '100%',
-    height: '100%',
+    width: "100%",
+    height: "100%",
     marginVertical: 10,
   },
 });
