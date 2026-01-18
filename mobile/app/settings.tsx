@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import {
+  Alert,
   Modal,
   Pressable,
   ScrollView,
@@ -93,61 +94,93 @@ const ProfileScreen = () => {
 
 
   const handleResetSettings = () => {
-    setAlbumsPerPage(4);
-    setDisplayOption("grid");
-    setEnableAlbumGrid(true);
-    toggleWidget('treeFacts');
-    setTimeout(() => {
-      setValueChanged(false);
-    }, 0);
+    Alert.alert(
+      "Przywrócić ustawienia domyślne?",
+      "Ta akcja nie może być cofnięta.",
+      [
+        {
+          text: "Anuluj",
+          onPress: () => { },
+          style: "cancel",
+        },
+        {
+          text: "Przywróć",
+          onPress: () => {
+            setAlbumsPerPage(4);
+            setDisplayOption("grid");
+            setEnableAlbumGrid(true);
+            toggleWidget('treeFacts');
+            setTimeout(() => {
+              setValueChanged(false);
+            }, 0);
+          },
+          style: "destructive",
+        },
+      ]
+    );
   };
 
   return (
     <SafeAreaView className="flex-1 bg-background p-4 ">
-      <ScrollView contentContainerStyle={styles.scrollViewContainer}>
-        <View className="flex-1 items-center justify-start gap-8">
+      <ScrollView
+        contentContainerStyle={styles.scrollViewContainer}
+        showsVerticalScrollIndicator={false}
+      >
+        <View className="flex-col justify-between gap-8 min-h-full">
 
-          <View className="w-full flex-1 flex-col justify-between">
+          <View className="flex-col gap-4">
             <View className="flex flex-col w-full gap-4 items-center">
 
               <View className="w-full border-b-[1px] border-gray-600 py-2">
-                <Text className="text-lg font-semibold mb-4"> Ustawienia wyświetlania </Text>
+                <Text className="text-lg font-semibold mb-1">👁️ Widok galerii</Text>
+                <Text className="text-xs text-gray-500 mb-4">Dostosuj sposób wyświetlania swoich zdjęć</Text>
                 <View className="flex flex-col w-full gap-4 mt-4">
                   <Dropdown
                     items={dropdownOptions}
                     value={albumsPerPage}
-                    label="Foldery na stronę"
+                    label="Foldery na ekran"
                     onChange={(value) => setAlbumsPerPage(parseInt(value as string))}
                   />
                   <Dropdown
                     items={displayOptions}
                     value={displayOption}
-                    label="Opcja wyświetlania folderów"
+                    label="Układ wyświetlania"
                     onChange={(value) => setDisplayOption(value as "list" | "grid")}
                   />
                 </View>
               </View>
 
               <View className="w-full border-b-[1px] border-gray-600 py-2 pb-8">
-                <Text className="text-lg font-semibold mb-2"> Widgety </Text>
+                <Text className="text-lg font-semibold mb-1">🎨 Widgety ekranu głównego</Text>
+                <Text className="text-xs text-gray-500 mb-4">Wybierz co chcesz widzieć na stronie głównej</Text>
                 <View className="flex flex-col w-full gap-4 mt-4">
                   <View className="flex flex-row justify-between items-center w-full p-2">
-                    <Text>Ostatnie zdjęcia</Text>
+                    <View>
+                      <Text className="font-semibold">📸 Ostatnie zdjęcia</Text>
+                      <Text className="text-xs text-gray-600">Carousel z Twoimi ostatnimi zdj.</Text>
+                    </View>
                     <CustomSwitch widgetId="recentPhotos" />
                   </View>
                   <View className="flex flex-row justify-between items-center w-full p-2">
-                    <Text>Podgląd folderów</Text>
+                    <View>
+                      <Text className="font-semibold">📁 Moje foldery</Text>
+                      <Text className="text-xs text-gray-600">Podgląd Twoich albumów</Text>
+                    </View>
                     <CustomSwitch widgetId="albums" />
                   </View>
                   <View className="flex flex-row justify-between items-center w-full p-2">
-                    <Text>Włącz fakty o drzewach</Text>
+                    <View>
+                      <Text className="font-semibold">🌳 Ciekawostki</Text>
+                      <Text className="text-xs text-gray-600">Poznaj fakty o drzewach</Text>
+                    </View>
                     <CustomSwitch widgetId="treeFacts" />
                   </View>
                 </View>
               </View>
 
             </View>
-            <View className="w-full">
+
+            <View className="w-full mt-8">
               <TouchableOpacity
                 onPress={handleResetSettings}
                 activeOpacity={0.7}
@@ -168,10 +201,8 @@ const ProfileScreen = () => {
 
 const styles = StyleSheet.create({
   scrollViewContainer: {
-    flex: 1,
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "space-between",
+    flexGrow: 1,
+    paddingBottom: 20,
   },
 });
 

@@ -3,9 +3,12 @@ import { ActivityIndicator, Text, View } from "react-native";
 
 interface LoadingOverlayProps {
     text?: string;
+    isVisible?: boolean;
 }
 
-const LoadingOverlay = ({ text = "Ładowanie..." }: LoadingOverlayProps) => {
+const LoadingOverlay = ({ text = "Ładowanie...", isVisible = true }: LoadingOverlayProps) => {
+    if (!isVisible) return null;
+
     return (
         <View className="absolute inset-0 bg-black/40 items-center justify-center z-20">
             <View className="bg-white/90 px-4 py-3 rounded-xl items-center gap-2 min-w-[180px]">

@@ -79,23 +79,31 @@ const ProfileScreen = () => {
         visible={isModalVisible}
         onRequestClose={() => setModalVisible(false)}
       >
-        <View className="flex-1 justify-center items-center bg-black/50">
-          <View className="w-11/12 bg-white p-6 rounded-lg shadow-lg">
-            <Text className="text-2xl font-bold text-secondary text-center mb-6">
-              Zaloguj się
-            </Text>
-            <AuthForm formType="login" formFields={loginFormFields}>
-              <Pressable
-                onPress={() => setModalVisible(false)}
-                className="mt-4"
-              >
-                <Text className="text-center text-gray-500">Anuluj</Text>
-              </Pressable>
-            </AuthForm>
-          </View>
-        </View>
-      </Modal>
-    </SafeAreaView>
+        <Pressable
+          className="flex-1 w-full justify-center items-center bg-black/50"
+          onPress={() => setModalVisible(false)}
+        >
+          <Pressable
+            onPress={(e) => e.stopPropagation()}
+            className="w-11/12"
+          >
+            <View className="w-full bg-white p-6 rounded-lg shadow-lg">
+              <Text className="text-2xl font-bold text-secondary text-center mb-6">
+                Zaloguj się
+              </Text>
+              <AuthForm formType="login" formFields={loginFormFields}>
+                <Pressable
+                  onPress={() => setModalVisible(false)}
+                  className="mt-4"
+                >
+                  <Text className="text-center text-gray-500">Anuluj</Text>
+                </Pressable>
+              </AuthForm>
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal >
+    </SafeAreaView >
   );
 };
 

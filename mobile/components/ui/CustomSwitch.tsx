@@ -12,8 +12,8 @@ const CustomSwitch = ({ widgetId }: CustomSwitchProps) => {
 
     return (
         <Switch
-            trackColor={{ false: "#767577", true: "#00964A" }}
-            thumbColor={activeWidgets[widgetId] ? "#00964A" : "#f4f3f4"}
+            trackColor={{ false: "#767577", true: "#5CE7A0" }}
+            thumbColor={activeWidgets[widgetId] ? "#5CE7A0" : "#f4f3f4"}
             ios_backgroundColor="#3e3e3e"
             onValueChange={() => toggleWidget(widgetId)}
             value={activeWidgets[widgetId] ?? false}
