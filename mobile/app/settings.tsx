@@ -4,11 +4,13 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
+  Switch,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { MaterialIcons } from "@expo/vector-icons";
 
 import AuthForm from "@/components/forms/auth/AuthForm";
 import Button from "@/components/ui/Button";
@@ -16,6 +18,8 @@ import { Dropdown } from "@/components/ui/input/Dropdown";
 import { loginFormFields } from "@/constants/formFields";
 import { useAuth } from "@/lib/context/AuthContext";
 import { useSettingsStore } from "@/lib/store/settingsStore";
+import CustomSwitch from "@/components/ui/CustomSwitch";
+import TestErrorButtonDev from "@/components/TestErrorButtonDev";
 
 export type DropdownItem = {
   label: string;
@@ -26,10 +30,12 @@ export type DropdownItem = {
 interface Settings {
   albumsPerPage: number;
   displayOption: string;
+  enableAlbumGrid: boolean;
+  enableTreeFacts: boolean;
 }
 
 const ProfileScreen = () => {
-  const { albumsPerPage, setAlbumsPerPage, displayOption, setDisplayOption } =
+  const { albumsPerPage, setAlbumsPerPage, displayOption, setDisplayOption, enableAlbumGrid, setEnableAlbumGrid, enableTreeFacts, setEnableTreeFacts, widgetsEnabled, setWidgetsEnabled, activeWidgets, toggleWidget } =
     useSettingsStore();
   const { token } = useAuth();
   const [isModalVisible, setModalVisible] = useState(false);
@@ -38,6 +44,8 @@ const ProfileScreen = () => {
   const [settings, setSettings] = useState<Settings>({
     albumsPerPage: 4,
     displayOption: "grid",
+    enableAlbumGrid: true,
+    enableTreeFacts: true,
   });
 
   const dropdownOptions: DropdownItem[] = [
@@ -83,24 +91,12 @@ const ProfileScreen = () => {
     },
   ];
 
-  const handleSaveSettings = () => {
-    setIsLoading(true);
-    try {
-      setAlbumsPerPage(settings.albumsPerPage);
-      setDisplayOption(settings.displayOption);
-      setValueChanged(false);
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const handleResetSettings = () => {
-    setSettings({
-      albumsPerPage: albumsPerPage,
-      displayOption: displayOption,
-    });
+    setAlbumsPerPage(4);
+    setDisplayOption("grid");
+    setEnableAlbumGrid(true);
+    toggleWidget('treeFacts');
     setTimeout(() => {
       setValueChanged(false);
     }, 0);
@@ -110,69 +106,61 @@ const ProfileScreen = () => {
     <SafeAreaView className="flex-1 bg-background p-4 ">
       <ScrollView contentContainerStyle={styles.scrollViewContainer}>
         <View className="flex-1 items-center justify-start gap-8">
-          <Text className="text-2xl font-bold text-textPrimary">
-            {token ? "Jesteś zalogowany" : "Jesteś w trybie gościa"}
-          </Text>
 
           <View className="w-full flex-1 flex-col justify-between">
             <View className="flex flex-col w-full gap-4 items-center">
-              <Dropdown
-                items={dropdownOptions}
-                value={albumsPerPage}
-                label="Foldery na stronę"
-                setValueChanged={setValueChanged}
-              />
-              <Dropdown
-                items={displayOptions}
-                value={displayOption}
-                label="Opcja wyświetlania"
-                setValueChanged={setValueChanged}
-              />
+
+              <View className="w-full border-b-[1px] border-gray-600 py-2">
+                <Text className="text-lg font-semibold mb-4"> Ustawienia wyświetlania </Text>
+                <View className="flex flex-col w-full gap-4 mt-4">
+                  <Dropdown
+                    items={dropdownOptions}
+                    value={albumsPerPage}
+                    label="Foldery na stronę"
+                    onChange={(value) => setAlbumsPerPage(parseInt(value as string))}
+                  />
+                  <Dropdown
+                    items={displayOptions}
+                    value={displayOption}
+                    label="Opcja wyświetlania folderów"
+                    onChange={(value) => setDisplayOption(value as "list" | "grid")}
+                  />
+                </View>
+              </View>
+
+              <View className="w-full border-b-[1px] border-gray-600 py-2 pb-8">
+                <Text className="text-lg font-semibold mb-2"> Widgety </Text>
+                <View className="flex flex-col w-full gap-4 mt-4">
+                  <View className="flex flex-row justify-between items-center w-full p-2">
+                    <Text>Ostatnie zdjęcia</Text>
+                    <CustomSwitch widgetId="recentPhotos" />
+                  </View>
+                  <View className="flex flex-row justify-between items-center w-full p-2">
+                    <Text>Podgląd folderów</Text>
+                    <CustomSwitch widgetId="albums" />
+                  </View>
+                  <View className="flex flex-row justify-between items-center w-full p-2">
+                    <Text>Włącz fakty o drzewach</Text>
+                    <CustomSwitch widgetId="treeFacts" />
+                  </View>
+                </View>
+              </View>
+
             </View>
             <View className="w-full">
-              {valueChanged && (
-                <View className="w-full flex flex-col items-center justify-between gap-4 ">
-                  <Button
-                    className=" "
-                    onPress={handleSaveSettings}
-                    isLoading={isLoading}
-                    title="Zapisz"
-                  ></Button>
-                  <TouchableOpacity
-                    onPress={handleResetSettings}
-                    activeOpacity={0.7}
-                    className="py-2"
-                  >
-                    <Text className="text-center text-gray-500">Anuluj</Text>
-                  </TouchableOpacity>
-                </View>
-              )}
+              <TouchableOpacity
+                onPress={handleResetSettings}
+                activeOpacity={0.7}
+                className="py-2"
+              >
+                <Text className="text-center text-gray-500">Przywróć ustawienia domyślne</Text>
+              </TouchableOpacity>
+
+              {/* Dev Test Error Boundary Button */}
+              {__DEV__ && (<TestErrorButtonDev />)}
             </View>
           </View>
         </View>
-        {/* --- MODAL LOGOWANIA --- */}
-        <Modal
-          animationType="slide"
-          transparent={true}
-          visible={isModalVisible}
-          onRequestClose={() => setModalVisible(false)}
-        >
-          <View className="flex-1 justify-center items-center bg-black/50">
-            <View className="w-11/12 bg-white p-6 rounded-lg shadow-lg">
-              <Text className="text-2xl font-bold text-secondary text-center mb-6">
-                Zaloguj się
-              </Text>
-              <AuthForm formType="login" formFields={loginFormFields}>
-                <Pressable
-                  onPress={() => setModalVisible(false)}
-                  className="mt-4"
-                >
-                  <Text className="text-center text-gray-500">Anuluj</Text>
-                </Pressable>
-              </AuthForm>
-            </View>
-          </View>
-        </Modal>
       </ScrollView>
     </SafeAreaView>
   );

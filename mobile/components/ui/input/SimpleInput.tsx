@@ -21,12 +21,12 @@ const InputIcon = ({
   onPress: () => void;
   showPassword?: boolean;
 }) => {
-  const iconName = !showPassword ? "eye" : "eye-invisible";
+  const iconName = showPassword ? "eye" : "eye-invisible";
   return (
     <Pressable className="absolute bottom-11 right-0" onPress={onPress}>
       <AntDesign
         style={{ marginLeft: 15 }}
-        name={iconName as any}
+        name={iconName}
         size={24}
         color="#d1d5db"
       />

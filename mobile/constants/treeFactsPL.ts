@@ -1,0 +1,23 @@
+const treeFactsPL = [
+  "Najstarszym drzewem w Polsce jest cis w Henrykowie Lubańskim – ma ponad 1300 lat.",
+  "Dąb jest symbolem siły i długowieczności, a niektóre polskie dęby żyją nawet 800–1000 lat.",
+  "Brzoza była dawniej uważana za drzewo ochronne, odpędzające złe duchy.",
+  "Sosna jest najczęściej występującym drzewem w polskich lasach.",
+  "Buk potrafi tworzyć bardzo gęste korony, przez co pod nim rośnie niewiele roślin.",
+  "Lipa była dawniej centrum życia wsi – pod nią odbywały się sądy i spotkania.",
+  "Kora brzozy była używana jako naturalny papier do zapisywania informacji.",
+  "Jesion ma wyjątkowo elastyczne drewno, dlatego używano go do wyrobu narzędzi i broni.",
+  "Świerk jest jednym z najczęściej wybieranych drzew bożonarodzeniowych w Polsce.",
+  "Modrzew jako jedno z nielicznych drzew iglastych zrzuca igły na zimę.",
+  "Drewno olchy staje się trwalsze pod wodą – używano go do budowy mostów.",
+  "Kasztanowiec pomagał ludziom przewidywać pogodę na podstawie liści i owoców.",
+  "W Polsce rośnie ponad 90 gatunków drzew rodzimych.",
+  "Niektóre drzewa potrafią komunikować się ze sobą za pomocą systemu korzeniowego i grzybów.",
+  "Drzewa obniżają temperaturę otoczenia nawet o kilka stopni w upalne dni.",
+  "Wierzba była często sadzona przy domach, bo wierzono, że chroni przed piorunami.",
+  "Dziuple w starych drzewach są domem dla setek gatunków zwierząt.",
+  "Drzewa produkują tlen, ale też oczyszczają powietrze z pyłów i toksyn.",
+  "Najwyższe drzewa w Polsce mają ponad 55 metrów wysokości.",
+  "Każde drzewo ma unikalny układ słojów, jak odcisk palca.",
+];
+export default treeFactsPL;

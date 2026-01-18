@@ -4,9 +4,10 @@ import { useFonts } from "expo-font";
 import { router, SplashScreen, Stack, useSegments } from "expo-router";
 import { useColorScheme } from "nativewind";
 import { useEffect } from "react";
-import { ActivityIndicator, View } from "react-native";
+import { ActivityIndicator, StatusBar, View } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { isPublicRoute } from "@/constants/routes";
 import { AuthProvider, useAuth } from "@/lib/context/AuthContext";
 import { ThemeProvider } from "@/lib/context/ThemeContext";
@@ -77,39 +78,51 @@ function RootLayoutNav() {
 
   return (
     <SafeAreaProvider className={`font-sans ${colorScheme}`}>
-      <Stack>
-        {/* Ekran powitalny jest teraz ekranem głównym */}
-        <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-        <Stack.Screen
-          name="(media-browser)"
-          options={{
-            headerShown: false,
-            headerTitle: "",
-            headerTitleAlign: "center",
-            headerShadowVisible: false,
-          }}
-        />
-        <Stack.Screen
-          name="settings"
-          options={{
-            headerShown: true,
-            headerTitle: "Ustawienia",
-            headerTitleAlign: "center",
-            headerShadowVisible: false,
-          }}
-        />
-        <Stack.Screen
-          name="predict"
-          options={{
-            headerShown: true,
-            headerTitle: "",
-            headerTitleAlign: "center",
-            headerShadowVisible: false,
-          }}
-        />
-      </Stack>
+      <ErrorBoundary>
+        <StatusBar barStyle={"dark-content"} backgroundColor={'#5CE7A0'} />
+        <Stack>
+          {/* Ekran powitalny jest teraz ekranem głównym */}
+          <Stack.Screen name="index" options={{ headerShown: false }} />
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+          <Stack.Screen
+            name="(media-browser)"
+            options={{
+              headerShown: false,
+              headerTitle: "",
+              headerTitleAlign: "center",
+              headerShadowVisible: false,
+            }}
+          />
+          <Stack.Screen
+            name="settings"
+            options={{
+              headerShown: true,
+              headerTitle: "Ustawienia",
+              headerTitleAlign: "center",
+              headerShadowVisible: false,
+            }}
+          />
+          <Stack.Screen
+            name="predict"
+            options={{
+              headerShown: true,
+              headerTitle: "Sprawdź gatunek drzewa",
+              headerTitleAlign: "center",
+              headerShadowVisible: false,
+            }}
+          />
+          <Stack.Screen
+            name="history"
+            options={{
+              headerShown: true,
+              headerTitle: "Historia przewidywań",
+              headerTitleAlign: "center",
+              headerShadowVisible: false,
+            }}
+          />
+        </Stack>
+      </ErrorBoundary>
     </SafeAreaProvider>
   );
 }

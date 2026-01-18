@@ -40,7 +40,7 @@ const AuthForm = ({
 
   const defaultValues = formFields.reduce(
     (acc, field) => {
-      acc[field.id as keyof FormValues] = "" as any;
+      acc[field.id as keyof FormValues] = "";
       return acc;
     },
     {} as Record<keyof FormValues, string>,
@@ -70,7 +70,6 @@ const AuthForm = ({
       setApiErrors({ [result.error.field]: result.error.message });
       const newApiErrors = { [result.error.field]: result.error.message };
       setApiErrors(newApiErrors);
-      console.log("AuthForm - API Errors set:", newApiErrors);
     }
     setIsLoading(false);
   };
@@ -93,7 +92,7 @@ const AuthForm = ({
                 onChange(text);
               }}
               type={item.type}
-              error={(zodErrors as any)[item.id]?.message || apiErrors[item.id]}
+              error={zodErrors[item.id as keyof FormValues]?.message || apiErrors[item.id]}
             />
           )}
         />

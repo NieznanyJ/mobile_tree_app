@@ -17,6 +17,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import ImageModal from "@/components/modals/ImageModal";
 import SearchInput from "@/components/ui/input/SearchInput";
 import { useMediaLibrary } from "@/lib/hooks/useMediaLibrary";
+import { useAssetsStore } from "@/lib/store/assetsStore";
 
 const ITEMS_PER_ROW = 4;
 const ITEM_SPACING = 6;
@@ -62,6 +63,8 @@ export default function AllPhotosScreen() {
   const [loading, setLoading] = useState(true);
   const [searchText, setSearchText] = useState("");
 
+  const { setAssetsCount } = useAssetsStore();
+
   const filteredAssets = assets.filter((asset) =>
     asset.filename.toLowerCase().includes(searchText.toLowerCase()),
   );
@@ -82,6 +85,7 @@ export default function AllPhotosScreen() {
         // Get all assets, with a reasonable limit for performance
         const allAssets = await getRecentAssets(1000);
         setAssets(allAssets);
+        setAssetsCount!(allAssets.length);
       }
       setLoading(false);
     })();
@@ -114,6 +118,7 @@ export default function AllPhotosScreen() {
     return (
       <FlatList
         key={num}
+        style={{ marginTop: 10 }}
         data={filteredAssets}
         keyExtractor={(item) => item.id}
         scrollEnabled={false}
@@ -146,9 +151,6 @@ export default function AllPhotosScreen() {
           handleReset={() => setSearchText("")}
           placeholder="Szukaj"
         />
-        <Text className="text-sm ">
-          {assets?.length} {assets?.length === 1 ? "zdjęcie" : "zdjęcia"}
-        </Text>
         {filteredAssets.length > 0 ? (
           renderContent()
         ) : (

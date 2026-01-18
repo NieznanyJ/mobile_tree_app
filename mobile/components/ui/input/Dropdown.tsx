@@ -8,29 +8,29 @@ interface DropdownProps {
   items: DropdownItem[];
   label: string;
   value: string | number;
-  setValueChanged?: (value: boolean) => void;
+  onChange?: (value: string | number) => void;
 }
 
 export const Dropdown = ({
   items,
   label,
   value,
-  setValueChanged,
+  onChange,
 }: DropdownProps) => {
   const previousValue = useRef(value);
 
-  const handleChange = (newValue: any) => {
+  const handleChange = (newValue: string | number) => {
     const item = items.find((item) => item.value === newValue);
     item?.onSelect();
 
     if (newValue !== previousValue.current) {
-      setValueChanged?.(true);
       previousValue.current = newValue;
+      onChange?.(newValue);
     }
   };
 
   return (
-    <View className="w-full">
+    <View className="w-full px-2">
       <Text>{label}</Text>
       <RNPickerSelect
         placeholder={{}}

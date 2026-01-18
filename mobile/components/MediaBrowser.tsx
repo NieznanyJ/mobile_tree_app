@@ -11,7 +11,7 @@ import { useAssetsStore } from "@/lib/store/assetsStore";
 import { useSettingsStore } from "@/lib/store/settingsStore";
 
 const MediaBrowser = () => {
-  const { albumsPerPage } = useSettingsStore();
+  const { albumsPerPage, enableAlbumGrid, activeWidgets, widgetsEnabled } = useSettingsStore();
 
   const { albums, getAssets, getAlbums } = useMediaLibrary();
   const { setAlbum } = useAssetsStore();
@@ -33,16 +33,27 @@ const MediaBrowser = () => {
     setSelectedImage(asset);
   };
 
-  return (
-    <View className="flex flex-col gap-10 ">
-      <RecentPhotosRow onPhotoSelected={handlePhotoSelected} />
+  const renderAlbumGrid = () => {
+    if (enableAlbumGrid) {
+      return (
+        <RecentPhotosRow onPhotoSelected={handlePhotoSelected} />
+      );
+    }
+  };
 
-      <AlbumGrid
-        albums={albums}
-        onAlbumSelected={handleAlbumSelected}
-        onRefresh={getAlbums}
-        albumsPerPage={albumsPerPage}
-      />
+  return (
+    <View className="flex flex-col gap-10">
+
+
+      {widgetsEnabled && activeWidgets.recentPhotos && renderAlbumGrid()}
+      {widgetsEnabled && activeWidgets.albums && (
+        <AlbumGrid
+          albums={albums}
+          onAlbumSelected={handleAlbumSelected}
+          onRefresh={getAlbums}
+          albumsPerPage={albumsPerPage}
+        />
+      )}
 
       <ImageModal
         visible={!!selectedImage}

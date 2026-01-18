@@ -25,7 +25,6 @@ export default function AllAlbumsScreen() {
   const { albums, assets, getAssets, getAlbums } = useMediaLibrary();
 
   const handleAlbumSelected = (album: MediaLibrary.Album) => {
-    console.log("Album selected:", album);
     setSelectedAlbum(album);
     getAssets(album);
     setModalVisible(true);

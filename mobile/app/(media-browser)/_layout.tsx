@@ -1,13 +1,17 @@
+import { useAssetsStore } from "@/lib/store/assetsStore";
 import { Stack } from "expo-router";
 import React from "react";
 
 const MediaBrowserLayout = () => {
+
+  const { assetsCount, albumCount } = useAssetsStore();
+
   return (
     <Stack>
       <Stack.Screen
         name="all-photos"
         options={{
-          headerTitle: "Wszystkie zdjęcia",
+          headerTitle: `Wszystkie zdjęcia (${assetsCount})`,
           headerShadowVisible: false,
           headerTitleAlign: "center",
           headerShown: true, // Upewniamy się, że nagłówek jest widoczny
@@ -16,7 +20,7 @@ const MediaBrowserLayout = () => {
       <Stack.Screen
         name="all-albums"
         options={{
-          headerTitle: "Wszystkie foldery",
+          headerTitle: `Wszystkie foldery (${albumCount})`,
           headerShadowVisible: false,
           headerTitleAlign: "center",
           headerShown: true,

@@ -7,7 +7,7 @@ import {
 } from "react-native";
 
 interface ButtonProps extends TouchableOpacityProps {
-  title: string;
+  title?: string;
   className?: string;
   textClassName?: string;
   isLoading?: boolean;

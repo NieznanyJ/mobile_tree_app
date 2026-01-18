@@ -42,3 +42,21 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
         to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM
     )
     return encoded_jwt
+
+
+# --- JWT Token Verification ---
+def verify_access_token(token: str) -> str | None:
+    """
+    Weryfikuje i dekoduje token dostępowy.
+    Zwraca email użytkownika lub None jeśli token jest nieprawidłowy.
+    """
+    try:
+        payload = jwt.decode(
+            token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
+        )
+        email: str = payload.get("sub")
+        if email is None:
+            return None
+        return email
+    except JWTError:
+        return None

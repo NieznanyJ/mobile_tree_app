@@ -13,6 +13,7 @@ import AuthForm from "@/components/forms/auth/AuthForm";
 import { loginFormFields } from "@/constants/formFields";
 
 const LoginScreen = () => {
+
   return (
     <SafeAreaView className="flex-1 bg-background">
       <KeyboardAvoidingView

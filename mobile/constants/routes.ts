@@ -3,8 +3,8 @@ export const isPublicRoute = (path: string) => {
     "settings",
     "forgot-password",
     "(media-browser)",
-    "(media-browser)",
     "predict",
+    "history",
   ];
   const authPaths = ["(auth)"];
 
