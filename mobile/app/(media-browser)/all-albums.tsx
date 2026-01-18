@@ -7,6 +7,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import AlbumGrid from "@/components/AlbumGrid";
 import SearchInput from "@/components/ui/input/SearchInput";
 import { useMediaLibrary } from "@/lib/hooks/useMediaLibrary";
+import { useAssetsStore } from "@/lib/store/assetsStore";
 
 export default function AllAlbumsScreen() {
   const [selectedImage, setSelectedImage] = useState<MediaLibrary.Asset | null>(
@@ -23,8 +24,10 @@ export default function AllAlbumsScreen() {
 
   // Single source of truth hook
   const { albums, assets, getAssets, getAlbums } = useMediaLibrary();
+  const { setAlbum } = useAssetsStore();
 
   const handleAlbumSelected = (album: MediaLibrary.Album) => {
+    setAlbum(album);
     setSelectedAlbum(album);
     getAssets(album);
     setModalVisible(true);

@@ -133,11 +133,13 @@ const HistoryScreen = () => {
                             <Text className={`text-sm font-semibold ${getConfidenceColor(item.confidence)}`}>
                                 {item.confidence.toFixed(1)}% pewności
                             </Text>
-                            <MaterialIcons
-                                name={isExpanded ? "expand-less" : "expand-more"}
-                                size={24}
-                                color="#9ca3af"
-                            />
+                            {item.allPredictions && (
+                                <MaterialIcons
+                                    name={isExpanded ? "expand-less" : "expand-more"}
+                                    size={24}
+                                    color="#9ca3af"
+                                />
+                            )}
                         </View>
                     </View>
                 </View>

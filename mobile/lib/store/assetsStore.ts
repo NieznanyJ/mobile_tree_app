@@ -18,10 +18,10 @@ interface AssetsStore {
   setAlbums: (albums: MediaLibrary.Album[]) => void;
   assets: MediaLibrary.Asset[];
   setAssets: (assets: MediaLibrary.Asset[]) => void;
-  assetsCount?: number;
-  setAssetsCount?: (count: number) => void;
-  image: ImageAsset | null;
-  setImage: (image: ImageAsset | null) => void;
+  image: MediaLibrary.Asset | null;
+  setImage: (image: MediaLibrary.Asset | null) => void;
+  compressedImageUri: string | null;
+  setCompressedImageUri: (uri: string | null) => void;
   album: MediaLibrary.Album | null;
   setAlbum: (album: MediaLibrary.Album | null) => void;
   albumCount?: number;
@@ -37,6 +37,8 @@ export const useAssetsStore = create<AssetsStore>((set) => ({
   setAssetsCount: (count) => set({ assetsCount: count }),
   image: null,
   setImage: (image) => set({ image }),
+  compressedImageUri: null,
+  setCompressedImageUri: (uri) => set({ compressedImageUri: uri }),
   album: null,
   setAlbum: (album) => set({ album }),
   albumCount: 0,

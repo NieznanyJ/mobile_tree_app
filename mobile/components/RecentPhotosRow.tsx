@@ -13,7 +13,7 @@ import {
   View,
 } from "react-native";
 
-import { useMediaLibrary } from "@/lib/hooks/useMediaLibrary";
+import { useMediaLibraryWithCache } from "@/lib/hooks/useMediaLibraryWithCache";
 
 interface RecentPhotosRowProps {
   onPhotoSelected?: (asset: MediaLibrary.Asset) => void;
@@ -28,8 +28,8 @@ export default function RecentPhotosRow({
   photosPerPage = 12,
 }: RecentPhotosRowProps) {
   const { getRecentAssets, permissionResponse, requestPermission } =
-    useMediaLibrary();
-  const [recentAssets, setRecentAssets] = useState<MediaLibrary.Asset[]>([]);
+    useMediaLibraryWithCache();
+  const [recentAssets, setRecentAssets] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -50,7 +50,7 @@ export default function RecentPhotosRow({
   }, [permissionResponse?.status]);
 
   const renderPhotoGrid = (
-    assets: MediaLibrary.Asset[],
+    assets: any[],
     startIndex: number,
   ) => {
     const gridAssets = assets.slice(startIndex, startIndex + 4);
@@ -58,6 +58,11 @@ export default function RecentPhotosRow({
     if (gridAssets.length === 0) return null;
 
     const numberOfImages = gridAssets.length;
+
+    // Helper function to get image source (thumbnail first, fallback to original)
+    const getImageSource = (asset: any) => ({
+      uri: asset.thumbnailUri || asset.uri,
+    });
 
     if (numberOfImages === 4) {
       return (
@@ -69,7 +74,7 @@ export default function RecentPhotosRow({
           <View>
             <TouchableOpacity onPress={() => onPhotoSelected?.(gridAssets[0])}>
               <Image
-                source={{ uri: gridAssets[0].uri }}
+                source={getImageSource(gridAssets[0])}
                 style={[
                   styles.image,
                   { width: GRID_SIZE / 2 - 8, height: GRID_SIZE / 2 - 8 },
@@ -83,7 +88,7 @@ export default function RecentPhotosRow({
                 onPress={() => onPhotoSelected?.(gridAssets[1])}
               >
                 <Image
-                  source={{ uri: gridAssets[1].uri }}
+                  source={getImageSource(gridAssets[1])}
                   style={[
                     styles.image,
                     { width: GRID_SIZE / 4 - 8, height: GRID_SIZE / 4 - 8 },
@@ -94,7 +99,7 @@ export default function RecentPhotosRow({
                 onPress={() => onPhotoSelected?.(gridAssets[2])}
               >
                 <Image
-                  source={{ uri: gridAssets[2].uri }}
+                  source={getImageSource(gridAssets[2])}
                   style={[
                     styles.image,
                     { width: GRID_SIZE / 4 - 8, height: GRID_SIZE / 4 - 8 },
@@ -107,7 +112,7 @@ export default function RecentPhotosRow({
                 onPress={() => onPhotoSelected?.(gridAssets[3])}
               >
                 <Image
-                  source={{ uri: gridAssets[3].uri }}
+                  source={getImageSource(gridAssets[1])}
                   style={[
                     styles.image,
                     { width: GRID_SIZE / 2 - 8, height: GRID_SIZE / 4 - 8 },
@@ -130,7 +135,7 @@ export default function RecentPhotosRow({
           <View>
             <TouchableOpacity onPress={() => onPhotoSelected?.(gridAssets[0])}>
               <Image
-                source={{ uri: gridAssets[0].uri }}
+                source={getImageSource(gridAssets[0])}
                 style={[
                   styles.image,
                   { width: GRID_SIZE / 2 - 8, height: GRID_SIZE / 2 - 8 },
@@ -144,7 +149,7 @@ export default function RecentPhotosRow({
                 onPress={() => onPhotoSelected?.(gridAssets[1])}
               >
                 <Image
-                  source={{ uri: gridAssets[1].uri }}
+                  source={getImageSource(gridAssets[1])}
                   style={[
                     styles.image,
                     { width: GRID_SIZE / 2 - 8, height: GRID_SIZE / 4 - 8 },
@@ -157,7 +162,7 @@ export default function RecentPhotosRow({
                 onPress={() => onPhotoSelected?.(gridAssets[2])}
               >
                 <Image
-                  source={{ uri: gridAssets[2].uri }}
+                  source={getImageSource(gridAssets[2])}
                   style={[
                     styles.image,
                     { width: GRID_SIZE / 2 - 8, height: GRID_SIZE / 4 - 8 },
@@ -180,7 +185,7 @@ export default function RecentPhotosRow({
           <View>
             <TouchableOpacity onPress={() => onPhotoSelected?.(gridAssets[0])}>
               <Image
-                source={{ uri: gridAssets[0].uri }}
+                source={getImageSource(gridAssets[0])}
                 style={[
                   styles.image,
                   { width: GRID_SIZE / 2 - 8, height: GRID_SIZE / 2 - 8 },
@@ -194,7 +199,7 @@ export default function RecentPhotosRow({
                 onPress={() => onPhotoSelected?.(gridAssets[1])}
               >
                 <Image
-                  source={{ uri: gridAssets[1].uri }}
+                  source={getImageSource(gridAssets[1])}
                   style={[
                     styles.image,
                     { width: GRID_SIZE / 2 - 8, height: GRID_SIZE / 2 - 8 },
@@ -211,7 +216,7 @@ export default function RecentPhotosRow({
       <View key={startIndex} style={{ width: GRID_SIZE, marginRight: 16 }}>
         <TouchableOpacity onPress={() => onPhotoSelected?.(gridAssets[0])}>
           <Image
-            source={{ uri: gridAssets[0].uri }}
+            source={getImageSource(gridAssets[0])}
             style={[
               styles.image,
               { width: GRID_SIZE / 2 - 8, height: GRID_SIZE / 2 - 8 },
