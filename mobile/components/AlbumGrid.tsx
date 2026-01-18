@@ -1,12 +1,13 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import * as MediaLibrary from "expo-media-library";
 import { Link } from "expo-router";
-import React from "react";
+import React, { useEffect } from "react";
 import { FlatList, Text, View } from "react-native";
 
 import { useSettingsStore } from "@/lib/store/settingsStore";
 
 import AlbumItem from "./ui/AlbumItem";
+import { useAssetsStore } from "@/lib/store/assetsStore";
 
 interface AlbumGridProps {
   albums: MediaLibrary.Album[];
@@ -27,6 +28,11 @@ export default function AlbumGrid({
     albumsPerPage === "all" ? albums : albums.slice(0, albumsPerPage as number);
 
   const { displayOption } = useSettingsStore();
+  const { setAlbumCount } = useAssetsStore();
+
+  useEffect(() => {
+    setAlbumCount!(albums.length);
+  }, [albums, setAlbumCount]);
 
   return (
     <View>

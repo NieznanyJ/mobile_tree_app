@@ -29,11 +29,8 @@ export default function AlbumPage() {
   const { album } = useAssetsStore();
   const [searchText, setSearchText] = useState("");
 
-  console.log("Rendering AssetModal for album ID:", album);
-
   const { assets, getAssets } = useMediaLibrary();
 
-  console.log("Album ID in AssetModal:", albumId);
   const [selectedImage, setSelectedImage] = useState<MediaLibrary.Asset | null>(
     null,
   );

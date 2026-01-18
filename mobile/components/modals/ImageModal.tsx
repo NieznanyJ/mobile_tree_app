@@ -2,16 +2,17 @@ import * as MediaLibrary from "expo-media-library";
 import { useRouter } from "expo-router";
 import React from "react";
 import {
-  Button,
-  Dimensions,
   Image,
   Modal,
   StyleSheet,
+  TouchableOpacity,
   View,
+  Text,
+  Dimensions,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 import { useAssetsStore } from "@/lib/store/assetsStore";
+import Button from "../ui/Button";
 
 interface AssetModalProps {
   visible: boolean;
@@ -35,27 +36,52 @@ export default function AssetModal({
 
   const handlePhotoSelect = (asset: MediaLibrary.Asset | null) => {
     setImage(asset);
-    console.log("Selected photo in ImageModal:", image?.filename);
     router.push("/predict");
     handleClose();
   };
 
+
   return (
-    <Modal visible={visible} animationType="slide" onRequestClose={handleClose}>
-      <SafeAreaView className="flex-1">
-        <View style={styles.container}>
-          <Button title="Wróć do siatki" onPress={() => handleClose()} />
+    <Modal
+      visible={visible}
+      animationType="fade"
+      transparent
+      onRequestClose={handleClose}
+    >
+      <View
+        className="flex-1 bg-black/50 justify-center items-center p-4"
+        onTouchEnd={(e) => {
+          if (e.target === e.currentTarget) {
+            handleClose();
+          }
+        }}
+      >
+        <TouchableOpacity
+          activeOpacity={1}
+          onPress={handleClose}
+          className="absolute inset-0"
+        />
+        <View className="bg-white rounded-2xl overflow-hidden w-full max-w-sm p-4 z-10">
           <Image
             source={{ uri: selectedPhoto?.uri }}
-            style={styles.fullScreenImage}
+            style={styles.previewImage}
             resizeMode="cover"
           />
-          <Button
-            title="Użyj tego zdjęcia"
-            onPress={() => handlePhotoSelect(selectedPhoto!)}
-          />
+          <View className="flex flex-col items-center justify-centerp-4 gap-3">
+            <Button
+              title="Użyj tego zdjęcia"
+              onPress={() => handlePhotoSelect(selectedPhoto!)}
+            />
+            <TouchableOpacity
+              onPress={handleClose}
+              activeOpacity={0.7}
+              className="py-2"
+            >
+              <Text className="text-center text-gray-500">Anuluj</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      </SafeAreaView>
+      </View>
     </Modal>
   );
 }
@@ -80,12 +106,10 @@ const styles = StyleSheet.create({
     margin: 2,
     borderRadius: 5,
   },
-  fullScreenImage: {
-    flex: 1,
+  previewImage: {
     width: "100%",
-    height: "100%",
-    maxHeight: 300,
-    marginVertical: 10,
-    borderRadius: 10,
+    height: 300,
+    borderRadius: 12,
+
   },
 });

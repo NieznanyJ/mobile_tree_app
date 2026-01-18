@@ -9,6 +9,14 @@ interface SettingsStore {
   setImagesPerPage: (count: number) => void;
   displayOption: string;
   setDisplayOption: (option: string) => void;
+  enableAlbumGrid: boolean;
+  setEnableAlbumGrid: (enabled: boolean) => void;
+  enableTreeFacts: boolean;
+  setEnableTreeFacts: (enabled: boolean) => void;
+  widgetsEnabled: boolean;
+  setWidgetsEnabled: (enabled: boolean) => void;
+  activeWidgets: Record<string, boolean>;
+  toggleWidget: (widgetId: string) => void;
 }
 
 export const useSettingsStore = create<SettingsStore>()(
@@ -20,6 +28,24 @@ export const useSettingsStore = create<SettingsStore>()(
       setImagesPerPage: (count) => set({ imagesPerPage: count }),
       displayOption: "grid",
       setDisplayOption: (option) => set({ displayOption: option }),
+      enableAlbumGrid: true,
+      setEnableAlbumGrid: (enabled) => set({ enableAlbumGrid: enabled }),
+      enableTreeFacts: true,
+      setEnableTreeFacts: (enabled) => set({ enableTreeFacts: enabled }),
+      widgetsEnabled: true,
+      setWidgetsEnabled: (enabled) => set({ widgetsEnabled: enabled }),
+      activeWidgets: {
+        treeFacts: true,
+        recentPhotos: true,
+        albums: true,
+      },
+      toggleWidget: (widgetId) =>
+        set((state) => ({
+          activeWidgets: {
+            ...state.activeWidgets,
+            [widgetId]: !state.activeWidgets[widgetId],
+          },
+        })),
     }),
     {
       name: "settings-storage",
