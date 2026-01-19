@@ -140,12 +140,12 @@ const PredictPage = () => {
             </View>
           )}
 
-          <View className="flex-col justify-between w-full gap-4">
+          <View className="flex-col justify-between w-full gap-4 mt-4">
             <View className="flex flex-row justify-between items-center w-full">
               <Text>Wybierz inne zdjęcie</Text>
               <Pressable
                 className="flex flex-row items-center justify-center gap-0 p-2 bg-secondary rounded-full"
-                onPress={() => router.replace("/(media-browser)/all-photos")}
+                onPress={() => router.replace("/(media-browser)/all-photos?mode=single")}
               >
                 <MaterialCommunityIcons
                   name="image-outline"

@@ -30,23 +30,29 @@ export default function AssetModal({
   onClose,
   onPhotoSelected,
 }: AssetModalProps) {
-  const [selectedImage, setSelectedImage] = useState<MediaLibrary.Asset | null>(
-    null,
-  );
+  const [selectedImageData, setSelectedImageData] = useState<{
+    assets: MediaLibrary.Asset[];
+    index: number;
+  } | null>(null);
 
   const handleClose = () => {
-    setSelectedImage(null);
+    setSelectedImageData(null);
     onClose();
   };
 
+  const handlePhotoPress = (asset: MediaLibrary.Asset, index: number) => {
+    setSelectedImageData({ assets, index });
+  };
+
   const renderContent = () => {
-    if (selectedImage) {
+    if (selectedImageData) {
       return (
         <ImageModal
-          visible={!!selectedImage}
-          onClose={() => setSelectedImage(null)}
-          onPhotoSelected={setSelectedImage}
-          selectedPhoto={selectedImage}
+          visible={!!selectedImageData}
+          onClose={() => setSelectedImageData(null)}
+          assets={selectedImageData.assets}
+          initialIndex={selectedImageData.index}
+          onConfirm={onPhotoSelected}
         />
       );
     }
@@ -66,8 +72,8 @@ export default function AssetModal({
           data={assets}
           keyExtractor={(item) => item.id}
           numColumns={3}
-          renderItem={({ item }) => (
-            <TouchableOpacity onPress={() => setSelectedImage(item)}>
+          renderItem={({ item, index }) => (
+            <TouchableOpacity onPress={() => handlePhotoPress(item, index)}>
               <Image source={{ uri: item.uri }} style={styles.assetTile} />
             </TouchableOpacity>
           )}

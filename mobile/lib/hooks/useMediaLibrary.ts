@@ -2,27 +2,35 @@ import * as MediaLibrary from "expo-media-library";
 import { useEffect, useState } from "react";
 
 export function useMediaLibrary() {
-  const [permissionResponse, requestPermission] = MediaLibrary.usePermissions();
+  const [permissionResponse, requestPermission] = MediaLibrary.usePermissions({
+    mediaTypes: MediaLibrary.MediaType.photo,
+  });
   const [albums, setAlbums] = useState<MediaLibrary.Album[]>([]);
   const [assets, setAssets] = useState<MediaLibrary.Asset[]>([]);
 
   async function getAlbums() {
-    if (
-      permissionResponse?.status !== "granted" &&
-      permissionResponse?.canAskAgain
-    ) {
-      const permission = await requestPermission();
-      if (!permission.granted) {
-        // User denied permission, do nothing or show a message
-        return;
-      }
-    }
-    // Check if permission is granted before fetching
     if (permissionResponse?.status === "granted") {
       const fetchedAlbums = await MediaLibrary.getAlbumsAsync({
         includeSmartAlbums: true,
       });
-      setAlbums(fetchedAlbums);
+
+      // Filter albums to show only those with photos
+      const albumsWithPhotos = await Promise.all(
+        fetchedAlbums.map(async (album) => {
+          const albumAssets = await MediaLibrary.getAssetsAsync({
+            album: album.id,
+            first: 1,
+            mediaType: [MediaLibrary.MediaType.photo],
+          });
+          return { album, hasPhotos: albumAssets.assets.length > 0 };
+        }),
+      );
+
+      const filtered = albumsWithPhotos
+        .filter(({ hasPhotos }) => hasPhotos)
+        .map(({ album }) => album);
+
+      setAlbums(filtered);
     }
   }
 
@@ -38,15 +46,6 @@ export function useMediaLibrary() {
   }
 
   async function getRecentAssets(count: number = 10) {
-    if (
-      permissionResponse?.status !== "granted" &&
-      permissionResponse?.canAskAgain
-    ) {
-      const permission = await requestPermission();
-      if (!permission.granted) {
-        return [];
-      }
-    }
     if (permissionResponse?.status === "granted") {
       const recentAssets = await MediaLibrary.getAssetsAsync({
         first: count,
@@ -58,9 +57,8 @@ export function useMediaLibrary() {
     return [];
   }
 
-  useEffect(() => {
-    getAlbums();
-  }, [permissionResponse?.status]); // Re-run only when permission status changes
+  // Don't auto-fetch albums anymore - only fetch when explicitly requested
+  // This way albums are not loaded on app startup
 
   return {
     albums,

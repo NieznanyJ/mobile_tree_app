@@ -4,7 +4,7 @@ import Octicons from "@expo/vector-icons/Octicons";
 import { Tabs, useRouter, usePathname } from "expo-router";
 import React, { useState } from "react";
 import { Pressable, StatusBar, StyleSheet, Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 
 import CustomIcon from "@/components/ui/icons/CustomIcon";
 import WidgetsModal from "@/components/modals/WidgetsModal";
@@ -32,7 +32,7 @@ const Header = ({
 
   const isStartRoute = pathname === "/";
   return (
-    <SafeAreaView className={`w-full p-2 pt-8  flex-row items-center  bg-background` + (isStartRoute ? " justify-between" : " justify-end")}>
+    <View className={`w-full p-2 pt-16 flex-row items-center  bg-background` + (isStartRoute ? " justify-between" : " justify-end")}>
       {pathname === "/" && (
         <Pressable className="bg-secondary p-2 rounded-full" onPress={() => setWidgetsModalVisible(true)} >
           <MaterialIcons name="widgets" size={24} color="#fff" />
@@ -45,13 +45,14 @@ const Header = ({
         visible={widgetsModalVisible}
         onClose={() => setWidgetsModalVisible(false)}
       />
-    </SafeAreaView>
+    </View>
   );
 };
 const TabLayout = () => {
   const router = useRouter();
   const { user, isGuest, isOnline } = useAuth();
   const pathname = usePathname();
+  const insets = useSafeAreaInsets();
 
   const username = user?.username || "Gościu";
 
@@ -82,9 +83,8 @@ const TabLayout = () => {
           tabBarShowLabel: false,
           tabBarStyle: {
             paddingHorizontal: 10,
-            paddingBottom: 20,
-            height: 84,
-            // backgroundColor: 'red',
+            paddingBottom: (insets.bottom || 0) + 12,
+            height: 72 + (insets.bottom || 0),
             boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.1)",
           },
           tabBarItemStyle: {

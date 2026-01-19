@@ -1,5 +1,6 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import * as MediaLibrary from "expo-media-library";
+import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -14,6 +15,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import Button from "@/components/ui/Button";
 import ImageModal from "@/components/modals/ImageModal";
 import SearchInput from "@/components/ui/input/SearchInput";
 import { useMediaLibrary } from "@/lib/hooks/useMediaLibrary";
@@ -56,20 +58,39 @@ const num = 4;
 export default function AllPhotosScreen() {
   const { getRecentAssets, permissionResponse, requestPermission } =
     useMediaLibrary();
-  const [selectedImage, setSelectedImage] = useState<MediaLibrary.Asset | null>(
-    null,
-  );
   const [assets, setAssets] = useState<MediaLibrary.Asset[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchText, setSearchText] = useState("");
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [selectedImageData, setSelectedImageData] = useState<{
+    assets: MediaLibrary.Asset[];
+    index: number;
+  } | null>(null);
 
-  const { setAssetsCount } = useAssetsStore();
+  const { setAssetsCount, setSelectedAssets, selectedAssets } = useAssetsStore();
+  const { setImage } = useAssetsStore();
+  const params = useLocalSearchParams();
+  const isSingleSelect = params.mode === "single";
 
   const filteredAssets = assets.filter((asset) =>
     asset.filename.toLowerCase().includes(searchText.toLowerCase()),
   );
 
   const layout = DISPLAY_OPTIONS_CALC.find((opt) => opt.ITEMS_PER_ROW === num);
+
+  const handleItemPress = (item: MediaLibrary.Asset, index: number) => {
+    if (isSingleSelect) {
+      // Single select: show modal
+      setSelectedImageData({ assets: filteredAssets, index });
+    } else {
+      // Multi-select: toggle selection
+      setSelected((prev) => {
+        const next = new Set(prev);
+        next.has(item.id) ? next.delete(item.id) : next.add(item.id);
+        return next;
+      });
+    }
+  };
 
   useEffect(() => {
     (async () => {
@@ -91,6 +112,21 @@ export default function AllPhotosScreen() {
     })();
   }, [permissionResponse?.status]);
 
+  // Prefill selection with already chosen assets, but only those still available
+  useEffect(() => {
+    if (!selectedAssets || selectedAssets.length === 0) {
+      setSelected(new Set());
+      return;
+    }
+
+    const availableIds = new Set(assets.map((a) => a.id));
+    const preselected = selectedAssets
+      .filter((a) => availableIds.has(a.id))
+      .map((a) => a.id);
+
+    setSelected(new Set(preselected));
+  }, [selectedAssets, assets]);
+
   const renderContent = () => {
     if (loading) {
       return <ActivityIndicator size="large" color="#000" className="mt-10" />;
@@ -104,18 +140,8 @@ export default function AllPhotosScreen() {
       );
     }
 
-    if (selectedImage) {
-      return (
-        <ImageModal
-          visible={!!selectedImage}
-          onClose={() => setSelectedImage(null)}
-          onPhotoSelected={setSelectedImage}
-          selectedPhoto={selectedImage}
-        />
-      );
-    }
-
     return (
+
       <FlatList
         key={num}
         style={{ marginTop: 10 }}
@@ -123,9 +149,9 @@ export default function AllPhotosScreen() {
         keyExtractor={(item) => item.id}
         scrollEnabled={false}
         numColumns={num}
-        renderItem={({ item }) => (
+        renderItem={({ item, index }) => (
           <TouchableOpacity
-            onPress={() => setSelectedImage(item)}
+            onPress={() => handleItemPress(item, index)}
             style={{
               width: layout?.ITEM_WIDTH,
               height: layout!.ITEM_WIDTH * 1.1,
@@ -136,15 +162,62 @@ export default function AllPhotosScreen() {
               source={{ uri: item.uri }}
               style={{ width: "100%", height: "100%", borderRadius: 8 }}
             />
+            {!isSingleSelect && selected.has(item.id) && (
+              <View
+                style={{
+                  position: "absolute",
+                  inset: 4,
+                  borderRadius: 8,
+                  backgroundColor: "rgba(0,0,0,0.35)",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Text className="text-white font-bold">✓</Text>
+              </View>
+            )}
           </TouchableOpacity>
         )}
       />
+
     );
   };
 
+  const allSelected = filteredAssets.length > 0 && filteredAssets.every((a) => selected.has(a.id));
+
   return (
     <SafeAreaView className="flex-1 p-4 bg-background">
-      <ScrollView>
+      <ScrollView >
+        {!isSingleSelect && (
+          <View className="flex-col gap-2 mb-3">
+            <View className="flex-row items-center justify-between">
+              <Text className="text-lg font-semibold">Wybierz zdjęcia</Text>
+              <Button
+                title={`Dodaj (${selected.size})`}
+                style={{ width: '25%', marginTop: 0 }}
+                textClassName="text-sm"
+                onPress={() => {
+                  const chosen = assets.filter((a) => selected.has(a.id));
+                  setSelectedAssets(chosen);
+                  router.back();
+                }}
+              />
+            </View>
+            <Button
+              title={allSelected ? "Odznacz wszystkie" : "Zaznacz wszystkie"}
+              className="w-full"
+              textClassName="text-sm"
+              onPress={() => {
+                if (allSelected) {
+                  setSelected(new Set());
+                } else {
+                  const allIds = new Set(filteredAssets.map((a) => a.id));
+                  setSelected(allIds);
+                }
+              }}
+            />
+          </View>
+        )}
         <SearchInput
           value={searchText}
           onChangeText={setSearchText}
@@ -154,7 +227,7 @@ export default function AllPhotosScreen() {
         {filteredAssets.length > 0 ? (
           renderContent()
         ) : (
-          <View className="flex  flex-col items-center justify-center gap-2 my-4">
+          <View className="flex  flex-col items-center justify-center gap-2 my-4 flex-1  h-full">
             <MaterialCommunityIcons
               name="image-off"
               size={36}
@@ -164,6 +237,18 @@ export default function AllPhotosScreen() {
           </View>
         )}
       </ScrollView>
+      {isSingleSelect && selectedImageData && (
+        <ImageModal
+          visible={!!selectedImageData}
+          onClose={() => setSelectedImageData(null)}
+          assets={selectedImageData.assets}
+          initialIndex={selectedImageData.index}
+          onConfirm={(asset) => {
+            setImage(asset);
+            router.replace("/predict");
+          }}
+        />
+      )}
     </SafeAreaView>
   );
 }
