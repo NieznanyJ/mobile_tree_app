@@ -12,20 +12,36 @@ import { useAssetsStore } from "@/lib/store/assetsStore";
 interface AlbumGridProps {
   albums: MediaLibrary.Album[];
   onAlbumSelected: (album: MediaLibrary.Album) => void;
+  onAlbumLongPress?: (album: MediaLibrary.Album) => void;
   onRefresh: () => void;
   albumsPerPage?: string | number;
   headerShown?: boolean;
+  pickerMode?: boolean;
+  selectedAlbums?: Set<string>;
+  selectedAlbumsToDisplay?: MediaLibrary.Album[];
+  editMode?: boolean;
+  onRemoveAlbum?: (albumId: string) => void;
 }
 
 export default function AlbumGrid({
   albums,
   onAlbumSelected,
+  onAlbumLongPress,
   onRefresh,
   albumsPerPage = 4,
   headerShown = true,
+  pickerMode = false,
+  selectedAlbums = new Set(),
+  selectedAlbumsToDisplay,
+  editMode = false,
+  onRemoveAlbum,
 }: AlbumGridProps) {
-  const displayAlbums =
-    albumsPerPage === "all" ? albums : albums.slice(0, albumsPerPage as number);
+  const albumsToDisplay =
+    selectedAlbumsToDisplay && selectedAlbumsToDisplay.length > 0
+      ? selectedAlbumsToDisplay
+      : albumsPerPage === "all"
+      ? albums
+      : albums.slice(0, albumsPerPage as number);
 
   const { displayOption } = useSettingsStore();
   const { setAlbumCount } = useAssetsStore();
@@ -48,10 +64,10 @@ export default function AlbumGrid({
         </View>
       )}
 
-      {displayAlbums.length > 0 ? (
+      {albumsToDisplay.length > 0 ? (
         <FlatList
           key={displayOption}
-          data={displayAlbums}
+          data={albumsToDisplay}
           keyExtractor={(item) => item.id}
           numColumns={displayOption === "grid" ? 2 : 1}
           scrollEnabled={false}
@@ -59,7 +75,12 @@ export default function AlbumGrid({
             <AlbumItem
               album={album}
               onAlbumSelected={onAlbumSelected}
+              onAlbumLongPress={onAlbumLongPress}
               displayOption={displayOption}
+              pickerMode={pickerMode}
+              isSelected={selectedAlbums.has(album.id)}
+              editMode={editMode}
+              onRemove={onRemoveAlbum}
             />
           )}
         />

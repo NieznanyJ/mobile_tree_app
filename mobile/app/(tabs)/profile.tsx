@@ -21,6 +21,8 @@ const ProfileScreen = () => {
     if (token) setModalVisible(false);
   }, [token]);
 
+  console.log("Rendering ProfileScreen with user:", user, "and token:", token);
+
   return (
     <SafeAreaView className="flex-1 bg-background p-4 ">
       <View className="flex-1 items-center justify-between gap-8">

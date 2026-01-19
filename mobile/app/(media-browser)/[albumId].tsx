@@ -31,12 +31,13 @@ export default function AlbumPage() {
 
   const { assets, getAssets } = useMediaLibrary();
 
-  const [selectedImage, setSelectedImage] = useState<MediaLibrary.Asset | null>(
-    null,
-  );
+  const [selectedImageData, setSelectedImageData] = useState<{
+    assets: MediaLibrary.Asset[];
+    index: number;
+  } | null>(null);
 
   const handleClose = () => {
-    setSelectedImage(null);
+    setSelectedImageData(null);
   };
 
   const handlePhotoSelect = (asset: MediaLibrary.Asset) => {
@@ -55,13 +56,13 @@ export default function AlbumPage() {
   );
 
   const renderContent = () => {
-    if (selectedImage) {
+    if (selectedImageData) {
       return (
         <ImageModal
-          visible={!!selectedImage}
-          onClose={() => setSelectedImage(null)}
-          onPhotoSelected={setSelectedImage}
-          selectedPhoto={selectedImage}
+          visible={!!selectedImageData}
+          onClose={handleClose}
+          assets={selectedImageData.assets}
+          initialIndex={selectedImageData.index}
         />
       );
     }
@@ -79,8 +80,12 @@ export default function AlbumPage() {
           data={filteredAssets}
           keyExtractor={(item) => item.id}
           numColumns={3}
-          renderItem={({ item }) => (
-            <TouchableOpacity onPress={() => setSelectedImage(item)}>
+          renderItem={({ item, index }) => (
+            <TouchableOpacity
+              onPress={() =>
+                setSelectedImageData({ assets: filteredAssets, index })
+              }
+            >
               <Image source={{ uri: item.uri }} style={styles.assetTile} />
             </TouchableOpacity>
           )}
