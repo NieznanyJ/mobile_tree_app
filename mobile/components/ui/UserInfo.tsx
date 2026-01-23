@@ -11,7 +11,6 @@ interface UserInfoProps {
 }
 
 export const UserInfo = ({ user }: UserInfoProps) => {
-    console.log("Rendering UserInfo with user:", user);
     return (
         <View className="w-full bg-background rounded-lg p-6 shadow-md">
             <View className="mb-4">

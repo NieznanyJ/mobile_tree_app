@@ -85,23 +85,26 @@ const PredictPage = () => {
 
     try {
       setIsLoading(true);
-      // Here you would send compressedImageUri to your backend
-      // const formData = new FormData();
-      // formData.append('image', { uri: compressedImageUri, type: 'image/jpeg' });
-      // const response = await fetch('http://your-backend/predict', {
-      //   method: 'POST',
-      //   body: formData,
-      // });
-      // const result = await response.json();
-      // setPrediction(result.prediction);
+      const formData = new FormData();
 
-      // Mock prediction for now
-      setTimeout(() => {
-        setPrediction("Dąb szypułkowy");
-        setIsLoading(false);
-      }, 1000);
+      // ZASTOSOWANA ZMIANA:
+      formData.append('image', {
+        uri: compressedImageUri,
+        name: 'image.jpeg',
+        type: 'image/jpeg',
+      } as any);
+      const apiResponse = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/predict/`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      const result = await apiResponse.json();
+      console.log("Prediction result:", result);
+      setPrediction(result.predicted_class);
     } catch (error) {
       console.error("Prediction failed:", error);
+      setIsLoading(false);
+    } finally {
       setIsLoading(false);
     }
   };
@@ -110,9 +113,9 @@ const PredictPage = () => {
 
   return (
     <>
-      <SafeAreaView className="flex-1 p-4 flex flex-col items-center justify-between bg-background">
+      <SafeAreaView className="flex-1 p-4 flex flex-col items-center justify-between bg-background gap-4">
 
-        <View className="mb-4 w-full h-96 justify-center items-center flex-col gap-4  rounded-md mt-20">
+        <View className="mb-4 w-full h-2/3 justify-center items-center flex-col gap-4  rounded-md mt-10" >
           {isCompressing ? (
             <View className="w-full h-full rounded-lg bg-gray-200 justify-center items-center ">
               <ActivityIndicator size="large" color="#0000ff" />
@@ -126,19 +129,6 @@ const PredictPage = () => {
             />
           )}
 
-          {compressionInfo && compressionInfo.ratio > 0 && (
-            <View className="w-full bg-blue-50 p-3 rounded-lg">
-              <Text className="text-xs text-gray-600">
-                Oryginał: {formatBytes(compressionInfo.original)}
-              </Text>
-              <Text className="text-xs text-gray-600">
-                Skompresowany: {formatBytes(compressionInfo.compressed)}
-              </Text>
-              <Text className="text-xs font-semibold text-green-600">
-                Oszczędność: {compressionInfo.ratio}%
-              </Text>
-            </View>
-          )}
 
           <View className="flex-col justify-between w-full gap-4 mt-4">
             <View className="flex flex-row justify-between items-center w-full">
@@ -169,6 +159,7 @@ const PredictPage = () => {
 
         <Button
           title="Sprawdź"
+          className="mb-6"
           onPress={predict}
           disabled={isLoading || isCompressing || !compressedImageUri}
         />
