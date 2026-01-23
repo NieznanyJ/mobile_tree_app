@@ -57,9 +57,9 @@ export default function AssetModal({
     }
   }, []);
 
-  const viewabilityConfig = {
-    itemVisiblePercentThreshold: 50,
-  };
+  // const viewabilityConfig = {
+  //   itemVisiblePercentThreshold: 50,
+  // };
 
   return (
     <Modal
@@ -82,7 +82,7 @@ export default function AssetModal({
             showsHorizontalScrollIndicator={false}
             initialScrollIndex={initialIndex}
             onViewableItemsChanged={onViewableItemsChanged}
-            viewabilityConfig={viewabilityConfig}
+            // viewabilityConfig={viewabilityConfig}
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
               <View style={styles.imageContainer}>

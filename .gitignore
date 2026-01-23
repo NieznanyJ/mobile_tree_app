@@ -12,5 +12,4 @@ __pycache__/
 .idea/
 
 # Modele Machine Learning
-*.keras
 .keras

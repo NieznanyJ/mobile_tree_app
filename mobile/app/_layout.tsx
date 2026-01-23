@@ -3,10 +3,11 @@ import "./globals.css";
 import { useFonts } from "expo-font";
 import { router, SplashScreen, Stack, useSegments } from "expo-router";
 import { useColorScheme } from "nativewind";
-import { useEffect } from "react";
-import { ActivityIndicator, StatusBar, View } from "react-native";
+import { useEffect, useState } from "react";
+import { StatusBar } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
+import AnimatedSplashScreen from "@/components/AnimatedSplashScreen";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { isPublicRoute } from "@/constants/routes";
 import { AuthProvider, useAuth } from "@/lib/context/AuthContext";
@@ -28,6 +29,7 @@ function RootLayoutNav() {
   const { token, isGuest, isLoading } = useAuth();
   const segments = useSegments();
   const { colorScheme } = useColorScheme();
+  const [isSplashTimeOver, setIsSplashTimeOver] = useState(false);
 
   const [fontsLoaded, fontError] = useFonts({
     "Roboto-Regular": require("../assets/fonts/Roboto-Regular.ttf"),
@@ -35,15 +37,27 @@ function RootLayoutNav() {
     "Roboto-Medium": require("../assets/fonts/Roboto-Medium.ttf"),
   });
 
+  // Używamy timera, aby zapewnić minimalny czas wyświetlania splash screena.
+  // To pomaga zapobiec problemom z timingiem (race conditions) przy zimnym starcie.
   useEffect(() => {
-    if (fontsLoaded || fontError) {
+    const timer = setTimeout(() => {
+      setIsSplashTimeOver(true);
+    }, 3000); // Pokaż splash screen przez 3 sekundy
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  const isAppReady = !isLoading && (fontsLoaded || fontError);
+
+  // Ukryj natywny splash screen tylko, gdy aplikacja jest gotowa i czas minął.
+  useEffect(() => {
+    if (isAppReady && isSplashTimeOver) {
       SplashScreen.hideAsync();
     }
-  }, [fontsLoaded, fontError]);
+  }, [isAppReady, isSplashTimeOver]);
 
+  // Logika routingu (pozostaje bez zmian).
   useEffect(() => {
-    // Czekamy na zakończenie ładowania (fontów i tokena)
-    const isAppReady = !isLoading && (fontsLoaded || fontError);
     if (!isAppReady) {
       return;
     }
@@ -52,28 +66,22 @@ function RootLayoutNav() {
     const isPublic = isPublicRoute(segments[0]);
 
     if (token && !inApp) {
-      // User logged in but outside main app
       if (!isPublic) {
         router.replace("/(tabs)");
       }
     } else if (!token && isGuest && !inApp) {
-      // Guest but outside main app
       if (!isPublic) {
         router.replace("/(tabs)");
       }
     } else if (!token && !isGuest && inApp) {
-      // Not logged in, not guest, but trying to enter app
       router.replace("/(auth)/login");
     }
-  }, [token, isGuest, isLoading, fontsLoaded, fontError, segments]);
+  }, [token, isGuest, isAppReady, segments]);
 
-  // Jeśli aplikacja nie jest gotowa, pokazujemy spinner
-  if (isLoading || (!fontsLoaded && !fontError)) {
-    return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size="large" />
-      </View>
-    );
+  // Pokaż animowany splash, dopóki aplikacja nie jest gotowa LUB nie minął czas.
+  if (!isAppReady || !isSplashTimeOver) {
+    // Usunęliśmy onAnimationFinish na potrzeby tego testu
+    return <AnimatedSplashScreen />;
   }
 
   return (

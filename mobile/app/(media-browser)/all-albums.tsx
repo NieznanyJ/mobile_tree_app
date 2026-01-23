@@ -93,44 +93,44 @@ export default function AllAlbumsScreen() {
 
   return (
     <SafeAreaView className="flex-1 p-4 bg-background">
-      <ScrollView>
-        {pickerMode && (
-          <View className="flex-col gap-2 mb-3">
-            <View className="flex-row items-center justify-between">
-              <Text className="text-lg font-semibold">Wybierz foldery</Text>
-              <Button
-                title={`Dodaj (${selectedAlbums.size})`}
-                className="w-1/4 mt-0"
-                textClassName="text-sm"
-                onPress={handleAddAlbums}
-              />
-            </View>
+      {pickerMode && (
+        <View className="flex-col gap-2 mb-3">
+          <View className="flex-row items-center justify-between">
+            <Text className="text-lg font-semibold">Wybierz foldery</Text>
             <Button
-              title="Anuluj"
-              className="w-full"
+              title={`Dodaj (${selectedAlbums.size})`}
+              className="w-1/4 mt-0"
               textClassName="text-sm"
-              onPress={() => {
-                setPickerMode(false);
-                setSelectedAlbums(new Set());
-              }}
+              onPress={handleAddAlbums}
             />
           </View>
-        )}
+          <Button
+            title="Anuluj"
+            className="w-full"
+            textClassName="text-sm"
+            onPress={() => {
+              setPickerMode(false);
+              setSelectedAlbums(new Set());
+            }}
+          />
+        </View>
+      )}
 
-        {loading ? (
-          <View className="flex-1 items-center justify-center py-10">
-            <ActivityIndicator size="large" color="#6366f1" />
-            <Text className="mt-4 text-gray-600">Ładowanie albumów...</Text>
-          </View>
-        ) : (
-          <View className="flex flex-col gap-4">
-            {!pickerMode && (<Text className="p-2">Kliknij i przytrzymaj, aby wybrać wiele albumów</Text>)}
-            <SearchInput
-              value={searchText}
-              onChangeText={setSearchText}
-              placeholder="Szukaj"
-              handleReset={() => setSearchText("")}
-            />
+      {loading ? (
+        <View className="flex-1 items-center justify-center py-10">
+          <ActivityIndicator size="large" color="#6366f1" />
+          <Text className="mt-4 text-gray-600">Ładowanie albumów...</Text>
+        </View>
+      ) : (
+        <View className="flex flex-col gap-4">
+          {!pickerMode && (<Text className="p-2">Kliknij i przytrzymaj, aby wybrać wiele albumów</Text>)}
+          <SearchInput
+            value={searchText}
+            onChangeText={setSearchText}
+            placeholder="Szukaj"
+            handleReset={() => setSearchText("")}
+          />
+          <ScrollView>
             <AlbumGrid
               albums={filteredAlbums}
               onAlbumSelected={handleAlbumSelected}
@@ -141,9 +141,9 @@ export default function AllAlbumsScreen() {
               pickerMode={pickerMode}
               selectedAlbums={selectedAlbums}
             />
-          </View>
-        )}
-      </ScrollView>
-    </SafeAreaView>
+          </ScrollView>
+        </View>
+      )}
+    </SafeAreaView >
   );
 }

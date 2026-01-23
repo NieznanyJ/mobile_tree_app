@@ -21,11 +21,10 @@ const ProfileScreen = () => {
     if (token) setModalVisible(false);
   }, [token]);
 
-  console.log("Rendering ProfileScreen with user:", user, "and token:", token);
 
   return (
     <SafeAreaView className="flex-1 bg-background p-4 ">
-      <View className="flex-1 items-center justify-between gap-8">
+      <View className="flex-1 items-center justify-between gap-8 ">
         <View className="w-full items-center gap-6">
           <Text className="text-2xl font-bold text-textPrimary">
             {token ? "Profil użytkownika" : "Jesteś w trybie gościa"}

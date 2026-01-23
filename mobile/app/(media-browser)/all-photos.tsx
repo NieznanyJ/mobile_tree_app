@@ -20,6 +20,7 @@ import ImageModal from "@/components/modals/ImageModal";
 import SearchInput from "@/components/ui/input/SearchInput";
 import { useMediaLibrary } from "@/lib/hooks/useMediaLibrary";
 import { useAssetsStore } from "@/lib/store/assetsStore";
+import { FlashList } from "@shopify/flash-list";
 
 const ITEMS_PER_ROW = 4;
 const ITEM_SPACING = 6;
@@ -142,7 +143,7 @@ export default function AllPhotosScreen() {
 
     return (
 
-      <FlatList
+      <FlashList
         key={num}
         style={{ marginTop: 10 }}
         data={filteredAssets}
@@ -186,26 +187,15 @@ export default function AllPhotosScreen() {
   const allSelected = filteredAssets.length > 0 && filteredAssets.every((a) => selected.has(a.id));
 
   return (
-    <SafeAreaView className="flex-1 p-4 bg-background">
-      <ScrollView >
-        {!isSingleSelect && (
-          <View className="flex-col gap-2 mb-3">
-            <View className="flex-row items-center justify-between">
-              <Text className="text-lg font-semibold">Wybierz zdjęcia</Text>
-              <Button
-                title={`Dodaj (${selected.size})`}
-                style={{ width: '25%', marginTop: 0 }}
-                textClassName="text-sm"
-                onPress={() => {
-                  const chosen = assets.filter((a) => selected.has(a.id));
-                  setSelectedAssets(chosen);
-                  router.back();
-                }}
-              />
-            </View>
+    <SafeAreaView className="flex-1 p-4 bg-background pt-0 ">
+      {!isSingleSelect && (
+        <View className="flex-col gap-2  mb-3 ">
+          <Text className="text-lg font-semibold">Wybierz zdjęcia</Text>
+          <View className="flex-row items-center justify-between">
             <Button
               title={allSelected ? "Odznacz wszystkie" : "Zaznacz wszystkie"}
-              className="w-full"
+              className="w-1/3 "
+              style={{ marginTop: 0 }}
               textClassName="text-sm"
               onPress={() => {
                 if (allSelected) {
@@ -216,27 +206,39 @@ export default function AllPhotosScreen() {
                 }
               }}
             />
-          </View>
-        )}
-        <SearchInput
-          value={searchText}
-          onChangeText={setSearchText}
-          handleReset={() => setSearchText("")}
-          placeholder="Szukaj"
-        />
-        {filteredAssets.length > 0 ? (
-          renderContent()
-        ) : (
-          <View className="flex  flex-col items-center justify-center gap-2 my-4 flex-1  h-full">
-            <MaterialCommunityIcons
-              name="image-off"
-              size={36}
-              color="#e5e7eb"
+            <Button
+              title={`Dodaj (${selected.size})`}
+              style={{ width: '30%', marginTop: 0 }}
+              textClassName="text-sm"
+              onPress={() => {
+                const chosen = assets.filter((a) => selected.has(a.id));
+                setSelectedAssets(chosen);
+                router.back();
+              }}
             />
-            <Text>Brak ostatnich zdjęć lub brak dostępu do galerii.</Text>
           </View>
-        )}
-      </ScrollView>
+        </View>
+      )}
+      <SearchInput
+        value={searchText}
+        onChangeText={setSearchText}
+        handleReset={() => setSearchText("")}
+        placeholder="Szukaj"
+      />
+      {filteredAssets.length > 0 ? (
+        <ScrollView className="mt-2" >
+          {renderContent()}
+        </ScrollView>
+      ) : (
+        <View className="flex  flex-col items-center justify-center gap-2 my-4 flex-1  h-full">
+          <MaterialCommunityIcons
+            name="image-off"
+            size={36}
+            color="#e5e7eb"
+          />
+          <Text>Brak ostatnich zdjęć lub brak dostępu do galerii.</Text>
+        </View>
+      )}
       {isSingleSelect && selectedImageData && (
         <ImageModal
           visible={!!selectedImageData}
