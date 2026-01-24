@@ -28,7 +28,8 @@
         "android.permission.WRITE_EXTERNAL_STORAGE",
         "android.permission.READ_MEDIA_VISUAL_USER_SELECTED",
         "android.permission.ACCESS_MEDIA_LOCATION",
-        "android.permission.READ_MEDIA_IMAGES"
+        "android.permission.READ_MEDIA_IMAGES",
+        "android.permission.READ_MEDIA_VIDEO"
       ],
       "package": "com.jackobunknown.SmartTree"
     },
@@ -64,6 +65,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "204ba4dd-1fac-427b-86ac-8a63e9f7500e"
+      }
     }
   }
 }
