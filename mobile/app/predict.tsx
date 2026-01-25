@@ -1,176 +1,207 @@
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
-import { router, useFocusEffect } from "expo-router";
-import React from "react";
-import { ActivityIndicator, Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { router } from "expo-router";
+import React, { useState } from "react";
+import {
+  ActivityIndicator,
+  Dimensions,
+  Image,
+  Pressable,
+  Text,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import PredictionModal from "@/components/modals/PredictionModal";
+import ImagePreviewModal from "@/components/modals/ImagePreviewModal";
+import PredictionModal, { PredictionResult } from "@/components/modals/PredictionModal";
 import Button from "@/components/ui/Button";
-import LoadingOverlay from "@/components/ui/LoadingOverlay";
-import {
-  compressImage,
-  formatBytes,
-  getCompressionRatio,
-} from "@/lib/utils/imageOptimization";
-import { useAssetsStore } from "@/lib/store/assetsStore";
+import { MAX_PREDICTION_ASSETS, useAssetsStore } from "@/lib/store/assetsStore";
+import { compressImage } from "@/lib/utils/imageOptimization";
+
+const GRID_SPACING = 12;
+const GRID_COLUMNS = 2;
+const SLOT_SIZE =
+  (Dimensions.get("window").width - 32 - GRID_SPACING) / GRID_COLUMNS;
 
 const PredictPage = () => {
-  const { image, compressedImageUri, setCompressedImageUri } = useAssetsStore();
-  const [prediction, setPrediction] = React.useState<string | null>(null);
+  const { selectedAssets, removeAssetForPrediction } = useAssetsStore();
+  const [prediction, setPrediction] = React.useState<PredictionResult | null>(null);
   const [isLoading, setIsLoading] = React.useState(false);
   const [isCompressing, setIsCompressing] = React.useState(false);
-  const [compressionInfo, setCompressionInfo] = React.useState<{
-    original: number;
-    compressed: number;
-    ratio: number;
-  } | null>(null);
+  const [previewVisible, setPreviewVisible] = useState(false);
+  const [previewIndex, setPreviewIndex] = useState(0);
 
-
-  // Clear compressed image when source image changes
-  React.useEffect(() => {
-    if (image?.uri) {
-      // Reset compression state when image changes
-      setCompressedImageUri(null);
-      setCompressionInfo(null);
-    }
-  }, [image?.uri]);
-
-  // Compress image when it changes or component focuses
-  useFocusEffect(
-    React.useCallback(() => {
-      const compressIfNeeded = async () => {
-        if (image && image.uri && !compressedImageUri) {
-          await compressImageForPrediction();
-        }
-      };
-
-      compressIfNeeded();
-    }, [image?.uri, compressedImageUri])
-  );
-
-  const compressImageForPrediction = async () => {
-    if (!image?.uri) return;
-
-    try {
-      console.log("Starting compression...");
-      setIsCompressing(true);
-      const compressed = await compressImage(image.uri);
-
-      setCompressedImageUri(compressed.compressedUri);
-      setCompressionInfo({
-        original: compressed.originalSize,
-        compressed: compressed.compressedSize,
-        ratio: getCompressionRatio(
-          compressed.originalSize,
-          compressed.compressedSize
-        ),
-      });
-
-      console.log(
-        `Image compressed: ${formatBytes(compressed.originalSize)} → ${formatBytes(compressed.compressedSize)} (${getCompressionRatio(compressed.originalSize, compressed.compressedSize)}% reduction)`
-      );
-    } catch (error) {
-      console.error("Failed to compress image:", error);
-    } finally {
-      console.log("Compression finished, setting isCompressing to false");
-      setIsCompressing(false);
-    }
+  const openPreview = (index: number) => {
+    setPreviewIndex(index);
+    setPreviewVisible(true);
   };
 
   const predict = async () => {
-    if (!compressedImageUri) {
-      console.warn("No compressed image available");
-      return;
-    }
+    if (selectedAssets.length === 0) return;
 
     try {
-      setIsLoading(true);
-      const formData = new FormData();
+      setIsCompressing(true);
 
-      // ZASTOSOWANA ZMIANA:
-      formData.append('image', {
-        uri: compressedImageUri,
-        name: 'image.jpeg',
-        type: 'image/jpeg',
-      } as any);
-      const apiResponse = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/predict/`, {
-        method: 'POST',
-        body: formData,
+      // Compress all selected images
+      const compressedUris: string[] = [];
+      for (const asset of selectedAssets) {
+        const compressed = await compressImage(asset.uri);
+        compressedUris.push(compressed.compressedUri);
+      }
+
+      setIsCompressing(false);
+      setIsLoading(true);
+
+      const formData = new FormData();
+      compressedUris.forEach((uri, i) => {
+        formData.append("image", {
+          uri,
+          name: `image_${i}.jpeg`,
+          type: "image/jpeg",
+        } as any);
       });
+
+      const apiResponse = await fetch(
+        `${process.env.EXPO_PUBLIC_API_URL}/predict/`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
 
       const result = await apiResponse.json();
       console.log("Prediction result:", result);
-      setPrediction(result.predicted_class);
+      setPrediction(result);
     } catch (error) {
       console.error("Prediction failed:", error);
-      setIsLoading(false);
     } finally {
+      setIsCompressing(false);
       setIsLoading(false);
     }
   };
 
-  const displayImageUri = compressedImageUri || image?.uri;
+  const slots = Array.from({ length: MAX_PREDICTION_ASSETS }, (_, i) => {
+    return selectedAssets[i] || null;
+  });
 
   return (
     <>
-      <SafeAreaView className="flex-1 p-4 flex flex-col items-center justify-between bg-background gap-4">
-
-        <View className="mb-4 w-full h-2/3 justify-center items-center flex-col gap-4  rounded-md mt-10" >
-          {isCompressing ? (
-            <View className="w-full h-full rounded-lg bg-gray-200 justify-center items-center ">
-              <ActivityIndicator size="large" color="#0000ff" />
-              <Text className="mt-2 text-gray-600">Kompresja zdjęcia...</Text>
-            </View>
-          ) : (
-            <Image
-              className="w-full h-full rounded-lg"
-              source={{ uri: displayImageUri }}
-              resizeMode="cover"
-            />
-          )}
-
-
-          <View className="flex-col justify-between w-full gap-4 mt-4">
-            <View className="flex flex-row justify-between items-center w-full">
-              <Text>Wybierz inne zdjęcie</Text>
-              <Pressable
-                className="flex flex-row items-center justify-center gap-0 p-2 bg-secondary rounded-full"
-                onPress={() => router.replace("/(media-browser)/all-photos?mode=single")}
+      <SafeAreaView className="flex-1 p-4 flex-col items-center justify-between bg-background">
+        <View className="w-full flex-1 ">
+          {/* 2x2 Grid */}
+          <View
+            className="flex-row flex-wrap justify-between"
+            style={{ gap: GRID_SPACING }}
+          >
+            {slots.map((asset, index) => (
+              <View
+                key={asset?.id ?? `empty-${index}`}
+                style={{ width: SLOT_SIZE, height: SLOT_SIZE }}
+                className="rounded-xl overflow-hidden"
               >
-                <MaterialCommunityIcons
-                  name="image-outline"
-                  size={24}
-                  color="#fff"
-                />
-              </Pressable>
-            </View>
-
-            <View className="flex flex-row justify-between items-center w-full">
-              <Text>Zdjęcia z aparatu</Text>
-              <Pressable
-                className="flex flex-row items-center justify-center gap-0 p-2 bg-secondary rounded-full"
-                onPress={() => router.replace("/(tabs)/camera")}
-              >
-                <Ionicons name="camera-outline" size={24} color="#fff" />
-              </Pressable>
-            </View>
+                {asset ? (
+                  <View className="relative w-full h-full">
+                    <Pressable key={index} onPress={() => openPreview(index)}>
+                      <Image
+                        source={{ uri: asset.uri }}
+                        className="w-full h-full"
+                        resizeMode="cover"
+                      />
+                    </Pressable>
+                    <Pressable
+                      onPress={() => removeAssetForPrediction(asset.id)}
+                      className="absolute top-2 right-2 bg-black/60 rounded-full w-7 h-7 items-center justify-center"
+                    >
+                      <Ionicons name="close" size={18} color="#fff" />
+                    </Pressable>
+                  </View>
+                ) : (
+                  <Pressable
+                    onPress={() =>
+                      router.push("/(media-browser)/all-photos?mode=single")
+                    }
+                    className="w-full h-full border-2 border-dashed border-gray-300 rounded-xl items-center justify-center bg-gray-50"
+                  >
+                    <Ionicons name="add" size={32} color="#9ca3af" />
+                    <Text className="text-gray-400 text-xs mt-1">Dodaj</Text>
+                  </Pressable>
+                )}
+              </View>
+            ))}
           </View>
+
+          {/* Info text */}
+          <View className="flex-row items-center mt-4 px-1 gap-2">
+            <Ionicons name="information-circle-outline" size={16} color="#6b7280" />
+            <Text className="text-sm text-gray-500 flex-1">
+              Więcej zdjęć to większa precyzja. Sfotografuj różne detale: liść, korę oraz owoce lub kwiaty            </Text>
+          </View>
+
+
+          {/* Action buttons row */}
+          <View className="flex-row justify-center gap-4 mt-6">
+            <Pressable
+              disabled={isLoading || isCompressing || selectedAssets.length === 4}
+              style={{ opacity: isLoading || isCompressing || selectedAssets.length === 4 ? 0.5 : 1 }}
+              onPress={() =>
+                router.push("/(media-browser)/all-photos?mode=single")
+              }
+              className="flex-row items-center gap-2 px-5 py-3 bg-gray-100 rounded-full"
+            >
+              <MaterialCommunityIcons
+                name="image-outline"
+                size={20}
+                color="#374151"
+              />
+              <Text className="text-gray-700 font-medium">Galeria</Text>
+            </Pressable>
+
+            <Pressable
+              disabled={isLoading || isCompressing || selectedAssets.length === 4}
+              style={{ opacity: isLoading || isCompressing || selectedAssets.length === 4 ? 0.5 : 1 }}
+              onPress={() => router.push("/(tabs)/camera")}
+              className="flex-row items-center gap-2 px-5 py-3 bg-gray-100 rounded-full"
+            >
+              <Ionicons name="camera-outline" size={20} color="#374151" />
+              <Text className="text-gray-700 font-medium">Aparat</Text>
+            </Pressable>
+          </View>
+          {selectedAssets.length === 4 && (
+            <Text className="text-sm text-center text-gray-500 mt-4">
+              Maksymalnie możesz dodać {MAX_PREDICTION_ASSETS} zdjęcia.
+            </Text>
+          )}
         </View>
+
+        {/* Compression indicator */}
+        {isCompressing && (
+          <View className="flex-row items-center gap-2 mb-2">
+            <ActivityIndicator size="small" color="#00964a" />
+            <Text className="text-gray-600 text-sm">Kompresja zdjęć...</Text>
+          </View>
+        )}
 
         <Button
           title="Sprawdź"
           className="mb-6"
           onPress={predict}
-          disabled={isLoading || isCompressing || !compressedImageUri}
+          disabled={isLoading || isCompressing || selectedAssets.length === 0}
         />
 
         <PredictionModal
           prediction={prediction}
           setPrediction={setPrediction}
+          isLoading={isLoading}
         />
-      </SafeAreaView>
 
-      <LoadingOverlay isVisible={isLoading} text="Analizowanie zdjęcia..." />
+        {selectedAssets.length > 0 && (
+          <ImagePreviewModal
+            visible={previewVisible}
+            images={selectedAssets[selectedAssets.length - 1] ? selectedAssets.map(a => ({ uri: a.uri })) : []}
+            initialIndex={previewIndex}
+            onClose={() => setPreviewVisible(false)}
+          />
+        )}
+      </SafeAreaView>
     </>
   );
 };

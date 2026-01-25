@@ -5,6 +5,8 @@ export const isPublicRoute = (path: string) => {
     "(media-browser)",
     "predict",
     "history",
+    "tree",
+    "guest-info",
   ];
   const authPaths = ["(auth)"];
 

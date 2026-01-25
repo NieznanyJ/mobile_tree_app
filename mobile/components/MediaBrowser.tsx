@@ -1,24 +1,30 @@
+import Ionicons from "@expo/vector-icons/Ionicons";
 import * as MediaLibrary from "expo-media-library";
 import { router } from "expo-router";
 import { useState } from "react";
-import { Image, View, Text, TouchableOpacity } from "react-native";
+import { Pressable, Text, View } from "react-native";
 
 import AlbumGrid from "@/components/AlbumGrid";
 import ImageModal from "@/components/modals/ImageModal";
 import RecentPhotosRow from "@/components/RecentPhotosRow";
+import Button from "@/components/ui/Button";
 import { useMediaLibrary } from "@/lib/hooks/useMediaLibrary";
 import { useAssetsStore } from "@/lib/store/assetsStore";
 import { useSettingsStore } from "@/lib/store/settingsStore";
-import Button from "@/components/ui/Button";
 
-const MediaBrowser = () => {
-  const { albumsPerPage, enableAlbumGrid, activeWidgets, widgetsEnabled } =
+interface MediaBrowserProps {
+  permissionResponse: MediaLibrary.PermissionResponse | null;
+  requestPermission: () => Promise<void>;
+}
+
+const MediaBrowser = ({ permissionResponse, requestPermission }: MediaBrowserProps) => {
+  const { albumsPerPage, activeWidgets, widgetsEnabled } =
     useSettingsStore();
 
   const { albums, getAssets, getAlbums } = useMediaLibrary();
   const {
     setAlbum,
-    selectedAssets,
+    recentImages,
     selectedAlbums,
     removeSelectedAlbum,
   } = useAssetsStore();
@@ -28,6 +34,8 @@ const MediaBrowser = () => {
     index: number;
   } | null>(null);
   const [editMode, setEditMode] = useState(false);
+
+  const isPermissionGranted = permissionResponse?.status === "granted";
 
   const handleAlbumSelected = (album: MediaLibrary.Album) => {
     if (editMode) return;
@@ -40,25 +48,47 @@ const MediaBrowser = () => {
   };
 
   const handlePhotoSelected = (asset: MediaLibrary.Asset, index: number) => {
-    setSelectedImageData({ assets: selectedAssets as MediaLibrary.Asset[], index });
+    setSelectedImageData({ assets: recentImages as MediaLibrary.Asset[], index });
   };
 
-  const handleOpenPicker = () => {
-    router.push("/(media-browser)/all-photos");
+  const handleRequestPermission = async () => {
+    await requestPermission();
   };
 
-  const renderAlbumGrid = () => {
-    if (enableAlbumGrid) {
-      return <RecentPhotosRow onPhotoSelected={handlePhotoSelected} />;
-    }
-  };
+  if (!isPermissionGranted) {
+    const showPhotos = widgetsEnabled && activeWidgets.recentPhotos;
+    const showAlbums = widgetsEnabled && activeWidgets.albums;
+
+    if (!showPhotos && !showAlbums) return null;
+
+    const canAskAgain = permissionResponse?.canAskAgain !== false;
+
+    return (
+      <View className="items-center gap-4 mt-6 px-4 py-8 bg-gray-50 rounded-2xl mx-2">
+        <View className="w-16 h-16 bg-gray-100 rounded-full items-center justify-center">
+          <Ionicons name="images-outline" size={32} color="#9ca3af" />
+        </View>
+        <Text className="text-base text-gray-600 text-center">
+          {canAskAgain
+            ? "Udziel dostępu do galerii, aby wyświetlić zdjęcia i foldery"
+            : "Dostęp do galerii został odmówiony. Zmień uprawnienia w ustawieniach."}
+        </Text>
+        <Button
+          title={canAskAgain ? "Udziel dostępu" : "Otwórz ustawienia"}
+          onPress={handleRequestPermission}
+          className="mt-2"
+        />
+      </View>
+    );
+  }
 
   return (
     <View className="flex flex-col gap-10">
-      {widgetsEnabled && activeWidgets.recentPhotos && renderAlbumGrid()}
-      <TouchableOpacity
+      {widgetsEnabled && activeWidgets.recentPhotos && (
+        <RecentPhotosRow onPhotoSelected={handlePhotoSelected} />
+      )}
+      <Pressable
         onLongPress={() => setEditMode(true)}
-        activeOpacity={0.7}
       >
         {editMode && (
           <View className="flex-row justify-end mb-4">
@@ -81,7 +111,7 @@ const MediaBrowser = () => {
             onRemoveAlbum={removeSelectedAlbum}
           />
         )}
-      </TouchableOpacity>
+      </Pressable>
 
       {selectedImageData && (
         <ImageModal

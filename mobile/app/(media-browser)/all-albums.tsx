@@ -1,78 +1,59 @@
+import { Ionicons } from "@expo/vector-icons";
 import * as MediaLibrary from "expo-media-library";
 import { router, useFocusEffect } from "expo-router";
-import React, { useCallback, useEffect, useState } from "react";
-import { ScrollView, View, Text, ActivityIndicator } from "react-native";
+import React, { useCallback, useState } from "react";
+import { Pressable, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import AlbumGrid from "@/components/AlbumGrid";
+import AlbumGridSkeleton from "@/components/skeletons/AlbumGridSkeleton";
 import Button from "@/components/ui/Button";
 import SearchInput from "@/components/ui/input/SearchInput";
 import { useMediaLibrary } from "@/lib/hooks/useMediaLibrary";
 import { useAssetsStore } from "@/lib/store/assetsStore";
+import { useSettingsStore } from "@/lib/store/settingsStore";
 
 export default function AllAlbumsScreen() {
-  const [selectedImage, setSelectedImage] = useState<MediaLibrary.Asset | null>(
-    null,
-  );
   const [loading, setLoading] = useState(false);
-  const [selectedAlbum, setSelectedAlbum] = useState<MediaLibrary.Album | null>(
-    null,
-  );
-  const [isModalVisible, setModalVisible] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [pickerMode, setPickerMode] = useState(false);
   const [selectedAlbums, setSelectedAlbums] = useState<Set<string>>(new Set());
 
-  const { albums, assets, getAssets, getAlbums } = useMediaLibrary();
+  const { albums, getAssets, getAlbums } = useMediaLibrary();
   const { setAlbum, addSelectedAlbums, selectedAlbums: storeSelectedAlbums } = useAssetsStore();
+  const { displayOption, setDisplayOption } = useSettingsStore();
 
   const handleAlbumSelected = (album: MediaLibrary.Album) => {
     if (pickerMode) {
-      // In picker mode: toggle selection
       setSelectedAlbums((prev) => {
         const next = new Set(prev);
         next.has(album.id) ? next.delete(album.id) : next.add(album.id);
         return next;
       });
     } else {
-      // Normal mode: navigate
       setAlbum(album);
-      setSelectedAlbum(album);
       getAssets(album);
-      setModalVisible(true);
       router.push(`/(media-browser)/${album.id}`);
     }
   };
 
   const handleAlbumLongPress = (album: MediaLibrary.Album) => {
     if (!pickerMode) {
-      // First long-press: activate picker mode
       setPickerMode(true);
       setSelectedAlbums(new Set([album.id]));
     }
   };
 
-  const handlePhotoSelected = (asset: MediaLibrary.Asset) => {
-    setSelectedImage(asset);
-    setModalVisible(false);
-  };
-
   const handleAddAlbums = () => {
-    // Convert Set to Array and save to store
     const albumsToAdd = albums.filter((album) =>
       selectedAlbums.has(album.id),
     );
     addSelectedAlbums(albumsToAdd);
-
-    // Reset picker mode
     setPickerMode(false);
     setSelectedAlbums(new Set());
-
-    // Go back
     router.back();
   };
 
-  // Load albums when screen comes into focus
   useFocusEffect(
     useCallback(() => {
       const fetchAlbums = async () => {
@@ -80,7 +61,6 @@ export default function AllAlbumsScreen() {
         await getAlbums();
         setLoading(false);
       };
-
       fetchAlbums();
     }, [getAlbums])
   );
@@ -99,14 +79,15 @@ export default function AllAlbumsScreen() {
             <Text className="text-lg font-semibold">Wybierz foldery</Text>
             <Button
               title={`Dodaj (${selectedAlbums.size})`}
-              className="w-1/4 mt-0"
+              className="w-auto px-6 mt-0"
               textClassName="text-sm"
               onPress={handleAddAlbums}
             />
           </View>
           <Button
             title="Anuluj"
-            className="w-full"
+            variant="outline"
+            className="w-full mt-0"
             textClassName="text-sm"
             onPress={() => {
               setPickerMode(false);
@@ -117,13 +98,24 @@ export default function AllAlbumsScreen() {
       )}
 
       {loading ? (
-        <View className="flex-1 items-center justify-center py-10">
-          <ActivityIndicator size="large" color="#6366f1" />
-          <Text className="mt-4 text-gray-600">Ładowanie albumów...</Text>
-        </View>
+        <AlbumGridSkeleton />
       ) : (
         <View className="flex flex-col gap-4">
-          {!pickerMode && (<Text className="p-2">Kliknij i przytrzymaj, aby wybrać wiele albumów</Text>)}
+          {!pickerMode && (
+            <View className="flex-row items-center justify-between">
+              <Text className="text-sm text-gray-500">Przytrzymaj album, aby wybrać wiele</Text>
+              <Pressable
+                className="bg-gray-100 rounded-xl p-2"
+                onPress={() => setDisplayOption(displayOption === "grid" ? "list" : "grid")}
+              >
+                <Ionicons
+                  name={displayOption === "grid" ? "list" : "grid"}
+                  size={18}
+                  color="#00964a"
+                />
+              </Pressable>
+            </View>
+          )}
           <SearchInput
             value={searchText}
             onChangeText={setSearchText}
@@ -136,7 +128,7 @@ export default function AllAlbumsScreen() {
               onAlbumSelected={handleAlbumSelected}
               onAlbumLongPress={handleAlbumLongPress}
               onRefresh={getAlbums}
-              albumsPerPage={"all"}
+              albumsPerPage="all"
               headerShown={false}
               pickerMode={pickerMode}
               selectedAlbums={selectedAlbums}
@@ -144,6 +136,6 @@ export default function AllAlbumsScreen() {
           </ScrollView>
         </View>
       )}
-    </SafeAreaView >
+    </SafeAreaView>
   );
 }

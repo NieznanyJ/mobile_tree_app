@@ -4,13 +4,14 @@ import LoadingOverlay from "@/components/ui/LoadingOverlay";
 import React, { useRef, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   Dimensions,
   Pressable,
   StyleSheet,
   Text,
   View,
 } from "react-native";
-import { useAssetsStore } from "@/lib/store/assetsStore";
+import { useAssetsStore, MAX_PREDICTION_ASSETS } from "@/lib/store/assetsStore";
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -22,7 +23,7 @@ export default function CameraScreen() {
   const [flashMode, setFlashMode] = useState<"on" | "off" | "auto">("auto");
   const [isCapturing, setIsCapturing] = useState(false);
   const cameraRef = useRef<CameraView>(null);
-  const { setImage } = useAssetsStore();
+  const { selectedAssets, addAssetForPrediction } = useAssetsStore();
   const router = useRouter();
 
   const handleRequestPermission = async () => {
@@ -47,6 +48,11 @@ export default function CameraScreen() {
   const takePicture = async () => {
     if (!cameraRef.current) return;
 
+    if (selectedAssets.length >= MAX_PREDICTION_ASSETS) {
+      Alert.alert("Limit zdjęć", "Wszystkie 4 sloty są zajęte. Usuń jedno zdjęcie, aby dodać nowe.");
+      return;
+    }
+
     setIsCapturing(true);
     try {
       const photo = await cameraRef.current.takePictureAsync({
@@ -55,7 +61,6 @@ export default function CameraScreen() {
       });
 
       if (photo) {
-        // Konwertujemy do formatu MediaLibrary Asset
         const asset: import("@/lib/store/assetsStore").CameraPhoto = {
           id: photo.uri,
           uri: photo.uri,
@@ -64,7 +69,7 @@ export default function CameraScreen() {
           height: photo.height,
         };
 
-        setImage(asset);
+        addAssetForPrediction(asset);
         router.push("/predict");
       }
     } catch (error) {

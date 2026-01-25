@@ -1,10 +1,9 @@
 import * as MediaLibrary from "expo-media-library";
 import { useRouter } from "expo-router";
-import React, { useRef, useState, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import {
   Image,
   Modal,
-  StyleSheet,
   TouchableOpacity,
   View,
   Text,
@@ -12,7 +11,7 @@ import {
   FlatList,
 } from "react-native";
 
-import { useAssetsStore } from "@/lib/store/assetsStore";
+import { useAssetsStore, MAX_PREDICTION_ASSETS } from "@/lib/store/assetsStore";
 import Button from "../ui/Button";
 
 const { width } = Dimensions.get("window");
@@ -32,9 +31,11 @@ export default function AssetModal({
   initialIndex,
   onConfirm,
 }: AssetModalProps) {
-  const { setImage } = useAssetsStore();
+  const { selectedAssets, addAssetForPrediction } = useAssetsStore();
   const router = useRouter();
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
+
+  const isFull = selectedAssets.length >= MAX_PREDICTION_ASSETS;
 
   const handleClose = () => {
     onClose();
@@ -45,21 +46,17 @@ export default function AssetModal({
     if (onConfirm) {
       onConfirm(asset);
     } else {
-      setImage(asset);
+      addAssetForPrediction(asset);
       router.push("/predict");
     }
     handleClose();
   };
 
-  const onViewableItemsChanged = useCallback(({ viewableItems }) => {
+  const onViewableItemsChanged = useCallback(({ viewableItems }: any) => {
     if (viewableItems.length > 0) {
       setCurrentIndex(viewableItems[0].index);
     }
   }, []);
-
-  // const viewabilityConfig = {
-  //   itemVisiblePercentThreshold: 50,
-  // };
 
   return (
     <Modal
@@ -68,13 +65,20 @@ export default function AssetModal({
       transparent
       onRequestClose={handleClose}
     >
-      <View style={styles.modalContainer}>
+      <View className="flex-1 w-full bg-black/80 justify-center items-center">
         <TouchableOpacity
           activeOpacity={1}
           onPress={handleClose}
-          style={StyleSheet.absoluteFill}
+          className="absolute inset-0"
         />
-        <View style={styles.modalContent}>
+        <View className="w-[90%] mx-5 bg-white rounded-2xl overflow-hidden">
+          {/* Counter badge */}
+          <View className="absolute top-3 right-3 z-10 bg-black/60 rounded-full px-3 py-1">
+            <Text className="text-white text-xs font-semibold">
+              {selectedAssets.length}/{MAX_PREDICTION_ASSETS}
+            </Text>
+          </View>
+
           <FlatList
             data={assets}
             horizontal
@@ -82,28 +86,47 @@ export default function AssetModal({
             showsHorizontalScrollIndicator={false}
             initialScrollIndex={initialIndex}
             onViewableItemsChanged={onViewableItemsChanged}
-            // viewabilityConfig={viewabilityConfig}
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
-              <View style={styles.imageContainer}>
+              <View
+                style={{ width: width * 0.9 }}
+                className="justify-center items-center"
+              >
                 <Image
                   source={{ uri: item.uri }}
-                  style={styles.previewImage}
+                  className="w-[90%] rounded-xl"
+                  style={{ height: 400 }}
                   resizeMode="contain"
                 />
               </View>
             )}
             getItemLayout={(data, index) => ({
-              length: width,
-              offset: width * index,
+              length: width * 0.9,
+              offset: width * 0.9 * index,
               index,
             })}
           />
-          <View className="flex flex-col items-center justify-center p-4 gap-3">
-            <Button
-              title="Użyj tego zdjęcia"
-              onPress={() => handlePhotoSelect(assets[currentIndex])}
-            />
+
+          <View className="flex-col items-center justify-center p-4 gap-3 bg-gray-50 rounded-b-2xl">
+            {isFull ? (
+              <>
+                <Text className="text-gray-500 text-sm">
+                  Wybrano już {MAX_PREDICTION_ASSETS} zdjęcia
+                </Text>
+                <Button
+                  title="Przejdź do analizy"
+                  onPress={() => {
+                    handleClose();
+                    router.push("/predict");
+                  }}
+                />
+              </>
+            ) : (
+              <Button
+                title="Dodaj to zdjęcie"
+                onPress={() => handlePhotoSelect(assets[currentIndex])}
+              />
+            )}
             <TouchableOpacity
               onPress={handleClose}
               activeOpacity={0.7}
@@ -117,30 +140,3 @@ export default function AssetModal({
     </Modal>
   );
 }
-
-const styles = StyleSheet.create({
-  modalContainer: {
-    flex: 1,
-    width: "100%",
-    backgroundColor: "rgba(0, 0, 0, 0.8)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  modalContent: {
-    width: "90%",
-    marginHorizontal: 20,
-    backgroundColor: 'white',
-    borderRadius: 20,
-    overflow: 'hidden',
-  },
-  imageContainer: {
-    width: width * 0.9,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  previewImage: {
-    width: "90%",
-    height: 400,
-    borderRadius: 12,
-  },
-});

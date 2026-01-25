@@ -1,13 +1,14 @@
 import { MaterialIcons } from "@expo/vector-icons";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import * as MediaLibrary from "expo-media-library";
 import { Link } from "expo-router";
 import React, { useEffect } from "react";
-import { FlatList, Text, View } from "react-native";
+import { FlatList, Pressable, Text, View } from "react-native";
 
+import { useAssetsStore } from "@/lib/store/assetsStore";
 import { useSettingsStore } from "@/lib/store/settingsStore";
 
 import AlbumItem from "./ui/AlbumItem";
-import { useAssetsStore } from "@/lib/store/assetsStore";
 
 interface AlbumGridProps {
   albums: MediaLibrary.Album[];
@@ -43,7 +44,7 @@ export default function AlbumGrid({
       ? albums
       : albums.slice(0, albumsPerPage as number);
 
-  const { displayOption } = useSettingsStore();
+  const { displayOption, setDisplayOption } = useSettingsStore();
   const { setAlbumCount } = useAssetsStore();
 
   useEffect(() => {
@@ -55,12 +56,26 @@ export default function AlbumGrid({
       {headerShown && (
         <View className="w-full flex flex-row items-center justify-between mb-4">
           <Text className="text-xl font-bold">Foldery</Text>
-          <Link
-            href="/(media-browser)/all-albums"
-            className="text-sm text-gray-600"
-          >
-            Więcej
-          </Link>
+          <View className="flex-row items-center gap-3">
+            <Pressable
+              className="bg-gray-100 rounded-xl p-2"
+              onPress={() =>
+                setDisplayOption(displayOption === "grid" ? "list" : "grid")
+              }
+            >
+              <Ionicons
+                name={displayOption === "grid" ? "list" : "grid"}
+                size={18}
+                color="#00964a"
+              />
+            </Pressable>
+            <Link
+              href="/(media-browser)/all-albums"
+              className="text-sm text-gray-600"
+            >
+              Więcej
+            </Link>
+          </View>
         </View>
       )}
 

@@ -5,6 +5,7 @@ import { router, SplashScreen, Stack, useSegments } from "expo-router";
 import { useColorScheme } from "nativewind";
 import { useEffect, useState } from "react";
 import { StatusBar } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import AnimatedSplashScreen from "@/components/AnimatedSplashScreen";
@@ -85,6 +86,7 @@ function RootLayoutNav() {
   }
 
   return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
     <SafeAreaProvider className={`font-sans ${colorScheme}`}>
       <ErrorBoundary>
         <StatusBar barStyle={"dark-content"} backgroundColor={'#5CE7A0'} />
@@ -129,8 +131,27 @@ function RootLayoutNav() {
               headerShadowVisible: false,
             }}
           />
+          <Stack.Screen
+            name="tree/[id]"
+            options={{
+              headerShown: true,
+              headerTitle: "",
+              headerTitleAlign: "center",
+              headerShadowVisible: false,
+            }}
+          />
+          <Stack.Screen
+            name="guest-info"
+            options={{
+              headerShown: true,
+              headerTitle: "Tryb gościa",
+              headerTitleAlign: "center",
+              headerShadowVisible: false,
+            }}
+          />
         </Stack>
       </ErrorBoundary>
     </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }

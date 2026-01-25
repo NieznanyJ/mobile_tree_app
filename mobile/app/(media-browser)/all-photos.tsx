@@ -1,31 +1,27 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { FlashList } from "@shopify/flash-list";
 import * as MediaLibrary from "expo-media-library";
 import { router, useLocalSearchParams } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Dimensions,
-  FlatList,
   Image,
-  ScrollView,
-  StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import Button from "@/components/ui/Button";
 import ImageModal from "@/components/modals/ImageModal";
+import PhotoGridSkeleton from "@/components/skeletons/PhotoGridSkeleton";
+import Button from "@/components/ui/Button";
 import SearchInput from "@/components/ui/input/SearchInput";
-import { useMediaLibrary } from "@/lib/hooks/useMediaLibrary";
 import { useAssetsStore } from "@/lib/store/assetsStore";
-import { FlashList } from "@shopify/flash-list";
 
 const ITEMS_PER_ROW = 4;
 const ITEM_SPACING = 6;
-const ITEM_WIDTH =
-  Dimensions.get("window").width / ITEMS_PER_ROW - ITEM_SPACING;
+const ITEM_WIDTH = Dimensions.get("window").width / ITEMS_PER_ROW - ITEM_SPACING;
 
 export const DISPLAY_OPTIONS_CALC = [
   {
@@ -56,11 +52,15 @@ export const DISPLAY_OPTIONS_CALC = [
 
 const num = 4;
 
+const PAGE_SIZE = 50;
+
 export default function AllPhotosScreen() {
-  const { getRecentAssets, permissionResponse, requestPermission } =
-    useMediaLibrary();
+  const [permissionResponse, requestPermission] = MediaLibrary.usePermissions({
+    mediaTypes: MediaLibrary.MediaType.photo,
+  });
   const [assets, setAssets] = useState<MediaLibrary.Asset[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [selectedImageData, setSelectedImageData] = useState<{
@@ -68,23 +68,25 @@ export default function AllPhotosScreen() {
     index: number;
   } | null>(null);
 
-  const { setAssetsCount, setSelectedAssets, selectedAssets } = useAssetsStore();
-  const { setImage } = useAssetsStore();
+  const endCursorRef = useRef<string | undefined>(undefined);
+  const hasNextPageRef = useRef(true);
+
+  const { setAssetsCount, setRecentImages, recentImages, addAssetForPrediction } = useAssetsStore();
   const params = useLocalSearchParams();
   const isSingleSelect = params.mode === "single";
 
-  const filteredAssets = assets.filter((asset) =>
-    asset.filename.toLowerCase().includes(searchText.toLowerCase()),
-  );
+  const filteredAssets = searchText
+    ? assets.filter((asset) =>
+      asset.filename.toLowerCase().includes(searchText.toLowerCase()),
+    )
+    : assets;
 
   const layout = DISPLAY_OPTIONS_CALC.find((opt) => opt.ITEMS_PER_ROW === num);
 
   const handleItemPress = (item: MediaLibrary.Asset, index: number) => {
     if (isSingleSelect) {
-      // Single select: show modal
       setSelectedImageData({ assets: filteredAssets, index });
     } else {
-      // Multi-select: toggle selection
       setSelected((prev) => {
         const next = new Set(prev);
         next.has(item.id) ? next.delete(item.id) : next.add(item.id);
@@ -92,6 +94,18 @@ export default function AllPhotosScreen() {
       });
     }
   };
+
+  const loadAssets = useCallback(async (after?: string) => {
+    const result = await MediaLibrary.getAssetsAsync({
+      first: PAGE_SIZE,
+      after,
+      sortBy: [MediaLibrary.SortBy.creationTime],
+      mediaType: [MediaLibrary.MediaType.photo],
+    });
+    endCursorRef.current = result.endCursor;
+    hasNextPageRef.current = result.hasNextPage;
+    return result.assets;
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -104,98 +118,61 @@ export default function AllPhotosScreen() {
         }
       }
       if (permissionResponse?.status === "granted") {
-        // Get all assets, with a reasonable limit for performance
-        const allAssets = await getRecentAssets(1000);
-        setAssets(allAssets);
-        setAssetsCount!(allAssets.length);
+        const firstPage = await loadAssets();
+        setAssets(firstPage);
+        setAssetsCount!(firstPage.length);
       }
       setLoading(false);
     })();
   }, [permissionResponse?.status]);
 
-  // Prefill selection with already chosen assets, but only those still available
+  const loadMore = useCallback(async () => {
+    if (loadingMore || !hasNextPageRef.current || searchText) return;
+    setLoadingMore(true);
+    const nextPage = await loadAssets(endCursorRef.current);
+    setAssets((prev) => {
+      const merged = [...prev, ...nextPage];
+      setAssetsCount!(merged.length);
+      return merged;
+    });
+    setLoadingMore(false);
+  }, [loadingMore, searchText, loadAssets]);
+
   useEffect(() => {
-    if (!selectedAssets || selectedAssets.length === 0) {
+    if (!recentImages || recentImages.length === 0) {
       setSelected(new Set());
       return;
     }
 
     const availableIds = new Set(assets.map((a) => a.id));
-    const preselected = selectedAssets
+    const preselected = recentImages
       .filter((a) => availableIds.has(a.id))
       .map((a) => a.id);
 
     setSelected(new Set(preselected));
-  }, [selectedAssets, assets]);
-
-  const renderContent = () => {
-    if (loading) {
-      return <ActivityIndicator size="large" color="#000" className="mt-10" />;
-    }
-
-    if (assets.length === 0) {
-      return (
-        <Text className="text-center mt-10 text-gray-500">
-          Nie znaleziono zdjęć.
-        </Text>
-      );
-    }
-
-    return (
-
-      <FlashList
-        key={num}
-        style={{ marginTop: 10 }}
-        data={filteredAssets}
-        keyExtractor={(item) => item.id}
-        scrollEnabled={false}
-        numColumns={num}
-        renderItem={({ item, index }) => (
-          <TouchableOpacity
-            onPress={() => handleItemPress(item, index)}
-            style={{
-              width: layout?.ITEM_WIDTH,
-              height: layout!.ITEM_WIDTH * 1.1,
-              padding: 4,
-            }}
-          >
-            <Image
-              source={{ uri: item.uri }}
-              style={{ width: "100%", height: "100%", borderRadius: 8 }}
-            />
-            {!isSingleSelect && selected.has(item.id) && (
-              <View
-                style={{
-                  position: "absolute",
-                  inset: 4,
-                  borderRadius: 8,
-                  backgroundColor: "rgba(0,0,0,0.35)",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <Text className="text-white font-bold">✓</Text>
-              </View>
-            )}
-          </TouchableOpacity>
-        )}
-      />
-
-    );
-  };
+  }, [recentImages, assets]);
 
   const allSelected = filteredAssets.length > 0 && filteredAssets.every((a) => selected.has(a.id));
 
+  const renderFooter = () => {
+    if (!loadingMore) return null;
+    return (
+      <View style={{ paddingVertical: 16, alignItems: "center" }}>
+        <ActivityIndicator size="small" color="#00964a" />
+      </View>
+    );
+  };
+
   return (
-    <SafeAreaView className="flex-1 p-4 bg-background pt-0 ">
+    <SafeAreaView className="flex-1 p-4 bg-background pt-0">
       {!isSingleSelect && (
-        <View className="flex-col gap-2  mb-3 ">
+        <View className="flex-col gap-2 mb-3">
           <Text className="text-lg font-semibold">Wybierz zdjęcia</Text>
-          <View className="flex-row items-center justify-between">
+          <View className="flex-row items-center justify-between gap-2">
             <Button
               title={allSelected ? "Odznacz wszystkie" : "Zaznacz wszystkie"}
-              className="w-1/3 "
-              style={{ marginTop: 0 }}
+              variant="outline"
+              className="flex-1 px-4 mt-0"
               textClassName="text-sm"
               onPress={() => {
                 if (allSelected) {
@@ -208,11 +185,11 @@ export default function AllPhotosScreen() {
             />
             <Button
               title={`Dodaj (${selected.size})`}
-              style={{ width: '30%', marginTop: 0 }}
+              className="flex-1 px-6 mt-0"
               textClassName="text-sm"
               onPress={() => {
                 const chosen = assets.filter((a) => selected.has(a.id));
-                setSelectedAssets(chosen);
+                setRecentImages(chosen);
                 router.back();
               }}
             />
@@ -225,19 +202,58 @@ export default function AllPhotosScreen() {
         handleReset={() => setSearchText("")}
         placeholder="Szukaj"
       />
-      {filteredAssets.length > 0 ? (
-        <ScrollView className="mt-2" >
-          {renderContent()}
-        </ScrollView>
-      ) : (
-        <View className="flex  flex-col items-center justify-center gap-2 my-4 flex-1  h-full">
-          <MaterialCommunityIcons
-            name="image-off"
-            size={36}
-            color="#e5e7eb"
-          />
-          <Text>Brak ostatnich zdjęć lub brak dostępu do galerii.</Text>
+      {loading ? (
+        <View className="mt-2">
+          <PhotoGridSkeleton />
         </View>
+      ) : assets.length === 0 ? (
+        <View className="flex-1 flex-col items-center justify-center gap-3">
+          <View className="w-16 h-16 rounded-full bg-gray-100 items-center justify-center">
+            <MaterialCommunityIcons name="image-off" size={28} color="#9ca3af" />
+          </View>
+          <Text className="text-gray-500">Brak ostatnich zdjęć lub brak dostępu do galerii.</Text>
+        </View>
+      ) : (
+        <FlashList
+          key={num}
+          contentContainerStyle={{ paddingTop: 8 }}
+          data={filteredAssets}
+          keyExtractor={(item) => item.id}
+          numColumns={num}
+          estimatedItemSize={layout!.ITEM_WIDTH * 1.1}
+          onEndReached={loadMore}
+          onEndReachedThreshold={0.5}
+          ListFooterComponent={renderFooter}
+          renderItem={({ item, index }) => (
+            <TouchableOpacity
+              onPress={() => handleItemPress(item, index)}
+              style={{
+                width: layout?.ITEM_WIDTH,
+                height: layout!.ITEM_WIDTH * 1.1,
+                padding: 4,
+              }}
+            >
+              <Image
+                source={{ uri: item.uri }}
+                style={{ width: "100%", height: "100%", borderRadius: 8 }}
+              />
+              {!isSingleSelect && selected.has(item.id) && (
+                <View
+                  style={{
+                    position: "absolute",
+                    inset: 4,
+                    borderRadius: 8,
+                    backgroundColor: "rgba(0,0,0,0.35)",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <Text className="text-white font-bold">✓</Text>
+                </View>
+              )}
+            </TouchableOpacity>
+          )}
+        />
       )}
       {isSingleSelect && selectedImageData && (
         <ImageModal
@@ -246,7 +262,7 @@ export default function AllPhotosScreen() {
           assets={selectedImageData.assets}
           initialIndex={selectedImageData.index}
           onConfirm={(asset) => {
-            setImage(asset);
+            addAssetForPrediction(asset);
             router.replace("/predict");
           }}
         />
@@ -254,5 +270,3 @@ export default function AllPhotosScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({});
