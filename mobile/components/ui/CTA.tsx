@@ -1,40 +1,32 @@
-import { StyleSheet, Text, View } from 'react-native'
-import React from 'react'
 import { Ionicons } from '@expo/vector-icons'
-import Button from './Button';
 import { useRouter } from 'expo-router';
+import React from 'react'
+import { Text, View } from 'react-native'
+
+import Button from './Button';
 
 const CTA = () => {
     const router = useRouter();
 
     return (
-        <View className="flex-1 flex w-full items-center justify-center" >
-            {/* Tekst zachęty powyżej przycisku */}
-            <Text style={styles.label}>Poznaj gatunek tego drzewa!</Text>
-
-            <Button
-                title='Zrób zdjęcie i zidentyfikuj'
-                className='flex-row-reverse gap-2 items-center justify-center'
-                onPress={() => router.push("/(tabs)/camera")}
-            >
-                <Ionicons
-                    name="camera"
-                    size={28}
-                    color="#fff"
-                />
-            </Button>
-        </View >
+        <View className="w-full items-center px-4 py-6">
+            <View className="w-full bg-white rounded-2xl p-6 items-center ">
+                <Text className="text-lg font-semibold text-gray-900 mb-1 text-center">
+                    Poznaj gatunek drzewa
+                </Text>
+                <Text className="text-sm text-gray-500 mb-5 text-center">
+                    Zrób zdjęcie, a my zidentyfikujemy gatunek
+                </Text>
+                <Button
+                    title="Zrób zdjęcie"
+                    className="w-full mt-0"
+                    onPress={() => router.push("/(tabs)/camera")}
+                >
+                    <Ionicons name="camera" size={22} color="#fff" />
+                </Button>
+            </View>
+        </View>
     )
 }
 
 export default CTA
-
-const styles = StyleSheet.create({
-    label: {
-        fontSize: 18,
-        fontWeight: '600',
-        color: '#00964A',
-        marginBottom: 12,
-        textAlign: 'center',
-    },
-})

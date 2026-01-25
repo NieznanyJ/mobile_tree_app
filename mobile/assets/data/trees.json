@@ -1,0 +1,98 @@
+[
+  {
+    "id": "quercus-robur",
+    "commonName": "Dąb szypułkowy",
+    "scientificName": "Quercus robur",
+    "description": "Dąb szypułkowy to jedno z najdłużej żyjących drzew w Polsce, osiągające wiek nawet ponad 1000 lat. Dorasta do 40 m wysokości. Charakteryzuje się szeroką, nieregularną koroną i głęboko spękaną korą. Liście są odwrotnie jajowate z zaokrąglonymi klapami. Owocem jest żołądź osadzony na długiej szypułce.",
+    "occurrence": "Pospolity w całej Polsce. Rośnie w lasach liściastych i mieszanych, parkach, alejach. Preferuje gleby żyzne, głębokie i umiarkowanie wilgotne. Występuje w całej Europie oraz zachodniej Azji.",
+    "images": ["quercus_robur_1.jpg", "quercus_robur_2.jpg"]
+  },
+  {
+    "id": "fagus-sylvatica",
+    "commonName": "Buk zwyczajny",
+    "scientificName": "Fagus sylvatica",
+    "description": "Buk zwyczajny to potężne drzewo liściaste osiągające do 40 m wysokości. Ma gładką, szarą korę i owalną, gęstą koronę. Liście są eliptyczne, błyszczące, jesienią przebarwiają się na złoto i brąz. Owoce to trójkanciaste orzeszki bukowe (bukiew) zamknięte w kolczastej kupuli.",
+    "occurrence": "Jeden z głównych gatunków lasotwórczych w Polsce, szczególnie liczny na zachodzie i południu kraju. Tworzy jednogatunkowe lasy bukowe (buczyny). Występuje w Europie Zachodniej i Środkowej.",
+    "images": ["fagus_sylvatica_1.jpg", "fagus_sylvatica_2.jpg"]
+  },
+  {
+    "id": "betula-pendula",
+    "commonName": "Brzoza brodawkowata",
+    "scientificName": "Betula pendula",
+    "description": "Brzoza brodawkowata to smukłe drzewo o białej korze, osiągające do 25 m wysokości. Charakterystyczna biała kora łuszczy się poziomymi pasami. Gałązki są cienkie, zwisające, pokryte brodawkami żywicznymi. Liście trójkątne, podwójnie piłkowane. Kwiaty zebrane w kotki.",
+    "occurrence": "Bardzo pospolita w całej Polsce. Gatunek pionierski, zasiedla łatwo tereny otwarte, zręby, nieużytki. Rośnie na różnych glebach, także ubogich i piaszczystych. Występuje w całej Europie i północnej Azji.",
+    "images": ["betula_pendula_1.jpg", "betula_pendula_2.jpg", "betula_pendula_3.jpg", "betula_pendula_4.jpg"]
+  },
+  {
+    "id": "pinus-sylvestris",
+    "commonName": "Sosna zwyczajna",
+    "scientificName": "Pinus sylvestris",
+    "description": "Sosna zwyczajna to najpospolitsze drzewo iglaste w Polsce, osiągające do 35 m wysokości. Ma charakterystyczną rudo-pomarańczową korę w górnej części pnia. Igły są zebrane po 2, szarozielone, długości 4-7 cm. Szyszki jajowate, dojrzewają w 2 lata.",
+    "occurrence": "Najczęstsze drzewo w polskich lasach, stanowi około 58% drzewostanów. Rośnie na różnych siedliskach, od suchych piasków po torfowiska. Występuje w całej Europie i Azji północnej, od Hiszpanii po Syberię.",
+    "images": ["pinus_sylvestris_1.jpg", "pinus_sylvestris_2.jpg"]
+  },
+  {
+    "id": "picea-abies",
+    "commonName": "Świerk pospolity",
+    "scientificName": "Picea abies",
+    "description": "Świerk pospolity to wysokie drzewo iglaste osiągające do 50 m wysokości. Ma stożkowatą koronę i zwisające gałęzie. Igły są czterokątne, ostre, ciemnozielone, osadzone spiralnie na pędach. Szyszki zwisające, cylindryczne, długości 10-16 cm. Kora jest cienka, łuszcząca się.",
+    "occurrence": "Drugi co do częstości gatunek iglasty w Polsce. Naturalnie występuje głównie w górach (Karpaty, Sudety) oraz na Niżu w północno-wschodniej Polsce. Masowo sadzony w całym kraju. Preferuje gleby świeże i wilgotne.",
+    "images": ["picea_abies_1.jpg", "picea_abies_2.jpg"]
+  },
+  {
+    "id": "acer-platanoides",
+    "commonName": "Klon pospolity",
+    "scientificName": "Acer platanoides",
+    "description": "Klon pospolity to drzewo liściaste osiągające do 30 m wysokości. Ma szeroką, kulistą koronę. Liście są dłoniasto klapowane (5-7 klap), jesienią intensywnie żółte lub pomarańczowe. Owoce to skrzydlaki rozchodzące się pod kątem rozwartym. Kora szara, z wiekiem płytko spękana.",
+    "occurrence": "Pospolity w całej Polsce, zarówno w lasach liściastych jak i w miastach jako drzewo ozdobne i alejowe. Preferuje żyzne, umiarkowanie wilgotne gleby. Występuje w Europie i zachodniej Azji.",
+    "images": ["acer_platanoides_1.jpg", "acer_platanoides_2.jpg"]
+  },
+  {
+    "id": "tilia-cordata",
+    "commonName": "Lipa drobnolistna",
+    "scientificName": "Tilia cordata",
+    "description": "Lipa drobnolistna to okazałe drzewo liściaste osiągające do 30 m wysokości i dożywające ponad 500 lat. Ma szeroko jajowatą koronę. Liście są sercowate, drobne (3-6 cm), od spodu sinozielone. Kwiaty żółtawe, silnie pachnące, cenione w ziołolecznictwie. Owoce to kuliste orzeszki.",
+    "occurrence": "Pospolita w całej Polsce. Rośnie w lasach liściastych i mieszanych, parkach, przy drogach. Bardzo popularne drzewo ozdobne i miododajne. Występuje w Europie i zachodniej Azji.",
+    "images": ["tilia_cordata_1.jpg", "tilia_cordata_2.jpg"]
+  },
+  {
+    "id": "fraxinus-excelsior",
+    "commonName": "Jesion wyniosły",
+    "scientificName": "Fraxinus excelsior",
+    "description": "Jesion wyniosły to wysokie drzewo liściaste osiągające do 40 m wysokości. Ma rozłożystą, ażurową koronę. Liście są nieparzystopierzaste, złożone z 9-13 listków. Owoce to podłużne skrzydlaki zwisające w gronach. Pączki zimowe czarne, co odróżnia go od innych gatunków.",
+    "occurrence": "Pospolity w całej Polsce, szczególnie w lasach łęgowych i grądach. Preferuje gleby żyzne i wilgotne. Obecnie zagrożony przez chorobę zamierania jesionów (Hymenoscyphus fraxineus). Występuje w Europie.",
+    "images": ["fraxinus_excelsior_1.jpg", "fraxinus_excelsior_2.jpg"]
+  },
+  {
+    "id": "carpinus-betulus",
+    "commonName": "Grab zwyczajny",
+    "scientificName": "Carpinus betulus",
+    "description": "Grab zwyczajny to drzewo liściaste osiągające do 25 m wysokości. Charakteryzuje się szarą, gładką korą i muskularnym, żłobionym pniem. Liście są podwójnie piłkowane, jajowate. Owoce to orzeszki z trójklapowym skrzydełkiem. Jesienią liście żółkną, suche pozostają na gałęziach do wiosny.",
+    "occurrence": "Pospolity w całej Polsce, głównie w lasach grądowych. Często stosowany na żywopłoty ze względu na gęste ulistnienie i tolerancję na cięcie. Występuje w Europie Środkowej i Zachodniej.",
+    "images": ["carpinus_betulus_1.jpg", "carpinus_betulus_2.jpg"]
+  },
+  {
+    "id": "alnus-glutinosa",
+    "commonName": "Olsza czarna",
+    "scientificName": "Alnus glutinosa",
+    "description": "Olsza czarna to drzewo liściaste osiągające do 25 m wysokości, związane ze środowiskami wilgotnymi. Ma ciemną, spękaną korę. Liście są okrągławe z wciętym wierzchołkiem, lepkie w młodości. Owoce to małe, drewniejące szyszeczki pozostające na drzewie przez zimę. Wiąże azot atmosferyczny.",
+    "occurrence": "Pospolita w całej Polsce. Rośnie nad rzekami, strumieniami, na bagnach i torfowiskach. Tworzy lasy olszowe (olsy). Nie toleruje suszy. Występuje w Europie, północnej Afryce i zachodniej Azji.",
+    "images": ["alnus_glutinosa_1.jpg", "alnus_glutinosa_2.jpg"]
+  },
+  {
+    "id": "salix-alba",
+    "commonName": "Wierzba biała",
+    "scientificName": "Salix alba",
+    "description": "Wierzba biała to duże drzewo liściaste osiągające do 25 m wysokości. Ma szeroką koronę i często pochylony pień. Liście są wąsko lancetowate, od spodu srebrzysto owłosione, co nadaje drzewu charakterystyczny srebrzysty odcień. Kwiaty w kotkach pojawiają się wczesną wiosną.",
+    "occurrence": "Pospolita w całej Polsce, szczególnie nad rzekami, strumieniami i w dolinach rzecznych. Sadzona przy drogach i w parkach. Preferuje gleby wilgotne i żyzne. Występuje w Europie, Azji i północnej Afryce.",
+    "images": ["salix_alba_1.jpg", "salix_alba_2.jpg"]
+  },
+  {
+    "id": "abies-alba",
+    "commonName": "Jodła pospolita",
+    "scientificName": "Abies alba",
+    "description": "Jodła pospolita to okazałe drzewo iglaste osiągające do 55 m wysokości. Ma stożkowatą koronę, u starszych drzew bocianogniezdową. Igły są płaskie, miękkie, ciemnozielone z dwoma białymi paskami od spodu. Szyszki stojące prosto na gałęziach, rozpadają się na drzewie. Kora gładka, szara.",
+    "occurrence": "W Polsce występuje głównie w górach (Karpaty, Sudety, Góry Świętokrzyskie) i na wyżynach. Tworzy lasy jodłowe i jodłowo-bukowe. Wymaga gleb żyznych i wilgotnego powietrza. Wrażliwa na zanieczyszczenia.",
+    "images": ["abies_alba_1.jpg", "abies_alba_2.jpg"]
+  }
+]

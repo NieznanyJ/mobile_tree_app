@@ -1,6 +1,6 @@
-import { Feather } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import React from "react";
-import { Pressable, StyleSheet, TextInput, View } from "react-native";
+import { Pressable, TextInput, View } from "react-native";
 
 interface SearchInputProps {
   placeholder?: string;
@@ -15,37 +15,24 @@ const SearchInput = ({
   onChangeText,
   handleReset,
 }: SearchInputProps) => {
-  const renderIcon = (value: string | undefined) => {
-    if (!value)
-      return (
-        <Feather
-          style={{ position: "absolute", right: 16, top: 10 }}
-          name="search"
-          size={20}
-          color="black"
-        />
-      );
-    return (
-      <Pressable
-        onPress={handleReset}
-        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-        style={{ position: "absolute", right: 16, top: 12, zIndex: 10 }}
-      >
-        <Feather name="x" size={20} color="black" />
-      </Pressable>
-    );
-  };
-
   return (
-    <View className="relative">
+    <View className="flex-row items-center bg-gray-100 rounded-xl px-3 h-12">
+      <Ionicons name="search" size={20} color="#9ca3af" />
       <TextInput
-        className="border border-gray-300 w-full rounded-full p-2 pl-4 pr-10 h-12 text-textPrimary bg-background"
-        placeholderTextColor={"#9ca3af"}
+        className="flex-1 ml-2 text-textPrimary text-base"
+        placeholderTextColor="#9ca3af"
         placeholder={placeholder}
         value={value}
         onChangeText={onChangeText}
       />
-      {renderIcon(value)}
+      {!!value && (
+        <Pressable
+          onPress={handleReset}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        >
+          <Ionicons name="close-circle" size={20} color="#9ca3af" />
+        </Pressable>
+      )}
     </View>
   );
 };

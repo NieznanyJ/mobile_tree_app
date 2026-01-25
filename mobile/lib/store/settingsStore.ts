@@ -2,6 +2,8 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
+type AtlasViewMode = "cards" | "list";
+
 interface SettingsStore {
   albumsPerPage: number;
   setAlbumsPerPage: (count: number) => void;
@@ -17,6 +19,8 @@ interface SettingsStore {
   setWidgetsEnabled: (enabled: boolean) => void;
   activeWidgets: Record<string, boolean>;
   toggleWidget: (widgetId: string) => void;
+  atlasViewMode: AtlasViewMode;
+  setAtlasViewMode: (mode: AtlasViewMode) => void;
 }
 
 export const useSettingsStore = create<SettingsStore>()(
@@ -46,6 +50,8 @@ export const useSettingsStore = create<SettingsStore>()(
             [widgetId]: !state.activeWidgets[widgetId],
           },
         })),
+      atlasViewMode: "cards",
+      setAtlasViewMode: (mode) => set({ atlasViewMode: mode }),
     }),
     {
       name: "settings-storage",

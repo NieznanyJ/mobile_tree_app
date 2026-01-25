@@ -10,6 +10,7 @@ export default function Index() {
   const router = useRouter();
   const { enterAsGuest } = useAuth(); // Pobieramy funkcję z naszego kontekstu
 
+
   return (
     <SafeAreaView className="flex-1 flex-col justify-between items-center bg-background ">
       <View className="size-[500px] bg-secondary absolute rounded-full z-0 top-[-30%] "></View>

@@ -1,16 +1,18 @@
 import { FontAwesome5 } from "@expo/vector-icons";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import Octicons from "@expo/vector-icons/Octicons";
-import { Tabs, useRouter, usePathname } from "expo-router";
+import { Tabs, usePathname, useRouter } from "expo-router";
 import React, { useState } from "react";
-import { Pressable, StatusBar, StyleSheet, Text, View } from "react-native";
-import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import { Pressable, StyleSheet, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import CustomIcon from "@/components/ui/icons/CustomIcon";
 import WidgetsModal from "@/components/modals/WidgetsModal";
+import CustomIcon from "@/components/ui/icons/CustomIcon";
 import InfoBanner from "@/components/ui/InfoBanner";
 import { useAuth } from "@/lib/context/AuthContext";
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+
 
 
 const ICON_SIZE = 24;
@@ -106,7 +108,7 @@ const TabLayout = () => {
                 title="Start"
                 icon={
                   <Octicons
-                    name={focused ? "home-fill" : "home"}
+                    name="home-fill"
                     size={ICON_SIZE}
                     color={
                       focused
@@ -126,31 +128,38 @@ const TabLayout = () => {
             title: "Camera",
             tabBarStyle: { display: "none" },
             tabBarIcon: ({ focused }) => (
-              <View
-                className={`size-[70px] rounded-full flex items-center justify-center border border-gray-200 ${focused ? "bg-secondary" : "bg-background"}`}
-              >
-                <Ionicons
-                  name={focused ? "camera" : "camera-outline"}
-                  size={32}
-                  color={focused ? "#fff" : styles.iconColor.color}
-                />
-              </View>
+              <CustomIcon
+                isOnline={isOnline}
+                focused={focused}
+                title="Aparat"
+                icon={
+                  <Ionicons
+                    name="camera"
+                    size={ICON_SIZE}
+                    color={
+                      focused
+                        ? styles.iconColorFocused.color
+                        : styles.iconColor.color
+                    }
+                  />
+                }
+              />
             ),
           }}
         />
         <Tabs.Screen
-          name="library"
+          name="atlas"
           options={{
-            href: null,
-            title: "Library",
+            href: '/(tabs)/atlas',
+            title: "Atlas",
             tabBarIcon: ({ focused }) => (
               <CustomIcon
                 isOnline={isOnline}
                 focused={focused}
                 title="Atlas"
                 icon={
-                  <Ionicons
-                    name="library-outline"
+                  <MaterialCommunityIcons
+                    name="leaf"
                     size={ICON_SIZE}
                     color={
                       focused
@@ -175,7 +184,7 @@ const TabLayout = () => {
                 title="Profil"
                 icon={
                   <FontAwesome5
-                    name={focused ? "user-alt" : "user"}
+                    name="user-alt"
                     size={ICON_SIZE}
                     color={
                       focused

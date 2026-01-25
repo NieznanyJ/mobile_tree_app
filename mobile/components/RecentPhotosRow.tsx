@@ -1,10 +1,11 @@
+import { MaterialIcons } from "@expo/vector-icons";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import * as MediaLibrary from "expo-media-library";
 import { Link, useRouter } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   ActivityIndicator,
   Dimensions,
-  FlatList,
   Image,
   ScrollView,
   StyleSheet,
@@ -13,10 +14,9 @@ import {
   View,
 } from "react-native";
 
-import { useMediaLibraryWithCache } from "@/lib/hooks/useMediaLibraryWithCache";
-import Button from "./ui/Button";
-import { MaterialIcons } from "@expo/vector-icons";
 import { useAssetsStore } from "@/lib/store/assetsStore";
+
+import Button from "./ui/Button";
 
 interface RecentPhotosRowProps {
   onPhotoSelected?: (asset: MediaLibrary.Asset, index: number) => void;
@@ -30,10 +30,10 @@ export default function RecentPhotosRow({
   onPhotoSelected,
   photosPerPage = 12,
 }: RecentPhotosRowProps) {
-  const { permissionResponse, requestPermission } = useMediaLibraryWithCache();
-  const { selectedAssets } = useAssetsStore();
+  const { recentImages } = useAssetsStore();
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+
 
   const renderPhotoGrid = (
     assets: any[],
@@ -214,42 +214,38 @@ export default function RecentPhotosRow({
   };
 
   const grids = [];
-  for (let i = 0; i < selectedAssets.length; i += 4) {
-    grids.push(renderPhotoGrid(selectedAssets as any[], i));
+  for (let i = 0; i < recentImages.length; i += 4) {
+    grids.push(renderPhotoGrid(recentImages as any[], i));
   }
 
-  const handleOpenPicker = async () => {
-    if (permissionResponse?.status === "granted") {
-      router.push("/(media-browser)/all-photos");
-      return;
-    }
-
-    const permission = await requestPermission();
-    if (permission?.granted) {
-      router.push("/(media-browser)/all-photos");
-    }
+  const handleOpenPicker = () => {
+    router.push("/(media-browser)/all-photos");
   };
 
   if (loading) {
     return (
-      <Text style={styles.message}>
-        <ActivityIndicator size="small" color="#000" />
-      </Text>
+      <View className="items-center mt-4 py-6">
+        <ActivityIndicator size="small" color="#00964a" />
+      </View>
     );
   }
 
-  if (!selectedAssets || selectedAssets.length === 0) {
+  if (!recentImages || recentImages.length === 0) {
     return (
-      <View className="items-center gap-3 mt-4">
-        <Text style={styles.message}>
-          Nie wybrałeś żadnych zdjęć. Kliknij, aby dodać.
+      <View className="items-center gap-3 mt-4 px-4 py-6 bg-background rounded-2xl mx-2">
+        <View className="w-14 h-14 bg-gray-100 rounded-full items-center justify-center">
+          <Ionicons name="images-outline" size={28} color="#9ca3af" />
+        </View>
+        <Text className="text-sm text-gray-500 text-center">
+          Nie wybrałeś jeszcze żadnych zdjęć
         </Text>
-        <Button title="Wybierz z galerii" className="flex flex-row-reverse items-center justify-center gap-4 text-sm" textClassName="text-md" onPress={handleOpenPicker} >
-          <MaterialIcons
-            name={'photo-library'}
-            size={24}
-            color={'#fff'}
-          />
+        <Button
+          title="Wybierz z galerii"
+          onPress={handleOpenPicker}
+          className="mt-1"
+          textClassName="text-sm"
+        >
+          <MaterialIcons name="photo-library" size={20} color="#fff" />
         </Button>
       </View>
     );
@@ -281,11 +277,5 @@ const styles = StyleSheet.create({
   image: {
     borderRadius: 8,
     objectFit: "cover",
-  },
-  message: {
-    textAlign: "center",
-    marginTop: 20,
-    fontSize: 16,
-    color: "#666",
   },
 });

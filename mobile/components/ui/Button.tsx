@@ -4,15 +4,31 @@ import {
   Text,
   TouchableOpacity,
   TouchableOpacityProps,
+  View,
 } from "react-native";
+
+type ButtonVariant = "primary" | "outline";
 
 interface ButtonProps extends TouchableOpacityProps {
   title?: string;
   className?: string;
   textClassName?: string;
   isLoading?: boolean;
+  variant?: ButtonVariant;
+  icon?: React.ReactNode;
   children?: React.ReactNode;
 }
+
+const variantStyles: Record<ButtonVariant, { container: string; text: string }> = {
+  primary: {
+    container: "bg-secondary border-secondary",
+    text: "text-white",
+  },
+  outline: {
+    container: "bg-transparent border-secondary",
+    text: "text-secondary",
+  },
+};
 
 const Button = ({
   title,
@@ -20,33 +36,35 @@ const Button = ({
   className,
   textClassName,
   isLoading,
+  variant = "primary",
+  icon,
   children,
+  disabled,
   ...props
 }: ButtonProps) => {
-  const renderContent = (isLoading: boolean = false) => {
-    if (isLoading) {
-      return <ActivityIndicator size="small" color="#fff" />;
-    }
-
-    return (
-      <Text
-        className={`text-white text-center font-medium text-lg ${textClassName}`}
-      >
-        {title}
-      </Text>
-    );
-  };
+  const styles = variantStyles[variant];
+  const isDisabled = isLoading || disabled;
 
   return (
     <TouchableOpacity
       activeOpacity={0.85}
-      disabled={isLoading || props.disabled}
+      disabled={isDisabled}
       onPress={onPress}
-      className={`w-2/3 text-center mt-5 px-4 py-4 bg-secondary rounded-full border-2 border-secondary ${className}`}
+      className={`w-2/3 px-4 py-4 rounded-full border-2 ${styles.container} ${isDisabled ? "opacity-50" : ""} ${className ?? ""}`}
       {...props}
     >
-      {renderContent(isLoading)}
-      {children}
+      {isLoading ? (
+        <ActivityIndicator size="small" color={variant === "primary" ? "#fff" : "#00964a"} />
+      ) : (
+        <View className="flex-row items-center justify-center gap-2">
+          {icon || children}
+          {title && (
+            <Text className={`text-center font-medium text-lg ${styles.text} ${textClassName ?? ""}`}>
+              {title}
+            </Text>
+          )}
+        </View>
+      )}
     </TouchableOpacity>
   );
 };

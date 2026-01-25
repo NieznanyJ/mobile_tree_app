@@ -1,15 +1,17 @@
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import * as MediaLibrary from "expo-media-library";
 import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
-    ActivityIndicator,
     FlatList,
     Image,
+    Pressable,
     Text,
     TouchableOpacity,
     View,
 } from "react-native";
 
+import SkeletonBox from "@/components/ui/SkeletonBox";
 import Button from "@/components/ui/Button";
 import { useAssetsStore } from "@/lib/store/assetsStore";
 
@@ -19,7 +21,7 @@ export default function Picker() {
     });
     const [assets, setAssets] = useState<MediaLibrary.Asset[]>([]);
     const [selected, setSelected] = useState<Set<string>>(new Set());
-    const { setSelectedAssets } = useAssetsStore();
+    const { setRecentImages } = useAssetsStore();
 
     useEffect(() => {
         (async () => {
@@ -47,7 +49,7 @@ export default function Picker() {
 
     const handleConfirm = () => {
         const chosen = assets.filter((a) => selected.has(a.id));
-        setSelectedAssets(chosen);
+        setRecentImages(chosen);
         router.back();
     };
 
@@ -79,33 +81,54 @@ export default function Picker() {
 
     if (permissionResponse?.status === "denied") {
         return (
-            <View className="flex-1 items-center justify-center p-6 bg-white">
-                <Text className="text-center text-base mb-4">
+            <View className="flex-1 items-center justify-center p-6 bg-background">
+                <View className="w-16 h-16 rounded-full bg-gray-100 items-center justify-center mb-4">
+                    <MaterialCommunityIcons name="image-off" size={28} color="#9ca3af" />
+                </View>
+                <Text className="text-center text-base text-gray-700 mb-2">
+                    Brak dostępu do galerii
+                </Text>
+                <Text className="text-center text-sm text-gray-500 mb-6">
                     Musisz udzielić dostępu do galerii, aby wybrać zdjęcia.
                 </Text>
-                <Button title="Daj dostęp" onPress={requestPermission} />
+                <Button title="Daj dostęp" onPress={requestPermission} className="w-auto px-8" />
             </View>
         );
     }
 
     return (
-        <View className="flex-1 bg-white">
+        <View className="flex-1 bg-background">
             <View className="flex-row justify-between items-center p-4">
-                <TouchableOpacity onPress={() => router.back()}>
-                    <Text className="text-blue-600 font-semibold">Anuluj</Text>
-                </TouchableOpacity>
+                <Pressable onPress={() => router.back()} hitSlop={8}>
+                    <Text className="text-secondary font-semibold">Anuluj</Text>
+                </Pressable>
                 <Text className="text-lg font-semibold">Wybierz zdjęcia</Text>
                 <Button
                     title={`Dodaj (${selected.size})`}
                     onPress={handleConfirm}
                     disabled={selected.size === 0}
-                    size="sm"
+                    className="w-auto px-6"
+                    textClassName="text-sm"
                 />
             </View>
 
             {assets.length === 0 ? (
-                <View className="flex-1 items-center justify-center">
-                    <ActivityIndicator size="small" />
+                <View
+                    style={{
+                        flexDirection: "row",
+                        flexWrap: "wrap",
+                        gap: 6,
+                        padding: 8,
+                    }}
+                >
+                    {Array.from({ length: 15 }).map((_, i) => (
+                        <SkeletonBox
+                            key={i}
+                            width={120}
+                            height={120}
+                            borderRadius={8}
+                        />
+                    ))}
                 </View>
             ) : (
                 <FlatList

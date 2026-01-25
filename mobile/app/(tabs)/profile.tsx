@@ -23,7 +23,7 @@ const ProfileScreen = () => {
 
 
   return (
-    <SafeAreaView className="flex-1 bg-background p-4 ">
+    <SafeAreaView className="flex-1 bg-background p-4  ">
       <View className="flex-1 items-center justify-between gap-8 ">
         <View className="w-full items-center gap-6">
           <Text className="text-2xl font-bold text-textPrimary">
