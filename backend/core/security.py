@@ -60,3 +60,31 @@ def verify_access_token(token: str) -> str | None:
         return email
     except JWTError:
         return None
+
+
+# --- Reużywalna dependency do autoryzacji ---
+from typing import Annotated
+from fastapi import Depends, HTTPException, status
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+
+security = HTTPBearer()
+
+
+def get_current_user_email(
+    credentials: Annotated[HTTPAuthorizationCredentials, Depends(security)],
+) -> str:
+    """
+    Dependency do pobierania email aktualnie zalogowanego użytkownika.
+    Rzuca HTTPException jeśli token jest nieprawidłowy.
+    """
+    token = credentials.credentials
+    email = verify_access_token(token)
+
+    if not email:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Nieprawidłowy lub wygasły token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    return email

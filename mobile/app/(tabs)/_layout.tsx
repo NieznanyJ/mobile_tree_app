@@ -122,16 +122,41 @@ const TabLayout = () => {
           }}
         />
         <Tabs.Screen
-          name="camera"
+          name="gallery"
           options={{
-            headerShown: false,
-            title: "Camera",
-            tabBarStyle: { display: "none" },
+            headerShown: true,
+            title: "Gallery",
             tabBarIcon: ({ focused }) => (
               <CustomIcon
                 isOnline={isOnline}
                 focused={focused}
-                title="Aparat"
+                title="Galeria"
+                icon={
+                  <Ionicons
+                    name="images"
+                    size={ICON_SIZE}
+                    color={
+                      focused
+                        ? styles.iconColorFocused.color
+                        : styles.iconColor.color
+                    }
+                  />
+                }
+              />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="predict"
+          options={{
+            href: '/(tabs)/predict',
+            headerShown: true,
+            title: "Identyfikuj",
+            tabBarIcon: ({ focused }) => (
+              <CustomIcon
+                isOnline={isOnline}
+                focused={focused}
+                title="Identyfikuj"
                 icon={
                   <Ionicons
                     name="camera"
@@ -158,8 +183,8 @@ const TabLayout = () => {
                 focused={focused}
                 title="Atlas"
                 icon={
-                  <MaterialCommunityIcons
-                    name="leaf"
+                  <Ionicons
+                    name="book"
                     size={ICON_SIZE}
                     color={
                       focused

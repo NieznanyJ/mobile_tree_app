@@ -70,17 +70,7 @@ export default function InfoBanner() {
         }
     }, [isOnline]);
 
-    // Handle guest banner (show only if online and guest, and no network banner active)
-    useEffect(() => {
-        if (isGuest && isOnline && !activeBanner) {
-            setActiveBanner({
-                bg: "bg-blue-500",
-                text: "Tryb gościa — niektóre funkcje są ograniczone.",
-                type: "guest",
-            });
-            resetAnimation();
-        }
-    }, [isGuest, isOnline]);
+
 
     // Determine which banner to show based on priority
     useEffect(() => {
@@ -92,16 +82,10 @@ export default function InfoBanner() {
             });
         } else if (activeBanner?.type === "online" && !dismissed.has("online")) {
             // keep online banner
-        } else if (isGuest && isOnline && !dismissed.has("guest")) {
-            setActiveBanner({
-                bg: "bg-blue-500",
-                text: "Tryb gościa — niektóre funkcje są ograniczone.",
-                type: "guest",
-            });
         } else if (activeBanner && dismissed.has(activeBanner.type)) {
             setActiveBanner(null);
         }
-    }, [dismissed, isOnline, isGuest]);
+    }, [dismissed, isOnline]);
 
     const resetAnimation = () => {
         translateX.value = withSpring(0);

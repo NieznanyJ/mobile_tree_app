@@ -72,28 +72,32 @@ export default function AllAlbumsScreen() {
     );
 
   return (
-    <SafeAreaView className="flex-1 p-4 bg-background">
+    <View className="flex-1 p-4 bg-background">
       {pickerMode && (
         <View className="flex-col gap-2 mb-3">
           <View className="flex-row items-center justify-between">
             <Text className="text-lg font-semibold">Wybierz foldery</Text>
+
+          </View>
+          <View className="flex flex-row items-center justify-between gap-2">
+            <Button
+              title="Anuluj"
+              variant="outline"
+              className="flex-1 w-full mt-0"
+              textClassName="text-sm"
+              onPress={() => {
+                setPickerMode(false);
+                setSelectedAlbums(new Set());
+              }}
+            />
             <Button
               title={`Dodaj (${selectedAlbums.size})`}
-              className="w-auto px-6 mt-0"
+              className="flex-1 w-full px-6 mt-0"
               textClassName="text-sm"
               onPress={handleAddAlbums}
             />
           </View>
-          <Button
-            title="Anuluj"
-            variant="outline"
-            className="w-full mt-0"
-            textClassName="text-sm"
-            onPress={() => {
-              setPickerMode(false);
-              setSelectedAlbums(new Set());
-            }}
-          />
+
         </View>
       )}
 
@@ -136,6 +140,6 @@ export default function AllAlbumsScreen() {
           </ScrollView>
         </View>
       )}
-    </SafeAreaView>
+    </View>
   );
 }

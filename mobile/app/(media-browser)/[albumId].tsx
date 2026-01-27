@@ -1,5 +1,5 @@
 import * as MediaLibrary from "expo-media-library";
-import { Stack, useLocalSearchParams } from "expo-router";
+import { router, Stack, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   Dimensions,
@@ -28,6 +28,7 @@ export default function AlbumPage() {
   const { albumId } = useLocalSearchParams();
   const { album } = useAssetsStore();
   const [searchText, setSearchText] = useState("");
+  const { addAssetForPrediction, selectedAssets } = useAssetsStore();
 
   const { assets, getAssets } = useMediaLibrary();
 
@@ -41,8 +42,9 @@ export default function AlbumPage() {
   };
 
   const handlePhotoSelect = (asset: MediaLibrary.Asset) => {
-    // onPhotoSelected(asset);
+    addAssetForPrediction(asset);
     handleClose();
+    router.push("/predict");
   };
 
   useEffect(() => {
@@ -52,7 +54,7 @@ export default function AlbumPage() {
   }, [albumId, album, getAssets]);
 
   const filteredAssets = assets.filter((asset) =>
-    asset.filename.toLowerCase().includes(searchText.toLowerCase()),
+    selectedAssets.some(selected => selected.uri !== asset.uri) && asset.filename.toLowerCase().includes(searchText.toLowerCase()),
   );
 
   const renderContent = () => {
@@ -63,6 +65,7 @@ export default function AlbumPage() {
           onClose={handleClose}
           assets={selectedImageData.assets}
           initialIndex={selectedImageData.index}
+          onConfirm={handlePhotoSelect}
         />
       );
     }

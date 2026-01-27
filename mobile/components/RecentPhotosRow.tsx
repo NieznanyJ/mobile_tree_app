@@ -5,26 +5,21 @@ import { Link, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
   ActivityIndicator,
-  Dimensions,
-  Image,
   ScrollView,
-  StyleSheet,
   Text,
-  TouchableOpacity,
   View,
 } from "react-native";
 
+import { colors } from "@/constants/colors";
 import { useAssetsStore } from "@/lib/store/assetsStore";
 
 import Button from "./ui/Button";
+import ImageGridLayout, { GridAsset } from "./ui/ImageGridLayout";
 
 interface RecentPhotosRowProps {
   onPhotoSelected?: (asset: MediaLibrary.Asset, index: number) => void;
   photosPerPage?: number;
 }
-
-const SCREEN_WIDTH = Dimensions.get("window").width;
-const GRID_SIZE = SCREEN_WIDTH - 32; // Width of one grid block (with padding)
 
 export default function RecentPhotosRow({
   onPhotoSelected,
@@ -34,189 +29,11 @@ export default function RecentPhotosRow({
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-
-  const renderPhotoGrid = (
-    assets: any[],
-    startIndex: number,
-  ) => {
-    const gridAssets = assets.slice(startIndex, startIndex + 4);
-
-    if (gridAssets.length === 0) return null;
-
-    const numberOfImages = gridAssets.length;
-
-    // Helper function to get image source (thumbnail first, fallback to original)
-    const getImageSource = (asset: any) => ({
-      uri: asset.thumbnailUri || asset.uri,
-    });
-
-    if (numberOfImages === 4) {
-      return (
-        <View
-          key={startIndex}
-          style={{ width: GRID_SIZE }}
-          className="flex flex-row gap-2"
-        >
-          <View>
-            <TouchableOpacity onPress={() => onPhotoSelected?.(gridAssets[0], startIndex)}>
-              <Image
-                source={getImageSource(gridAssets[0])}
-                style={[
-                  styles.image,
-                  { width: GRID_SIZE / 2 - 8, height: GRID_SIZE / 2 - 8 },
-                ]}
-              />
-            </TouchableOpacity>
-          </View>
-          <View className="flex-1 flex flex-col justify-between ">
-            <View className="flex flex-row gap-2">
-              <TouchableOpacity
-                onPress={() => onPhotoSelected?.(gridAssets[1], startIndex + 1)}
-              >
-                <Image
-                  source={getImageSource(gridAssets[1])}
-                  style={[
-                    styles.image,
-                    { width: GRID_SIZE / 4 - 8, height: GRID_SIZE / 4 - 8 },
-                  ]}
-                />
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => onPhotoSelected?.(gridAssets[2], startIndex + 2)}
-              >
-                <Image
-                  source={getImageSource(gridAssets[2])}
-                  style={[
-                    styles.image,
-                    { width: GRID_SIZE / 4 - 8, height: GRID_SIZE / 4 - 8 },
-                  ]}
-                />
-              </TouchableOpacity>
-            </View>
-            <View className="flex-row">
-              <TouchableOpacity
-                onPress={() => onPhotoSelected?.(gridAssets[3], startIndex + 3)}
-              >
-                <Image
-                  source={getImageSource(gridAssets[3])}
-                  style={[
-                    styles.image,
-                    { width: GRID_SIZE / 2 - 8, height: GRID_SIZE / 4 - 8 },
-                  ]}
-                />
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      );
+  const handleImagePress = (asset: GridAsset, index: number) => {
+    if (onPhotoSelected) {
+      onPhotoSelected(asset as MediaLibrary.Asset, index);
     }
-
-    if (numberOfImages === 3) {
-      return (
-        <View
-          key={startIndex}
-          style={{ width: GRID_SIZE, marginRight: 16 }}
-          className="flex flex-row gap-2"
-        >
-          <View>
-            <TouchableOpacity onPress={() => onPhotoSelected?.(gridAssets[0], startIndex)}>
-              <Image
-                source={getImageSource(gridAssets[0])}
-                style={[
-                  styles.image,
-                  { width: GRID_SIZE / 2 - 8, height: GRID_SIZE / 2 - 8 },
-                ]}
-              />
-            </TouchableOpacity>
-          </View>
-          <View className="flex-1 flex flex-col justify-between">
-            <View className="flex flex-row ">
-              <TouchableOpacity
-                onPress={() => onPhotoSelected?.(gridAssets[1], startIndex + 1)}
-              >
-                <Image
-                  source={getImageSource(gridAssets[1])}
-                  style={[
-                    styles.image,
-                    { width: GRID_SIZE / 2 - 8, height: GRID_SIZE / 4 - 8 },
-                  ]}
-                />
-              </TouchableOpacity>
-            </View>
-            <View className="flex-row ">
-              <TouchableOpacity
-                onPress={() => onPhotoSelected?.(gridAssets[2], startIndex + 2)}
-              >
-                <Image
-                  source={getImageSource(gridAssets[2])}
-                  style={[
-                    styles.image,
-                    { width: GRID_SIZE / 2 - 8, height: GRID_SIZE / 4 - 8 },
-                  ]}
-                />
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      );
-    }
-
-    if (numberOfImages === 2) {
-      return (
-        <View
-          key={startIndex}
-          style={{ width: GRID_SIZE, marginRight: 16 }}
-          className="flex flex-row"
-        >
-          <View>
-            <TouchableOpacity onPress={() => onPhotoSelected?.(gridAssets[0], startIndex)}>
-              <Image
-                source={getImageSource(gridAssets[0])}
-                style={[
-                  styles.image,
-                  { width: GRID_SIZE / 2, height: GRID_SIZE / 2 - 8 },
-                ]}
-              />
-            </TouchableOpacity>
-          </View>
-          <View className="flex-1 flex flex-col justify-between" style={{ marginLeft: SCREEN_WIDTH * 0.02 }}>
-            <View className="flex flex-row">
-              <TouchableOpacity
-                onPress={() => onPhotoSelected?.(gridAssets[1], startIndex + 1)}
-              >
-                <Image
-                  source={getImageSource(gridAssets[1])}
-                  style={[
-                    styles.image,
-                    { width: GRID_SIZE / 2, height: GRID_SIZE / 2 - 8 },
-                  ]}
-                />
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      );
-    }
-
-    return (
-      <View key={startIndex} style={{ width: GRID_SIZE, marginRight: 16 }}>
-        <TouchableOpacity onPress={() => onPhotoSelected?.(gridAssets[0], startIndex)}>
-          <Image
-            source={getImageSource(gridAssets[0])}
-            style={[
-              styles.image,
-              { width: GRID_SIZE / 2 - 8, height: GRID_SIZE / 2 - 8 },
-            ]}
-          />
-        </TouchableOpacity>
-      </View>
-    );
   };
-
-  const grids = [];
-  for (let i = 0; i < recentImages.length; i += 4) {
-    grids.push(renderPhotoGrid(recentImages as any[], i));
-  }
 
   const handleOpenPicker = () => {
     router.push("/(media-browser)/all-photos");
@@ -225,7 +42,7 @@ export default function RecentPhotosRow({
   if (loading) {
     return (
       <View className="items-center mt-4 py-6">
-        <ActivityIndicator size="small" color="#00964a" />
+        <ActivityIndicator size="small" color={colors.secondary} />
       </View>
     );
   }
@@ -251,9 +68,23 @@ export default function RecentPhotosRow({
     );
   }
 
+  // Podziel zdjęcia na grupy po 4
+  const grids = [];
+  for (let i = 0; i < recentImages.length; i += 4) {
+    const gridAssets = recentImages.slice(i, i + 4) as GridAsset[];
+    grids.push(
+      <ImageGridLayout
+        key={i}
+        assets={gridAssets}
+        startIndex={i}
+        onImagePress={handleImagePress}
+      />
+    );
+  }
+
   return (
-    <View className="flex flex-col ">
-      <View className="w-full flex flex-row items-center justify-between mb-4 ">
+    <View className="flex flex-col">
+      <View className="w-full flex flex-row items-center justify-between mb-4">
         <Text className="text-xl font-bold">Wybrane zdjęcia</Text>
         <Link
           href="/(media-browser)/all-photos"
@@ -272,10 +103,3 @@ export default function RecentPhotosRow({
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  image: {
-    borderRadius: 8,
-    objectFit: "cover",
-  },
-});

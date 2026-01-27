@@ -1,17 +1,56 @@
-import tensorflow as tf
-import numpy as np
-from PIL import Image
-import io
+"""
+Serwis do predykcji gatunków drzew za pomocą modelu ML.
+"""
 import os
+from dataclasses import dataclass
 
-CLASS_TO_ID = {
-    "Brzoza brodawkowata (Betula pendula)": "betula-pendula",
-    "Buk zwyczajny (Fagus sylvatica)": "fagus-sylvatica",
-    "Dąb szypułkowy (Quercus robur)": "quercus-robur",
-    "Klon zwyczajny (Acer platanoides)": "acer-platanoides",
-}
+import numpy as np
+import tensorflow as tf
+
+from services.config import CLASS_NAMES, CLASS_TO_ID
+from services.image_processing import ImageProcessingError, process_image
+
+
+@dataclass
+class SinglePrediction:
+    """Pojedynczy wynik predykcji."""
+
+    predicted_class: str
+    tree_id: str
+    confidence: float
+
+    def to_dict(self) -> dict:
+        """Konwertuje wynik do słownika."""
+        return {
+            "predicted_class": self.predicted_class,
+            "tree_id": self.tree_id,
+            "confidence": self.confidence,
+        }
+
+
+@dataclass
+class PredictionResult:
+    """Wynik predykcji gatunku drzewa - top 3 predykcje."""
+
+    predictions: list[SinglePrediction]
+
+    def to_dict(self) -> dict:
+        """Konwertuje wynik do słownika (dla response JSON)."""
+        return {
+            "predictions": [p.to_dict() for p in self.predictions],
+            # Dla kompatybilności wstecznej - główna predykcja
+            "predicted_class": self.predictions[0].predicted_class,
+            "tree_id": self.predictions[0].tree_id,
+            "confidence": self.predictions[0].confidence,
+        }
+
 
 class PredictionService:
+    """
+    Singleton serwis do predykcji gatunków drzew.
+    Model jest ładowany tylko raz przy pierwszej inicjalizacji.
+    """
+
     _instance = None
 
     def __new__(cls, *args, **kwargs):
@@ -20,61 +59,94 @@ class PredictionService:
         return cls._instance
 
     def __init__(self):
-        if not hasattr(self, 'model'):
-            print("Inicjalizacja PredictionService: Ładowanie modelu i klas...")
+        if not hasattr(self, "model"):
+            self._initialize_model()
 
-            service_dir = os.path.dirname(os.path.abspath(__file__))
-            model_path = os.path.abspath(os.path.join(service_dir, "..", "best_model.keras"))
+    def _initialize_model(self) -> None:
+        """Ładuje model ML z dysku."""
+        print("Inicjalizacja PredictionService: Ładowanie modelu...")
 
-            if not os.path.exists(model_path):
-                raise FileNotFoundError(f"Nie znaleziono pliku modelu w: {model_path}. "
-                                      f"Upewnij się, że wytrenowany model `best_model.keras` znajduje się w folderze `backend`.")
+        service_dir = os.path.dirname(os.path.abspath(__file__))
+        model_path = os.path.abspath(
+            os.path.join(service_dir, "..", "best_model.keras")
+        )
 
-            self.model = tf.keras.models.load_model(model_path)
-            self.class_names = [
-                "Brzoza brodawkowata (Betula pendula)",
-                "Buk zwyczajny (Fagus sylvatica)",
-                "Dąb szypułkowy (Quercus robur)",
-                "Klon zwyczajny (Acer platanoides)"
-            ]
-            self.img_size = (300, 300)
-            print("PredictionService zainicjalizowany pomyślnie.")
+        if not os.path.exists(model_path):
+            raise FileNotFoundError(
+                f"Nie znaleziono pliku modelu w: {model_path}. "
+                f"Upewnij się, że `best_model.keras` znajduje się w folderze `backend`."
+            )
 
-    def _process_image(self, image_bytes: bytes) -> tf.Tensor:
-        img = Image.open(io.BytesIO(image_bytes))
-        if img.mode != 'RGB':
-            img = img.convert('RGB')
-        img = img.resize(self.img_size)
-        img_array = tf.keras.preprocessing.image.img_to_array(img)
-        img_array = tf.expand_dims(img_array, 0)
-        return img_array
+        self.model = tf.keras.models.load_model(model_path)
+        self.class_names = CLASS_NAMES
+        print("PredictionService zainicjalizowany pomyślnie.")
 
-    def predict_single_probabilities(self, image_bytes: bytes) -> np.ndarray:
-        processed_image = self._process_image(image_bytes)
-        raw_predictions = self.model.predict(processed_image)
-        probabilities = tf.nn.softmax(raw_predictions[0]).numpy()
-        return probabilities
+    def predict_single(self, image_bytes: bytes) -> np.ndarray:
+        """
+        Zwraca prawdopodobieństwa dla każdej klasy dla pojedynczego obrazu.
 
-    def predict_multiple_images(self, images: list) -> dict:
+        Args:
+            image_bytes: Surowe bajty obrazu
+
+        Returns:
+            Array prawdopodobieństw dla każdej klasy
+        """
+        processed_image = process_image(image_bytes)
+        predictions = self.model.predict(processed_image, verbose=0)
+        return predictions[0]
+
+    def predict_multiple(self, images: list[bytes], top_k: int = 3) -> PredictionResult:
+        """
+        Predykcja na podstawie wielu obrazów (1-4).
+        Uśrednia prawdopodobieństwa ze wszystkich obrazów i zwraca top K predykcji.
+
+        Args:
+            images: Lista bajtów obrazów
+            top_k: Liczba najlepszych predykcji do zwrócenia (domyślnie 3)
+
+        Returns:
+            PredictionResult z listą top K predykcji
+        """
         all_probs = []
+
         for image_bytes in images:
-            probs = self.predict_single_probabilities(image_bytes)
+            probs = self.predict_single(image_bytes)
             all_probs.append(probs)
 
+        # Uśrednianie prawdopodobieństw
         avg_probs = np.mean(all_probs, axis=0)
-        class_index = int(np.argmax(avg_probs))
-        predicted_class = self.class_names[class_index]
-        confidence = float(np.max(avg_probs) * 100)
 
-        return {
-            "predicted_class": predicted_class,
-            "tree_id": CLASS_TO_ID[predicted_class],
-            "confidence": round(confidence, 2),
-        }
+        # Znajdź top K klas z najwyższymi prawdopodobieństwami
+        top_indices = np.argsort(avg_probs)[::-1][:top_k]
 
-# Tworzymy jedną, globalną instancję serwisu,
-# która będzie używana przez zależności FastAPI.
+        predictions = []
+        for idx in top_indices:
+            class_name = self.class_names[idx]
+            confidence = float(avg_probs[idx] * 100)
+            predictions.append(
+                SinglePrediction(
+                    predicted_class=class_name,
+                    tree_id=CLASS_TO_ID[class_name],
+                    confidence=round(confidence, 2),
+                )
+            )
+
+        return PredictionResult(predictions=predictions)
+
+    # Zachowanie kompatybilności wstecznej
+    def predict_single_probabilities(self, image_bytes: bytes) -> np.ndarray:
+        """Alias dla predict_single (kompatybilność wsteczna)."""
+        return self.predict_single(image_bytes)
+
+    def predict_multiple_images(self, images: list) -> dict:
+        """Alias dla predict_multiple (kompatybilność wsteczna)."""
+        return self.predict_multiple(images).to_dict()
+
+
+# Globalna instancja serwisu
 prediction_service_instance = PredictionService()
 
-def get_prediction_service():
+
+def get_prediction_service() -> PredictionService:
+    """Dependency do użycia z FastAPI Depends()."""
     return prediction_service_instance

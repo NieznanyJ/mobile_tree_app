@@ -8,7 +8,7 @@ const LIMITATIONS = [
   {
     icon: "time-outline" as const,
     title: "Historia przewidywań",
-    description: "Nie masz dostępu do historii swoich predykcji. Wyniki nie są zapisywane.",
+    description: "Nie masz dostępu do historii swoich zidentyfikowanych drzew. Wyniki nie są zapisywane.",
   },
   {
     icon: "cloud-outline" as const,

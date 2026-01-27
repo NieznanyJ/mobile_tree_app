@@ -1,0 +1,3 @@
+from .tree_config import CLASS_NAMES, CLASS_TO_ID, IMAGE_SIZE, NUM_CLASSES
+
+__all__ = ["CLASS_NAMES", "CLASS_TO_ID", "IMAGE_SIZE", "NUM_CLASSES"]

@@ -9,9 +9,9 @@ const CTA = () => {
     const router = useRouter();
 
     return (
-        <View className="w-full items-center px-4 py-6">
+        <View className="w-full items-center px-4 py-6 flex-1 justify-center">
             <View className="w-full bg-white rounded-2xl p-6 items-center ">
-                <Text className="text-lg font-semibold text-gray-900 mb-1 text-center">
+                <Text className="text-2xl font-semibold text-gray-900 mb-1 text-center">
                     Poznaj gatunek drzewa
                 </Text>
                 <Text className="text-sm text-gray-500 mb-5 text-center">
@@ -20,7 +20,7 @@ const CTA = () => {
                 <Button
                     title="Zrób zdjęcie"
                     className="w-full mt-0"
-                    onPress={() => router.push("/(tabs)/camera")}
+                    onPress={() => router.push("/camera")}
                 >
                     <Ionicons name="camera" size={22} color="#fff" />
                 </Button>

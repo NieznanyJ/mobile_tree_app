@@ -14,8 +14,8 @@ interface LoginFormProps {
 }
 
 const LoginForm = ({ onLoginSuccess, children }: LoginFormProps) => {
-  const { login, isLoading } = useAuth();
-  // const [isLoading, setIsLoading] = useState(false);
+  const { login } = useAuth();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
 
   const {
@@ -29,20 +29,23 @@ const LoginForm = ({ onLoginSuccess, children }: LoginFormProps) => {
 
   const onSubmit = async (data: LoginFormValues) => {
     setApiError(null);
+    setIsSubmitting(true);
 
-    const result = await login(data);
+    try {
+      const result = await login(data);
 
-    if (result.success) {
-      // Logowanie udane, wywołujemy callback (np. do zamknięcia modala)
-      onLoginSuccess?.();
-    } else {
-      // Logowanie nieudane, ustawiamy komunikat błędu
-      setApiError(result.error.message);
+      if (result.success) {
+        onLoginSuccess?.();
+      } else {
+        setApiError(result.error.message);
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <View className="w-full flex  items-center flex-col gap-4">
+    <View className="w-full flex items-center flex-col gap-4">
       <Controller
         control={control}
         name="username"
@@ -50,7 +53,7 @@ const LoginForm = ({ onLoginSuccess, children }: LoginFormProps) => {
           <SimpleInput
             label="Nazwa użytkownika"
             placeholder="Wpisz swoją nazwę użytkownika"
-            editable={isLoading}
+            editable={!isSubmitting}
             value={value}
             onChangeText={(text) => {
               setApiError(null);
@@ -67,7 +70,7 @@ const LoginForm = ({ onLoginSuccess, children }: LoginFormProps) => {
           <SimpleInput
             label="Hasło"
             placeholder="Wpisz swoje hasło"
-            editable={isLoading}
+            editable={!isSubmitting}
             value={value}
             onChangeText={(text) => {
               setApiError(null);
@@ -84,7 +87,7 @@ const LoginForm = ({ onLoginSuccess, children }: LoginFormProps) => {
       <Button
         title="Zaloguj się"
         onPress={handleSubmit(onSubmit)}
-        isLoading={isLoading}
+        isLoading={isSubmitting}
       />
       {children}
     </View>
