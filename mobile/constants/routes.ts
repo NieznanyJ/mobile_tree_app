@@ -3,7 +3,7 @@ export const isPublicRoute = (path: string) => {
     "settings",
     "forgot-password",
     "(media-browser)",
-    "predict",
+    "camera",
     "history",
     "tree",
     "guest-info",

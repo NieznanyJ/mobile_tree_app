@@ -1,25 +1,26 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import (
-    OAuth2PasswordRequestForm,
-    HTTPBearer,
-    HTTPAuthorizationCredentials,
-)
+from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
-from core.security import create_access_token, verify_access_token
+from core.rate_limiter import rate_limit
+from core.security import create_access_token, get_current_user_email
 from db.database import get_db
-from schemas.token import LoginResponse, Token
+from schemas.token import LoginResponse
 from schemas.user import User, UserCreate
 from services import user_service
 
 router = APIRouter()
-security = HTTPBearer()
 
 
 @router.post("/register", response_model=User, status_code=status.HTTP_201_CREATED)
-def register_user(user: UserCreate, db: Session = Depends(get_db)):
+def register_user(
+    user: UserCreate,
+    request: Request,
+    db: Session = Depends(get_db),
+    _: None = Depends(rate_limit(max_requests=10, window_seconds=60)),
+):
     """
     Endpoint do rejestracji nowego użytkownika.
     """
@@ -44,7 +45,9 @@ def register_user(user: UserCreate, db: Session = Depends(get_db)):
 @router.post("/login", response_model=LoginResponse)
 def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
+    request: Request,
     db: Session = Depends(get_db),
+    _: None = Depends(rate_limit(max_requests=5, window_seconds=60)),
 ):
     """
     Loguje użytkownika i zwraca token dostępowy wraz z danymi użytkownika.
@@ -67,28 +70,18 @@ def login_for_access_token(
 
 @router.get("/me", response_model=User)
 def get_current_user(
-    credentials: Annotated[HTTPAuthorizationCredentials, Depends(security)],
+    current_user_email: Annotated[str, Depends(get_current_user_email)],
     db: Session = Depends(get_db),
 ):
     """
     Endpoint zwracający dane aktualnie zalogowanego użytkownika.
     Wymaga tokenu w nagłówku Authorization.
     """
-    token = credentials.credentials
-    email = verify_access_token(token)
-    
-    if not email:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Nieprawidłowy lub wygasły token",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    
-    user = user_service.get_user_by_email(db, email=email)
+    user = user_service.get_user_by_email(db, email=current_user_email)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Użytkownik nie znaleziony",
         )
-    
+
     return user

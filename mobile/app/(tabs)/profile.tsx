@@ -1,14 +1,14 @@
+import { MaterialIcons } from "@expo/vector-icons";
+import { Link, router } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Modal, Pressable, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { MaterialIcons } from "@expo/vector-icons";
 
 import AuthForm from "@/components/forms/auth/AuthForm";
 import Button from "@/components/ui/Button";
 import { UserInfo } from "@/components/ui/UserInfo";
 import { loginFormFields } from "@/constants/formFields";
 import { useAuth } from "@/lib/context/AuthContext";
-import { Link, router } from "expo-router";
 
 const ProfileScreen = () => {
   const { token, isGuest, logout, user } = useAuth();
@@ -23,7 +23,7 @@ const ProfileScreen = () => {
 
 
   return (
-    <SafeAreaView className="flex-1 bg-background p-4  ">
+    <View className="flex-1 bg-background p-4">
       <View className="flex-1 items-center justify-between gap-8 ">
         <View className="w-full items-center gap-6">
           <Text className="text-2xl font-bold text-textPrimary">
@@ -53,7 +53,7 @@ const ProfileScreen = () => {
           )}
         </View>
 
-        <View className="w-full items-center">
+        <View className="w-4/5 items-center mb-2">
           {token ? (
             <Button title="Wyloguj" onPress={logout} className="w-full" />
           ) : isGuest ? (
@@ -104,7 +104,7 @@ const ProfileScreen = () => {
           </Pressable>
         </Pressable>
       </Modal >
-    </SafeAreaView >
+    </View >
   );
 };
 

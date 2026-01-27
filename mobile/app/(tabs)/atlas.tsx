@@ -21,7 +21,7 @@ interface Tree {
 
 const Atlas = () => {
     const router = useRouter();
-    const { atlasViewMode, setAtlasViewMode, setDisplayOption, displayOption } = useSettingsStore();
+    const { setDisplayOption, displayOption } = useSettingsStore();
     const [search, setSearch] = useState("");
 
     const filteredTrees = useMemo(() => {
@@ -92,7 +92,7 @@ const Atlas = () => {
     );
 
     return (
-        <View className="flex-1 bg-background">
+        <View className="flex-1 pt-4 bg-background">
             <View className="px-4 pt-2 pb-3 gap-3">
                 <View className="flex-row items-center justify-between">
                     <Text className="text-2xl font-bold text-gray-900">

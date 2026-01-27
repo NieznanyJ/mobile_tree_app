@@ -15,7 +15,7 @@ const CustomIcon = ({
     return (
       <View
         className="flex flex-col items-center justify-center gap-1 mt-10  "
-        style={{ minWidth: 44, minHeight: 44 }}
+        style={{ minWidth: 60, minHeight: 44 }}
       >
         <View>{icon}</View>
         <Text
@@ -34,7 +34,7 @@ const CustomIcon = ({
   return (
     <View
       className="flex flex-col items-center justify-center gap-1 mt-10  "
-      style={{ minWidth: 44, minHeight: 44 }}
+      style={{ minWidth: 60, minHeight: 44 }}
     >
       <View>{icon}</View>
       <Text

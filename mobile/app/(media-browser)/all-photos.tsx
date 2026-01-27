@@ -120,21 +120,23 @@ export default function AllPhotosScreen() {
       if (permissionResponse?.status === "granted") {
         const firstPage = await loadAssets();
         setAssets(firstPage);
-        setAssetsCount!(firstPage.length);
       }
       setLoading(false);
     })();
   }, [permissionResponse?.status]);
 
+  // Aktualizuj assetsCount gdy assets się zmieni (unika setState podczas renderowania)
+  useEffect(() => {
+    if (assets.length > 0) {
+      setAssetsCount(assets.length);
+    }
+  }, [assets.length, setAssetsCount]);
+
   const loadMore = useCallback(async () => {
     if (loadingMore || !hasNextPageRef.current || searchText) return;
     setLoadingMore(true);
     const nextPage = await loadAssets(endCursorRef.current);
-    setAssets((prev) => {
-      const merged = [...prev, ...nextPage];
-      setAssetsCount!(merged.length);
-      return merged;
-    });
+    setAssets((prev) => [...prev, ...nextPage]);
     setLoadingMore(false);
   }, [loadingMore, searchText, loadAssets]);
 
@@ -164,7 +166,7 @@ export default function AllPhotosScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 p-4 bg-background pt-0">
+    <View className="flex-1 p-4 bg-background ">
       {!isSingleSelect && (
         <View className="flex-col gap-2 mb-3">
           <Text className="text-lg font-semibold">Wybierz zdjęcia</Text>
@@ -263,10 +265,15 @@ export default function AllPhotosScreen() {
           initialIndex={selectedImageData.index}
           onConfirm={(asset) => {
             addAssetForPrediction(asset);
-            router.replace("/predict");
+            // Wracamy do predict jeśli jest na stacku, inaczej nawigujemy
+            if (router.canGoBack()) {
+              router.back();
+            } else {
+              router.replace("/predict");
+            }
           }}
         />
       )}
-    </SafeAreaView>
+    </View>
   );
 }

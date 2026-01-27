@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from core.config import settings
 from db.database import Base, engine
 from models import user  # Importujemy, aby model został "zauważony" przez SQLAlchemy
 
@@ -18,14 +19,13 @@ app = FastAPI(
 )
 
 # Konfiguracja CORS
-# W trybie deweloperskim używamy "*", aby zezwolić na żądania z dowolnego źródła.
-# W produkcji należy to zmienić na listę dozwolonych domen.
+# Dozwolone domeny są zdefiniowane w .env (CORS_ORIGINS)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=settings.cors_origins_list,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type"],
 )
 
 # Dołączamy router z endpointami autoryzacji

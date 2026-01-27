@@ -98,8 +98,8 @@ export const useAssetsStore = create<AssetsStore>()(
       storage: createJSONStorage(() => AsyncStorage),
       partialize: (state) => ({
         selectedAlbums: state.selectedAlbums,
-        selectedAssets: state.selectedAssets,
         recentImages: state.recentImages,
+        // selectedAssets celowo nie jest persistowany - czyści się po restarcie
       }),
     },
   ),

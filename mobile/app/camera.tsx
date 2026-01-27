@@ -1,6 +1,6 @@
-import { CameraView, useCameraPermissions } from "expo-camera";
 import { MaterialIcons } from "@expo/vector-icons";
-import LoadingOverlay from "@/components/ui/LoadingOverlay";
+import { CameraView, useCameraPermissions } from "expo-camera";
+import { useRouter } from "expo-router";
 import React, { useRef, useState } from "react";
 import {
   ActivityIndicator,
@@ -11,9 +11,10 @@ import {
   Text,
   View,
 } from "react-native";
-import { useAssetsStore, MAX_PREDICTION_ASSETS } from "@/lib/store/assetsStore";
-import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
+
+import LoadingOverlay from "@/components/ui/LoadingOverlay";
+import { MAX_PREDICTION_ASSETS, useAssetsStore } from "@/lib/store/assetsStore";
 
 const { width, height } = Dimensions.get("window");
 
@@ -27,6 +28,8 @@ export default function CameraScreen() {
   const router = useRouter();
 
   const handleRequestPermission = async () => {
+
+    console.log("Camera permission result:", permission);
     const result = await requestPermission();
     if (!result.granted) {
       alert("Aplikacja potrzebuje dostępu do kamery");
@@ -114,15 +117,16 @@ export default function CameraScreen() {
     <SafeAreaView className="flex-1 bg-black">
       <View style={styles.container}>
         {isCapturing && <LoadingOverlay text="Zapisywanie zdjęcia..." />}
-        {/* Camera View */}
+
         <CameraView
           ref={cameraRef}
           facing={facing}
-          flashMode={flashMode}
+          flash={flashMode}
+          mute={true}
           style={styles.camera}
         />
 
-        {/* Top Controls */}
+
         <View className="absolute top-0 left-0 right-0 p-4 flex-row justify-between items-start">
           <Pressable
             onPress={() => router.back()}

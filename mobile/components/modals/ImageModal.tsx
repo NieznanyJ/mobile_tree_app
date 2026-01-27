@@ -1,17 +1,18 @@
 import * as MediaLibrary from "expo-media-library";
 import { useRouter } from "expo-router";
-import React, { useState, useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import {
-  Image,
-  Modal,
-  TouchableOpacity,
-  View,
-  Text,
   Dimensions,
   FlatList,
+  Image,
+  Modal,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
-import { useAssetsStore, MAX_PREDICTION_ASSETS } from "@/lib/store/assetsStore";
+import { MAX_PREDICTION_ASSETS, useAssetsStore } from "@/lib/store/assetsStore";
+
 import Button from "../ui/Button";
 
 const { width } = Dimensions.get("window");
@@ -47,7 +48,12 @@ export default function AssetModal({
       onConfirm(asset);
     } else {
       addAssetForPrediction(asset);
-      router.push("/predict");
+      // Wracamy do predict jeśli jest na stacku, inaczej nawigujemy
+      if (router.canGoBack()) {
+        router.back();
+      } else {
+        router.push("/predict");
+      }
     }
     handleClose();
   };
@@ -117,7 +123,7 @@ export default function AssetModal({
                   title="Przejdź do analizy"
                   onPress={() => {
                     handleClose();
-                    router.push("/predict");
+                    router.replace("/predict");
                   }}
                 />
               </>

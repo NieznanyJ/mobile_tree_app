@@ -1,0 +1,22 @@
+{
+  "classes": [
+    {
+      "name": "Brzoza brodawkowata (Betula pendula)",
+      "id": "betula-pendula"
+    },
+    {
+      "name": "Buk zwyczajny (Fagus sylvatica)",
+      "id": "fagus-sylvatica"
+    },
+    {
+      "name": "Dąb szypułkowy (Quercus robur)",
+      "id": "quercus-robur"
+    },
+    {
+      "name": "Klon zwyczajny (Acer platanoides)",
+      "id": "acer-platanoides"
+    }
+  ],
+  "imageSize": 224,
+  "inputShape": [1, 224, 224, 3]
+}

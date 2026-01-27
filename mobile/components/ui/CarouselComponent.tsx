@@ -10,11 +10,11 @@ import Carousel, {
 const width = Dimensions.get("window").width - 16;
 const MAX_FACTS = 6;
 
-const shuffleArray = (array: string[]) => {
+const shuffleArray = (array: React.ReactNode[]) => {
     return [...array].sort(() => Math.random() - 0.5);
 };
 
-function CarouselComponent({ content }: { content: string[] }) {
+function CarouselComponent({ content }: { content: React.ReactNode[] }) {
     const ref = React.useRef<ICarouselInstance>(null);
     const progress = useSharedValue<number>(0);
 
@@ -43,17 +43,7 @@ function CarouselComponent({ content }: { content: string[] }) {
                 autoPlayInterval={7000}
                 onProgressChange={progress}
                 renderItem={({ index }) => (
-                    <View
-                        style={{
-                            flex: 1,
-                            justifyContent: "center",
-                            paddingHorizontal: 8,
-                        }}
-                    >
-                        <Text className="text-center text-lg  ">
-                            {shuffledContent[index]}
-                        </Text>
-                    </View>
+                    <>{shuffledContent[index]}</>
                 )}
             />
 

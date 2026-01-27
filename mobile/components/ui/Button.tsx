@@ -7,6 +7,8 @@ import {
   View,
 } from "react-native";
 
+import { colors } from "@/constants/colors";
+
 type ButtonVariant = "primary" | "outline";
 
 interface ButtonProps extends TouchableOpacityProps {
@@ -54,7 +56,7 @@ const Button = ({
       {...props}
     >
       {isLoading ? (
-        <ActivityIndicator size="small" color={variant === "primary" ? "#fff" : "#00964a"} />
+        <ActivityIndicator size="small" color={variant === "primary" ? "#fff" : colors.secondary} />
       ) : (
         <View className="flex-row items-center justify-center gap-2">
           {icon || children}
