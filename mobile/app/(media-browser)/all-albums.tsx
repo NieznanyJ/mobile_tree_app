@@ -65,14 +65,10 @@ export default function AllAlbumsScreen() {
     }, [getAlbums])
   );
 
-  const filteredAlbums = albums
-    .filter((album) => !storeSelectedAlbums.some((sa) => sa.id === album.id))
-    .filter((album) =>
-      album.title.toLowerCase().includes(searchText.toLowerCase()),
-    );
+
 
   return (
-    <View className="flex-1 p-4 bg-background">
+    <SafeAreaView className="flex-1 p-4 bg-background">
       {pickerMode && (
         <View className="flex-col gap-2 mb-3">
           <View className="flex-row items-center justify-between">
@@ -83,7 +79,7 @@ export default function AllAlbumsScreen() {
             <Button
               title="Anuluj"
               variant="outline"
-              className="flex-1 w-full mt-0"
+              className="flex-1 w-full mt-0 p-0"
               textClassName="text-sm"
               onPress={() => {
                 setPickerMode(false);
@@ -92,7 +88,7 @@ export default function AllAlbumsScreen() {
             />
             <Button
               title={`Dodaj (${selectedAlbums.size})`}
-              className="flex-1 w-full px-6 mt-0"
+              className="flex-1 w-full  mt-0 p-0"
               textClassName="text-sm"
               onPress={handleAddAlbums}
             />
@@ -128,7 +124,7 @@ export default function AllAlbumsScreen() {
           />
           <ScrollView>
             <AlbumGrid
-              albums={filteredAlbums}
+              albums={albums}
               onAlbumSelected={handleAlbumSelected}
               onAlbumLongPress={handleAlbumLongPress}
               onRefresh={getAlbums}
@@ -140,6 +136,6 @@ export default function AllAlbumsScreen() {
           </ScrollView>
         </View>
       )}
-    </View>
+    </SafeAreaView>
   );
 }

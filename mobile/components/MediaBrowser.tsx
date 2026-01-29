@@ -11,6 +11,9 @@ import Button from "@/components/ui/Button";
 import { useMediaLibrary } from "@/lib/hooks/useMediaLibrary";
 import { useAssetsStore } from "@/lib/store/assetsStore";
 import { useSettingsStore } from "@/lib/store/settingsStore";
+import { MaterialIcons } from "@expo/vector-icons";
+import { colors } from "@/constants/colors";
+import { set } from "zod";
 
 interface MediaBrowserProps {
   permissionResponse: MediaLibrary.PermissionResponse | null;
@@ -26,6 +29,7 @@ const MediaBrowser = ({ permissionResponse, requestPermission }: MediaBrowserPro
     setAlbum,
     recentImages,
     selectedAlbums,
+    setSelectedAlbums,
     removeSelectedAlbum,
   } = useAssetsStore();
 
@@ -53,6 +57,11 @@ const MediaBrowser = ({ permissionResponse, requestPermission }: MediaBrowserPro
 
   const handleRequestPermission = async () => {
     await requestPermission();
+  };
+
+  const handleClearAll = () => {
+    setSelectedAlbums([]);
+    setEditMode(false);
   };
 
   if (!isPermissionGranted) {
@@ -91,13 +100,18 @@ const MediaBrowser = ({ permissionResponse, requestPermission }: MediaBrowserPro
         onLongPress={() => setEditMode(true)}
       >
         {editMode && (
-          <View className="flex-row justify-end mb-4">
-            <Button
-              title="Zakończ edycję"
+          <View className="flex-row justify-between items-center mb-4">
+            <Pressable onPress={handleClearAll} className=" bg-background" disabled={selectedAlbums.length === 0} >
+              <View className="flex flex-row items-center gap-4 justify-start" style={{ opacity: selectedAlbums.length === 0 ? 0.5 : 1 }}>
+                <MaterialIcons name="clear-all" className="bg-gray-50 rounded-full p-2" size={24} color={selectedAlbums.length === 0 ? colors.gray[500] : colors.secondary} />
+
+              </View>
+            </Pressable>
+            <Pressable
               onPress={() => setEditMode(false)}
-              className="w-auto px-4 mt-0"
-              textClassName="text-sm"
-            />
+              className="flex-row items-center   rounded-full">
+              <Text className=" text-gray-700 ">Zakończ edycję</Text>
+            </Pressable>
           </View>
         )}
         {widgetsEnabled && activeWidgets.albums && (

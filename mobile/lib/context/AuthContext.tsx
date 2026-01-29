@@ -22,6 +22,7 @@ export interface RegisterData {
   password: string;
 }
 interface User {
+  id: number;
   email: string;
   username: string;
 }
@@ -115,8 +116,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         return { ok: false } as const;
       }
 
-      const userData: User = await response.json();
-      setUser(userData);
+      const userData: UserData = await response.json();
+      setUser({
+        id: userData.id,
+        email: userData.email,
+        username: userData.username,
+      });
       return { ok: true } as const;
     } catch {
       // Błąd sieci — zostaw token, spróbujemy ponownie później

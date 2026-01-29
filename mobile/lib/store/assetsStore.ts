@@ -23,6 +23,7 @@ interface AssetsStore {
   selectedAlbums: MediaLibrary.Album[];
   addSelectedAlbums: (albums: MediaLibrary.Album[]) => void;
   removeSelectedAlbum: (albumId: string) => void;
+  setSelectedAlbums: (albums: MediaLibrary.Album[]) => void;
   assets: MediaLibrary.Asset[];
   setAssets: (assets: MediaLibrary.Asset[]) => void;
   image: MediaLibrary.Asset | null;
@@ -51,7 +52,7 @@ export const useAssetsStore = create<AssetsStore>()(
       albums: [],
       setAlbums: (albums) => set({ albums }),
       selectedAlbums: [],
-      _setSelectedAlbums: (albums: any) => set({ selectedAlbums: albums }),
+      setSelectedAlbums: (albums: any) => set({ selectedAlbums: albums }),
       addSelectedAlbums: (albums) =>
         set((state) => ({
           selectedAlbums: [...state.selectedAlbums, ...albums],

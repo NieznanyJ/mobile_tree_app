@@ -1,4 +1,6 @@
 from sqlalchemy import Boolean, Column, Integer, String
+from sqlalchemy.orm import relationship
+
 from db.database import Base
 
 
@@ -10,3 +12,9 @@ class User(Base):
     email = Column(String, unique=True, index=True, nullable=False)
     hashed_password = Column(String, nullable=False)
     is_active = Column(Boolean, default=True)
+
+    predictions = relationship(
+        "PredictionHistory",
+        back_populates="user",
+        cascade="all, delete-orphan"
+    )

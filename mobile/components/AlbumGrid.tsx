@@ -48,8 +48,8 @@ export default function AlbumGrid({
   const { setAlbumCount } = useAssetsStore();
 
   useEffect(() => {
-    setAlbumCount!(albums.length);
-  }, [albums, setAlbumCount]);
+    setAlbumCount?.(albums.length);
+  }, [albums.length]);
 
   return (
     <View>

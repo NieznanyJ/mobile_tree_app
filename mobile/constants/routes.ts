@@ -7,6 +7,7 @@ export const isPublicRoute = (path: string) => {
     "history",
     "tree",
     "guest-info",
+    "prediction",
   ];
   const authPaths = ["(auth)"];
 

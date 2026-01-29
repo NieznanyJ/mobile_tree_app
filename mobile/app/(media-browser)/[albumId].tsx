@@ -54,7 +54,8 @@ export default function AlbumPage() {
   }, [albumId, album, getAssets]);
 
   const filteredAssets = assets.filter((asset) =>
-    selectedAssets.some(selected => selected.uri !== asset.uri) && asset.filename.toLowerCase().includes(searchText.toLowerCase()),
+    !selectedAssets.some(selected => selected.uri === asset.uri) &&
+    asset.filename.toLowerCase().includes(searchText.toLowerCase()),
   );
 
   const renderContent = () => {
