@@ -3,7 +3,7 @@ from typing import Annotated, List
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from sqlalchemy.orm import Session
 
-from core.security import get_current_user
+from core.security import get_current_user_email
 from db.database import get_db
 from models.user import User
 from schemas.prediction import PredictionCreate, SinglePrediction
@@ -11,12 +11,14 @@ from services.file_storage import save_prediction_images
 from services.history_service import create_prediction_history
 from services.prediction_service import PredictionService, get_prediction_service
 
+from services import user_service
+
 router = APIRouter()
 
 
 @router.post("/")
 async def predict_tree(
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user_email: Annotated[str, Depends(get_current_user_email)],
     db: Session = Depends(get_db),
     image: List[UploadFile] = File(...),
     service: PredictionService = Depends(get_prediction_service),
