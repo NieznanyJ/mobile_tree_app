@@ -5,7 +5,6 @@ import { router, useFocusEffect } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
     ActivityIndicator,
-    AppState,
     Dimensions,
     Image,
     Linking,
@@ -54,8 +53,6 @@ const Gallery = () => {
         mediaTypes: MediaLibrary.MediaType.photo,
     });
 
-    const appState = useRef(AppState.currentState);
-
     const { albums, getAssets, getAlbums } = useMediaLibrary();
     const { setAlbum, selectedAlbums: storeSelectedAlbums, addAssetForPrediction, selectedAssets } = useAssetsStore();
     const { displayOption, setDisplayOption } = useSettingsStore();
@@ -74,17 +71,6 @@ const Gallery = () => {
         addAssetForPrediction(asset);
         router.push("/predict");
     }
-
-    // Refresh permission when returning from settings
-    useEffect(() => {
-        const subscription = AppState.addEventListener("change", (nextAppState) => {
-            if (appState.current.match(/inactive|background/) && nextAppState === "active") {
-                requestPermission();
-            }
-            appState.current = nextAppState;
-        });
-        return () => subscription.remove();
-    }, [requestPermission]);
 
     const handleAlbumSelected = (album: MediaLibrary.Album) => {
         if (pickerMode) {
@@ -120,34 +106,30 @@ const Gallery = () => {
         setLoadingMore(false);
     }, [loadingMore, searchText, loadPhotos]);
 
-    // Ładuj zdjęcia/albumy tylko przy pierwszym wejściu lub gdy brak danych
+    // Ładuj zdjęcia przy pierwszym wejściu
     useFocusEffect(
         useCallback(() => {
             if (!isPermissionGranted) return;
-
-            const fetchData = async () => {
-                if (galleryShowing === 'albums') {
-                    // Ładuj albumy tylko jeśli ich nie ma
-                    if (albums.length === 0) {
-                        setLoading(true);
-                        await getAlbums();
-                        setLoading(false);
-                    }
-                } else {
-                    // Ładuj zdjęcia tylko jeśli ich nie ma
-                    if (photos.length === 0) {
-                        setLoadingPhotos(true);
-                        endCursorRef.current = undefined;
-                        hasNextPageRef.current = true;
-                        const firstPage = await loadPhotos();
-                        setPhotos(firstPage);
-                        setLoadingPhotos(false);
-                    }
-                }
-            };
-            fetchData();
-        }, [getAlbums, galleryShowing, isPermissionGranted, loadPhotos, albums.length, photos.length])
+            if (photos.length === 0) {
+                setLoadingPhotos(true);
+                endCursorRef.current = undefined;
+                hasNextPageRef.current = true;
+                loadPhotos().then((firstPage) => {
+                    setPhotos(firstPage);
+                    setLoadingPhotos(false);
+                });
+            }
+        }, [isPermissionGranted, loadPhotos, photos.length])
     );
+
+    // Ładuj albumy gdy przełączysz się na "Foldery"
+    useEffect(() => {
+        if (!isPermissionGranted) return;
+        if (galleryShowing === 'albums' && albums.length === 0) {
+            setLoading(true);
+            getAlbums().finally(() => setLoading(false));
+        }
+    }, [galleryShowing, isPermissionGranted, albums.length, getAlbums]);
 
     const filteredAlbums = albums
         .filter((album) => !storeSelectedAlbums.some((sa) => sa.id === album.id))

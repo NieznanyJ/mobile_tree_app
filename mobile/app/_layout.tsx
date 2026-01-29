@@ -6,12 +6,104 @@ import { useColorScheme } from "nativewind";
 import { useEffect, useState } from "react";
 import { StatusBar } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { configureReanimatedLogger, ReanimatedLogLevel } from "react-native-reanimated";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { isPublicRoute } from "@/constants/routes";
 import { AuthProvider, useAuth } from "@/lib/context/AuthContext";
 import { ThemeProvider } from "@/lib/context/ThemeContext";
+
+// Wyłącz strict mode warnings z Reanimated (pochodzą z bibliotek zewnętrznych)
+configureReanimatedLogger({
+  level: ReanimatedLogLevel.warn,
+  strict: false,
+});
+
+
+const SCREENS_INFO = [
+  {
+    name: "index",
+    options: {
+      headerShown: false,
+    },
+  },
+  {
+    name: "(tabs)",
+    options: {
+      headerShown: false,
+    },
+  },
+  {
+    name: "(auth)",
+    options: {
+      headerShown: false,
+    },
+  },
+  {
+    name: "(media-browser)",
+    options: {
+      headerShown: false,
+      headerTitle: "",
+      headerTitleAlign: "center" as const,
+      headerShadowVisible: false,
+    },
+  },
+  {
+    name: "settings",
+    options: {
+      headerShown: true,
+      headerTitle: "Ustawienia",
+      headerTitleAlign: "center" as const,
+      headerShadowVisible: false,
+    },
+  },
+  {
+    name: "camera",
+    options: {
+      headerShown: false,
+      headerTitle: "Sprawdź gatunek drzewa",
+      headerTitleAlign: "center" as const,
+      headerShadowVisible: false,
+    },
+  },
+  {
+    name: "history",
+    options: {
+      headerShown: true,
+      headerTitle: "Historia",
+      headerTitleAlign: "center" as const,
+      headerShadowVisible: false,
+    },
+  },
+  {
+    name: "tree/[id]",
+    options: {
+      headerShown: true,
+      headerTitle: "",
+      headerTitleAlign: "center" as const,
+      headerShadowVisible: false,
+    },
+  },
+  {
+    name: "prediction/[id]",
+    options: {
+      headerShown: true,
+      headerTitle: "Szczegóły predykcji",
+      headerTitleAlign: "center" as const,
+      headerShadowVisible: false,
+    },
+  },
+  {
+    name: "guest-info",
+    options: {
+      headerShown: true,
+      headerTitle: "Tryb gościa",
+      headerTitleAlign: "center" as const,
+      headerShadowVisible: false,
+    },
+  },
+] as const;
 
 SplashScreen.preventAutoHideAsync();
 
@@ -41,21 +133,19 @@ function RootLayoutNav() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsSplashTimeOver(true);
-    }, 3000);
+    }, 100);
 
     return () => clearTimeout(timer);
   }, []);
 
   const isAppReady = !isLoading && (fontsLoaded || fontError);
 
-  // Ukryj natywny splash screen tylko, gdy aplikacja jest gotowa i czas minął.
   useEffect(() => {
     if (isAppReady && isSplashTimeOver) {
       SplashScreen.hideAsync();
     }
   }, [isAppReady, isSplashTimeOver]);
 
-  // Logika routingu (pozostaje bez zmian).
   useEffect(() => {
     if (!isAppReady) {
       return;
@@ -88,64 +178,9 @@ function RootLayoutNav() {
         <ErrorBoundary>
           <StatusBar barStyle={"dark-content"} backgroundColor={'#5CE7A0'} />
           <Stack>
-            {/* Ekran powitalny jest teraz ekranem głównym */}
-            <Stack.Screen name="index" options={{ headerShown: false }} />
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-            <Stack.Screen
-              name="(media-browser)"
-              options={{
-                headerShown: false,
-                headerTitle: "",
-                headerTitleAlign: "center",
-                headerShadowVisible: false,
-              }}
-            />
-            <Stack.Screen
-              name="settings"
-              options={{
-                headerShown: true,
-                headerTitle: "Ustawienia",
-                headerTitleAlign: "center",
-                headerShadowVisible: false,
-              }}
-            />
-            <Stack.Screen
-              name="camera"
-              options={{
-                headerShown: false,
-                headerTitle: "Sprawdź gatunek drzewa",
-                headerTitleAlign: "center",
-                headerShadowVisible: false,
-              }}
-            />
-            <Stack.Screen
-              name="history"
-              options={{
-                headerShown: true,
-                headerTitle: "Historia przewidywań",
-                headerTitleAlign: "center",
-                headerShadowVisible: false,
-              }}
-            />
-            <Stack.Screen
-              name="tree/[id]"
-              options={{
-                headerShown: true,
-                headerTitle: "",
-                headerTitleAlign: "center",
-                headerShadowVisible: false,
-              }}
-            />
-            <Stack.Screen
-              name="guest-info"
-              options={{
-                headerShown: true,
-                headerTitle: "Tryb gościa",
-                headerTitleAlign: "center",
-                headerShadowVisible: false,
-              }}
-            />
+            {SCREENS_INFO.map((screen) => (
+              <Stack.Screen key={screen.name} name={screen.name} options={screen.options} />
+            ))}
           </Stack>
         </ErrorBoundary>
       </SafeAreaProvider>

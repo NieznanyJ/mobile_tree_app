@@ -59,7 +59,6 @@ const PredictPage = () => {
       <Pressable onPress={handleClearAll} className="px-4 bg-background" disabled={selectedAssets.length === 0} >
         <View className="flex flex-row items-center gap-4 justify-start" style={{ opacity: selectedAssets.length === 0 ? 0.5 : 1 }}>
           <MaterialIcons name="clear-all" className="bg-gray-50 rounded-full p-2" size={24} color={selectedAssets.length === 0 ? colors.gray[500] : colors.secondary} />
-          <Text>Wyczyść wszystkie</Text>
         </View>
       </Pressable>
       <View className="flex-1 p-4 flex-col items-center justify-between bg-background">

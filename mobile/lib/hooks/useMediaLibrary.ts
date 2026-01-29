@@ -1,5 +1,5 @@
 import * as MediaLibrary from "expo-media-library";
-import { useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 
 export function useMediaLibrary() {
   const [permissionResponse, requestPermission] = MediaLibrary.usePermissions({
@@ -8,7 +8,7 @@ export function useMediaLibrary() {
   const [albums, setAlbums] = useState<MediaLibrary.Album[]>([]);
   const [assets, setAssets] = useState<MediaLibrary.Asset[]>([]);
 
-  async function getAlbums() {
+  const getAlbums = useCallback(async () => {
     if (permissionResponse?.status === "granted") {
       const fetchedAlbums = await MediaLibrary.getAlbumsAsync({
         includeSmartAlbums: true,
@@ -32,9 +32,9 @@ export function useMediaLibrary() {
 
       setAlbums(filtered);
     }
-  }
+  }, [permissionResponse?.status]);
 
-  async function getAssets(album: MediaLibrary.Album) {
+  const getAssets = useCallback(async (album: MediaLibrary.Album) => {
     const albumAssets = await MediaLibrary.getAssetsAsync({
       album: album.id,
       first: 100,
@@ -43,9 +43,9 @@ export function useMediaLibrary() {
     });
     setAssets(albumAssets.assets);
     return albumAssets.assets; // Return assets directly for immediate use
-  }
+  }, []);
 
-  async function getRecentAssets(count: number = 10) {
+  const getRecentAssets = useCallback(async (count: number = 10) => {
     if (permissionResponse?.status === "granted") {
       const recentAssets = await MediaLibrary.getAssetsAsync({
         first: count,
@@ -55,7 +55,7 @@ export function useMediaLibrary() {
       return recentAssets.assets;
     }
     return [];
-  }
+  }, [permissionResponse?.status]);
 
   // Don't auto-fetch albums anymore - only fetch when explicitly requested
   // This way albums are not loaded on app startup

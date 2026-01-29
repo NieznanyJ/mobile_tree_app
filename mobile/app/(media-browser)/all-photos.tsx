@@ -166,7 +166,7 @@ export default function AllPhotosScreen() {
   };
 
   return (
-    <View className="flex-1 p-4 bg-background ">
+    <SafeAreaView className="flex-1 p-4 bg-background">
       {!isSingleSelect && (
         <View className="flex-col gap-2 mb-3">
           <Text className="text-lg font-semibold">Wybierz zdjęcia</Text>
@@ -274,6 +274,6 @@ export default function AllPhotosScreen() {
           }}
         />
       )}
-    </View>
+    </SafeAreaView>
   );
 }

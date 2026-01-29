@@ -1,7 +1,7 @@
 import * as MediaLibrary from "expo-media-library";
 import { router } from "expo-router";
-import { useEffect, useRef } from "react";
-import { AppState, Linking, ScrollView, Text, View } from "react-native";
+import { useEffect } from "react";
+import { Linking, ScrollView, Text, View } from "react-native";
 
 import MediaBrowser from "@/components/MediaBrowser";
 import CarouselComponent from "@/components/ui/CarouselComponent";
@@ -18,23 +18,11 @@ export default function Index() {
   const areAllWidgetsDisabled = Object.values(others).every(value => value === false);
   const shouldShowCTA = !widgetsEnabled || areAllWidgetsDisabled;
 
-  const appState = useRef(AppState.currentState);
-
   useEffect(() => {
     if (permissionResponse && permissionResponse.status === "undetermined") {
       requestPermission();
     }
   }, [permissionResponse]);
-
-  useEffect(() => {
-    const subscription = AppState.addEventListener("change", (nextAppState) => {
-      if (appState.current.match(/inactive|background/) && nextAppState === "active") {
-        requestPermission();
-      }
-      appState.current = nextAppState;
-    });
-    return () => subscription.remove();
-  }, []);
 
   const handleRequestPermission = async () => {
     if (permissionResponse?.canAskAgain === false) {
