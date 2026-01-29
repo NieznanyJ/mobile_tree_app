@@ -1,14 +1,17 @@
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import * as MediaLibrary from "expo-media-library";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
+  Animated,
   Dimensions,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
-  Animated,
 } from "react-native";
+
+import { useAssetsStore } from "@/lib/store/assetsStore";
+import { usePathname } from "expo-router";
 
 interface AlbumItemProps {
   album: MediaLibrary.Album;
@@ -35,6 +38,12 @@ const AlbumItem = ({
 }: AlbumItemProps) => {
   const shakeAnimation = useRef(new Animated.Value(0)).current;
 
+  const pathname = usePathname();
+  const { selectedAlbums } = useAssetsStore();
+  const [isInSelectedAlbums, setIsInSelectedAlbums] = useState<boolean>(album.id
+    ? selectedAlbums.some((a) => a.id === album.id)
+    : false);
+
   useEffect(() => {
     if (editMode) {
       startShaking();
@@ -47,12 +56,12 @@ const AlbumItem = ({
     Animated.loop(
       Animated.sequence([
         Animated.timing(shakeAnimation, {
-          toValue: 1,
+          toValue: 0.25,
           duration: 100,
           useNativeDriver: true,
         }),
         Animated.timing(shakeAnimation, {
-          toValue: -1,
+          toValue: -0.25,
           duration: 100,
           useNativeDriver: true,
         }),
@@ -86,9 +95,10 @@ const AlbumItem = ({
 
   return (
     <Animated.View style={editMode ? animatedStyle : {}}>
+      {isInSelectedAlbums && pathname !== "/" && (<MaterialIcons name="widgets" size={16} color="#fff" className="absolute bg-secondary p-2 rounded-full z-10 " />)}
       <TouchableOpacity
         onPress={() => onAlbumSelected(album)}
-        onLongPress={() => onAlbumLongPress?.(album)}
+        onLongPress={() => !isInSelectedAlbums && onAlbumLongPress?.(album)}
         activeOpacity={0.7}
         style={
           displayOption === "grid"

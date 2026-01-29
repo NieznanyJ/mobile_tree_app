@@ -1,10 +1,12 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { useRouter } from "expo-router";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
+  AppState,
+  AppStateStatus,
   Dimensions,
   Pressable,
   StyleSheet,
@@ -26,6 +28,23 @@ export default function CameraScreen() {
   const cameraRef = useRef<CameraView>(null);
   const { selectedAssets, addAssetForPrediction } = useAssetsStore();
   const router = useRouter();
+
+  // AppState handling - pause camera when app goes to background
+  const [isCameraActive, setIsCameraActive] = useState(true);
+  const appStateRef = useRef(AppState.currentState);
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener("change", (nextAppState: AppStateStatus) => {
+      if (appStateRef.current === "active" && nextAppState.match(/inactive|background/)) {
+        setIsCameraActive(false);
+      } else if (appStateRef.current.match(/inactive|background/) && nextAppState === "active") {
+        setIsCameraActive(true);
+      }
+      appStateRef.current = nextAppState;
+    });
+
+    return () => subscription.remove();
+  }, []);
 
   const handleRequestPermission = async () => {
 
@@ -95,7 +114,7 @@ export default function CameraScreen() {
     return (
       <SafeAreaView className="flex-1 bg-black items-center justify-center p-4">
         <View className="items-center gap-4">
-          <MaterialIcons name="camera-off" size={64} color="#fff" />
+          <MaterialIcons name="camera" size={64} color="#fff" />
           <Text className="text-white text-lg font-semibold text-center">
             Potrzebujemy dostępu do kamery
           </Text>
@@ -118,13 +137,15 @@ export default function CameraScreen() {
       <View style={styles.container}>
         {isCapturing && <LoadingOverlay text="Zapisywanie zdjęcia..." />}
 
-        <CameraView
-          ref={cameraRef}
-          facing={facing}
-          flash={flashMode}
-          mute={true}
-          style={styles.camera}
-        />
+        {isCameraActive && (
+          <CameraView
+            ref={cameraRef}
+            facing={facing}
+            flash={flashMode}
+            mute={true}
+            style={styles.camera}
+          />
+        )}
 
 
         <View className="absolute top-0 left-0 right-0 p-4 flex-row justify-between items-start">
