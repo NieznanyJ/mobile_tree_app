@@ -132,7 +132,7 @@ const ProfileScreen = () => {
             <View className="flex flex-col w-full gap-4 items-center">
 
               <View className="w-full border-b-[1px] border-gray-600 py-2">
-                <Text className="text-lg font-semibold mb-1">👁️ Widok galerii</Text>
+                <Text className="text-lg font-semibold mb-1">Widok galerii</Text>
                 <Text className="text-xs text-gray-500 mb-4">Dostosuj sposób wyświetlania swoich zdjęć</Text>
                 <View className="flex flex-col w-full gap-4 mt-4">
                   <Dropdown
@@ -151,26 +151,26 @@ const ProfileScreen = () => {
               </View>
 
               <View className="w-full border-b-[1px] border-gray-600 py-2 pb-8">
-                <Text className="text-lg font-semibold mb-1">🎨 Widgety ekranu głównego</Text>
+                <Text className="text-lg font-semibold mb-1">Widgety ekranu głównego</Text>
                 <Text className="text-xs text-gray-500 mb-4">Wybierz co chcesz widzieć na stronie głównej</Text>
                 <View className="flex flex-col w-full gap-4 mt-4">
                   <View className="flex flex-row justify-between items-center w-full p-2">
                     <View>
-                      <Text className="font-semibold">📸 Ostatnie zdjęcia</Text>
+                      <Text className="font-semibold">Ostatnie zdjęcia</Text>
                       <Text className="text-xs text-gray-600">Carousel z Twoimi ostatnimi zdj.</Text>
                     </View>
                     <CustomSwitch widgetId="recentPhotos" />
                   </View>
                   <View className="flex flex-row justify-between items-center w-full p-2">
                     <View>
-                      <Text className="font-semibold">📁 Moje foldery</Text>
+                      <Text className="font-semibold">Moje foldery</Text>
                       <Text className="text-xs text-gray-600">Podgląd Twoich albumów</Text>
                     </View>
                     <CustomSwitch widgetId="albums" />
                   </View>
                   <View className="flex flex-row justify-between items-center w-full p-2">
                     <View>
-                      <Text className="font-semibold">🌳 Ciekawostki</Text>
+                      <Text className="font-semibold">Ciekawostki</Text>
                       <Text className="text-xs text-gray-600">Poznaj fakty o drzewach</Text>
                     </View>
                     <CustomSwitch widgetId="treeFacts" />

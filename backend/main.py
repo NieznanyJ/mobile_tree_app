@@ -1,11 +1,14 @@
+from pathlib import Path
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from core.config import settings
 from db.database import Base, engine
-from models import user  # Importujemy, aby model został "zauważony" przez SQLAlchemy
+from models import user, prediction as prediction_model  # Importujemy, aby modele zostały "zauważone" przez SQLAlchemy
 
-from routers import auth, prediction
+from routers import auth, history, prediction
 
 # Ta linia tworzy w bazie danych tabele zdefiniowane w modelach,
 # które dziedziczą po klasie Base.
@@ -33,6 +36,14 @@ app.include_router(auth.router, prefix="/auth", tags=["Authentication"])
 
 # Dołączamy router z endpointem do predykcji
 app.include_router(prediction.router, prefix="/predict", tags=["Prediction"])
+
+# Dołączamy router z endpointami historii predykcji
+app.include_router(history.router, prefix="/predictions", tags=["History"])
+
+# Serwowanie plików statycznych (obrazy predykcji)
+uploads_dir = Path("uploads")
+uploads_dir.mkdir(exist_ok=True)
+app.mount("/uploads", StaticFiles(directory=str(uploads_dir)), name="uploads")
 
 
 @app.get("/")

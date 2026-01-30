@@ -88,3 +88,38 @@ def get_current_user_email(
         )
 
     return email
+
+
+from sqlalchemy.orm import Session
+from db.database import get_db
+from models.user import User
+
+
+def get_current_user(
+    credentials: Annotated[HTTPAuthorizationCredentials, Depends(security)],
+    db: Session = Depends(get_db),
+) -> User:
+    """
+    Dependency do pobierania pełnego obiektu User aktualnie zalogowanego użytkownika.
+    Rzuca HTTPException jeśli token jest nieprawidłowy lub użytkownik nie istnieje.
+    """
+    token = credentials.credentials
+    email = verify_access_token(token)
+
+    if not email:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Nieprawidłowy lub wygasły token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    user = db.query(User).filter(User.email == email).first()
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Użytkownik nie istnieje",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    return user
