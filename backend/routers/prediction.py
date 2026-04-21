@@ -40,29 +40,28 @@ async def predict_tree(
     # Wykonaj predykcję
     prediction_result = service.predict_multiple_images(images_bytes)
 
-    # Zapisz obrazy na dysk (z kompresją)
-    image_paths = save_prediction_images(current_user.id, images_bytes)
+    # Zapisz do historii tylko gdy rozpoznano drzewo
+    if prediction_result["predictions"]:
+        image_paths = save_prediction_images(current_user.id, images_bytes)
 
-    # Przygotuj dane do zapisu w historii
-    all_predictions = [
-        SinglePrediction(
-            predicted_class=p["predicted_class"],
-            tree_id=p["tree_id"],
-            confidence=p["confidence"]
+        all_predictions = [
+            SinglePrediction(
+                predicted_class=p["predicted_class"],
+                tree_id=p["tree_id"],
+                confidence=p["confidence"]
+            )
+            for p in prediction_result["predictions"]
+        ]
+
+        prediction_data = PredictionCreate(
+            user_id=current_user.id,
+            predicted_class=prediction_result["predicted_class"],
+            tree_id=prediction_result["tree_id"],
+            confidence=prediction_result["confidence"],
+            all_predictions=all_predictions,
+            image_paths=image_paths,
         )
-        for p in prediction_result["predictions"]
-    ]
 
-    prediction_data = PredictionCreate(
-        user_id=current_user.id,
-        predicted_class=prediction_result["predicted_class"],
-        tree_id=prediction_result["tree_id"],
-        confidence=prediction_result["confidence"],
-        all_predictions=all_predictions,
-        image_paths=image_paths,
-    )
-
-    # Zapisz do historii (z automatycznym limitem 50)
-    create_prediction_history(db, prediction_data)
+        create_prediction_history(db, prediction_data)
 
     return prediction_result

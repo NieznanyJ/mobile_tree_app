@@ -74,13 +74,13 @@ class PredictionService:
 
         service_dir = os.path.dirname(os.path.abspath(__file__))
         model_path = os.path.abspath(
-            os.path.join(service_dir, "..", "model_b0.keras")
+            os.path.join(service_dir, "..", "model_b3.keras")
         )
 
         if not os.path.exists(model_path):
             raise FileNotFoundError(
                 f"Nie znaleziono pliku modelu w: {model_path}. "
-                f"Upewnij się, że `model_b0.keras` znajduje się w folderze `backend`."
+                f"Upewnij się, że `model_b3.keras` znajduje się w folderze `backend`."
             )
 
         self.model = tf.keras.models.load_model(model_path)
