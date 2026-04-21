@@ -19,34 +19,10 @@ import treeImages from "@/assets/images/trees";
 import PredictionSkeleton from "@/components/skeletons/PredictionSkeleton";
 import Overlay from "@/components/ui/Overlay";
 import { PredictionResult, SinglePrediction } from "@/lib/hooks/usePrediction";
-import { FlashList } from "@shopify/flash-list";
+import { getConfidenceBgColor, getConfidenceColor } from "@/lib/utils/helpers";
+import { PredictionModalProps, SecondaryPredictionCardProps, Tree } from "@/types/components";
 
-interface Tree {
-  id: string;
-  commonName: string;
-  scientificName: string;
-  description: string;
-  occurrence: string;
-  images: string[];
-}
 
-interface PredictionModalProps {
-  prediction: PredictionResult | null;
-  setPrediction: (val: PredictionResult | null) => void;
-  isLoading: boolean;
-}
-
-const getConfidenceColor = (confidence: number) => {
-  if (confidence >= 70) return "#22c55e"; // zielony
-  if (confidence >= 40) return "#eab308"; // żółty
-  return "#ef4444"; // czerwony
-};
-
-const getConfidenceBgColor = (confidence: number) => {
-  if (confidence >= 70) return "rgba(34, 197, 94, 0.15)";
-  if (confidence >= 40) return "rgba(234, 179, 8, 0.15)";
-  return "rgba(239, 68, 68, 0.15)";
-};
 
 export default function PredictionModal({
   prediction,
@@ -64,18 +40,14 @@ export default function PredictionModal({
     router.push(`/tree/${treeId}`);
   };
 
-  // Pobierz predykcje i ogranicz do 3 (lub 1 jeśli 100%)
   let predictions = prediction?.predictions || [];
 
-  // Jeśli najwyższa pewność >= 99%, pokazuj tylko ją
   if (predictions.length > 0 && predictions[0].confidence >= 99) {
     predictions = [predictions[0]];
   } else {
-    // Inaczej pokaż max 3
     predictions = predictions.slice(0, 3);
   }
 
-  // Znajdź dane drzew dla predykcji
   const getTreeData = (treeId: string): Tree | undefined => {
     return (treesData as Tree[]).find((tree) => tree.id === treeId);
   };
@@ -92,7 +64,6 @@ export default function PredictionModal({
                 style={{ maxHeight: "85%" }}
               >
                 <SafeAreaView edges={["bottom"]}>
-                  {/* Handle bar */}
                   <View className="items-center pt-3 pb-2">
                     <View className="w-10 h-1 bg-gray-300 rounded-full" />
                   </View>
@@ -106,20 +77,18 @@ export default function PredictionModal({
                       className="px-4 pb-4"
                       showsVerticalScrollIndicator={false}
                     >
-                      {/* Główna predykcja (najwyższa pewność) */}
                       <TopPredictionCard
                         prediction={predictions[0]}
                         tree={getTreeData(predictions[0].tree_id)}
                         onGoToAtlas={handleGoToAtlas}
                       />
 
-                      {/* Pozostałe predykcje */}
                       {predictions.length > 1 && (
                         <View className="mt-4">
                           <Text className="text-sm text-gray-500 mb-2 px-1">
                             Inne możliwości
                           </Text>
-                          {predictions.slice(1).map((pred) => (
+                          {predictions.slice(1).map((pred: PredictionResult) => (
                             <SecondaryPredictionCard
                               key={pred.tree_id}
                               prediction={pred}
@@ -130,7 +99,6 @@ export default function PredictionModal({
                         </View>
                       )}
 
-                      {/* Przycisk zamknij */}
                       <Pressable
                         onPress={handleClose}
                         className="mt-4 mb-2 py-3 items-center"
@@ -138,7 +106,22 @@ export default function PredictionModal({
                         <Text className="text-gray-500 text-sm">Zamknij</Text>
                       </Pressable>
                     </ScrollView>
-                  ) : null}
+                  ) : (
+                    <View className="px-6 py-8 items-center">
+                      <Text className="text-lg font-semibold text-gray-800 mt-4 text-center">
+                        Nie rozpoznano drzewa
+                      </Text>
+                      <Text className="text-sm text-gray-500 mt-2 text-center">
+                        Upewnij się że zdjęcie przedstawia drzewo i spróbuj ponownie
+                      </Text>
+                      <Pressable
+                        onPress={handleClose}
+                        className="mt-6 py-3 px-8 bg-gray-100 rounded-full"
+                      >
+                        <Text className="text-gray-600 text-sm font-medium">Zamknij</Text>
+                      </Pressable>
+                    </View>
+                  )}
                 </SafeAreaView>
               </View>
             </TouchableWithoutFeedback>
@@ -165,10 +148,8 @@ function TopPredictionCard({ prediction, tree, onGoToAtlas }: TopPredictionCardP
 
   return (
     <View className="bg-gray-50 rounded-2xl">
-      {/* Header z procentem i nazwą */}
       <View className="p-4">
         <View className="flex-row items-center justify-between mb-3">
-          {/* Procent */}
           <View
             className="flex-row items-center px-3 py-1.5 rounded-full"
             style={{ backgroundColor: bgColor }}
@@ -185,7 +166,6 @@ function TopPredictionCard({ prediction, tree, onGoToAtlas }: TopPredictionCardP
             </Text>
           </View>
 
-          {/* Przycisk do atlasu */}
           <Pressable
             onPress={() => onGoToAtlas(prediction.tree_id)}
             className="flex-row items-center bg-green-600 px-4 py-2 rounded-full"
@@ -197,18 +177,15 @@ function TopPredictionCard({ prediction, tree, onGoToAtlas }: TopPredictionCardP
           </Pressable>
         </View>
 
-        {/* Nazwa naukowa */}
         <Text className="text-xl font-bold text-gray-900">
           {tree?.scientificName || prediction.predicted_class}
         </Text>
 
-        {/* Nazwa zwyczajowa */}
         <Text className="text-base text-gray-600 mt-0.5">
           {tree?.commonName || ""}
         </Text>
       </View>
 
-      {/* Galeria zdjęć */}
       {images.length > 0 && (
         <FlatList
           data={images}
@@ -233,12 +210,6 @@ function TopPredictionCard({ prediction, tree, onGoToAtlas }: TopPredictionCardP
 /**
  * Karta dla pozostałych predykcji (mniejsza)
  */
-interface SecondaryPredictionCardProps {
-  prediction: SinglePrediction;
-  tree: Tree | undefined;
-  onGoToAtlas: (treeId: string) => void;
-}
-
 function SecondaryPredictionCard({ prediction, tree, onGoToAtlas }: SecondaryPredictionCardProps) {
   const images = treeImages[prediction.tree_id] || [];
   const color = getConfidenceColor(prediction.confidence);
@@ -249,7 +220,6 @@ function SecondaryPredictionCard({ prediction, tree, onGoToAtlas }: SecondaryPre
       onPress={() => onGoToAtlas(prediction.tree_id)}
       className="flex-row items-center bg-white rounded-xl p-3 mb-2 border border-gray-100"
     >
-      {/* Zdjęcie */}
       {images.length > 0 ? (
         <Image
           source={images[0]}
@@ -262,7 +232,6 @@ function SecondaryPredictionCard({ prediction, tree, onGoToAtlas }: SecondaryPre
         </View>
       )}
 
-      {/* Nazwa */}
       <View className="flex-1">
         <Text className="text-base font-semibold text-gray-900" numberOfLines={1}>
           {tree?.scientificName || prediction.predicted_class}
@@ -272,7 +241,6 @@ function SecondaryPredictionCard({ prediction, tree, onGoToAtlas }: SecondaryPre
         </Text>
       </View>
 
-      {/* Procent */}
       <View
         className="flex-row items-center px-2.5 py-1 rounded-full mr-2"
         style={{ backgroundColor: bgColor }}

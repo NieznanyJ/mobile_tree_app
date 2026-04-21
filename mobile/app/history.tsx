@@ -16,6 +16,7 @@ import { colors } from "@/constants/colors";
 import { useAuth } from "@/lib/context/AuthContext";
 import { useHistory } from "@/lib/hooks/useHistory";
 import { getImageUrl, HistoryItem } from "@/lib/services/historyService";
+import { formatDate, getConfidenceColor } from "@/lib/utils/helpers";
 
 const HistoryScreen = () => {
   const { token, isGuest } = useAuth();
@@ -39,29 +40,6 @@ const HistoryScreen = () => {
       }
     }, [token, isGuest, refresh])
   );
-
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
-    const now = new Date();
-    const diffTime = Math.abs(now.getTime() - date.getTime());
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-
-    if (diffDays === 0) {
-      return `Dzisiaj, ${date.getHours()}:${date.getMinutes().toString().padStart(2, "0")}`;
-    } else if (diffDays === 1) {
-      return "Wczoraj";
-    } else if (diffDays < 7) {
-      return `${diffDays} dni temu`;
-    } else {
-      return date.toLocaleDateString("pl-PL");
-    }
-  };
-
-  const getConfidenceColor = (confidence: number) => {
-    if (confidence >= 90) return "text-green-600";
-    if (confidence >= 75) return "text-yellow-600";
-    return "text-orange-600";
-  };
 
   const handleDeleteItem = (id: number) => {
     Alert.alert(
@@ -233,7 +211,7 @@ const HistoryScreen = () => {
           </View>
         </View>
 
-        {/* History list */}
+
         {isLoading ? (
           <View className="p-4 gap-3">
             {[1, 2, 3].map((i) => (

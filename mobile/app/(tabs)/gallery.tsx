@@ -14,20 +14,22 @@ import {
     TouchableOpacity,
     View
 } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated'
 
 import AlbumGrid from '@/components/AlbumGrid';
 import ImageModal from '@/components/modals/ImageModal';
 import AlbumGridSkeleton from '@/components/skeletons/AlbumGridSkeleton';
 import PhotoGridSkeleton from '@/components/skeletons/PhotoGridSkeleton';
 import Button from '@/components/ui/Button';
+import EmptyState from '@/components/ui/EmptyState';
 import SearchInput from '@/components/ui/input/SearchInput';
 import { useMediaLibrary } from '@/lib/hooks/useMediaLibrary';
 import { useAssetsStore } from '@/lib/store/assetsStore';
 import { useSettingsStore } from '@/lib/store/settingsStore';
 
+const SCREEN_WIDTH = Dimensions.get("window").width;
 const ITEMS_PER_ROW = 4;
-const ITEM_WIDTH = Dimensions.get("window").width / ITEMS_PER_ROW - 6;
+const ITEM_WIDTH = SCREEN_WIDTH / ITEMS_PER_ROW - 6;
 const PAGE_SIZE = 50;
 
 const Gallery = () => {
@@ -56,6 +58,19 @@ const Gallery = () => {
     const { albums, getAssets, getAlbums } = useMediaLibrary();
     const { setAlbum, selectedAlbums: storeSelectedAlbums, addAssetForPrediction, selectedAssets } = useAssetsStore();
     const { displayOption, setDisplayOption } = useSettingsStore();
+
+    const translateX = useSharedValue(0);
+
+    const switchTo = useCallback((tab: 'photos' | 'albums') => {
+        setGalleryShowing(tab);
+        translateX.value = withTiming(tab === 'photos' ? 0 : -SCREEN_WIDTH, { duration: 200 });
+    }, [translateX]);
+
+    const slidingStyle = useAnimatedStyle(() => ({
+        flexDirection: 'row' as const,
+        width: SCREEN_WIDTH * 2,
+        transform: [{ translateX: translateX.value }],
+    }));
 
     const isPermissionGranted = permissionResponse?.status === "granted";
 
@@ -193,92 +208,97 @@ const Gallery = () => {
                     textClassName='text-sm'
                     variant={galleryShowing === 'photos' ? 'primary' : 'outline'}
                     title="Zdjęcia"
-                    onPress={() => setGalleryShowing('photos')}
+                    onPress={() => switchTo('photos')}
                 />
                 <Button
                     className='flex-1'
                     textClassName='text-sm'
                     variant={galleryShowing === 'albums' ? 'primary' : 'outline'}
                     title="Foldery"
-                    onPress={() => setGalleryShowing('albums')}
+                    onPress={() => switchTo('albums')}
                 />
             </View >
 
-            <View className="flex-row items-center justify-end mt-4">
-                <Pressable
-                    className="bg-gray-100 rounded-xl p-2"
-                    onPress={() => setDisplayOption(displayOption === "grid" ? "list" : "grid")}
-                >
-                    <Ionicons
-                        name={displayOption === "grid" ? "list" : "grid"}
-                        size={18}
-                        color="#00964a"
+            <View className='flex flex-row items-center gap-2'>
+                <View className="my-4 flex-1">
+                    <SearchInput
+                        value={searchText}
+                        onChangeText={setSearchText}
+                        placeholder="Szukaj"
+                        handleReset={() => setSearchText("")}
+                        onPress={setDisplayOption}
+                        displayOption={displayOption}
+                        showDisplayButton={galleryShowing === 'albums'}
                     />
-                </Pressable>
-            </View>
-            <View className="my-4">
-                <SearchInput
-                    value={searchText}
-                    onChangeText={setSearchText}
-                    placeholder="Szukaj"
-                    handleReset={() => setSearchText("")}
-                />
+                </View>
             </View>
 
-            {galleryShowing === 'albums' ? (
-                loading ? (
-                    <AlbumGridSkeleton />
-                ) : (
-                    <ScrollView
-                        style={{ flex: 1 }}
-                        contentContainerStyle={{ paddingBottom: 20 }}
-                        showsVerticalScrollIndicator={false}
-                    >
-                        <AlbumGrid
-                            albums={filteredAlbums}
-                            onAlbumSelected={handleAlbumSelected}
-                            onRefresh={getAlbums}
-                            albumsPerPage="all"
-                            headerShown={false}
-                            pickerMode={pickerMode}
-                            selectedAlbums={selectedAlbums}
-                        />
-                    </ScrollView>
-                )
-            ) : loadingPhotos ? (
-                <PhotoGridSkeleton />
-            ) : filteredPhotos.length === 0 ? (
-                <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', gap: 12 }}>
-                    <View className="w-16 h-16 rounded-full bg-gray-100 items-center justify-center">
-                        <Ionicons name="image-outline" size={28} color="#9ca3af" />
-                    </View>
-                    <Text className="text-gray-500">Brak zdjęć</Text>
-                </View>
-            ) : (
-                <FlashList
-                    data={filteredPhotos}
-                    keyExtractor={(item) => item.id}
-                    numColumns={ITEMS_PER_ROW}
-                    onEndReached={loadMore}
-                    onEndReachedThreshold={0.5}
-                    ListFooterComponent={renderFooter}
-                    renderItem={({ item, index }) => (
-                        <TouchableOpacity
-                            onPress={() => handlePhotoPress(item, index)}
-                            style={{
-                                width: ITEM_WIDTH,
-                                height: ITEM_WIDTH * 1.1,
-                                padding: 4,
-                            }}
-                        >
-                            <Image
-                                source={{ uri: item.uri }}
-                                style={{ width: "100%", height: "100%", borderRadius: 8 }}
+            <View style={{ flex: 1, overflow: 'hidden' }}>
+                <Animated.View style={[{ flex: 1 }, slidingStyle]}>
+                    <View style={{ width: SCREEN_WIDTH, flex: 1, paddingRight: 32 }}>
+                        {loadingPhotos ? (
+                            <PhotoGridSkeleton />
+                        ) : filteredPhotos.length === 0 ? (
+                            <EmptyState
+                                icon={<Ionicons name="image-outline" size={28} color="#9ca3af" />}
+                                text="Brak zdjęć"
                             />
-                        </TouchableOpacity>
-                    )}
-                />
-            )}
+                        ) : (
+                            <FlashList
+                                data={filteredPhotos}
+                                keyExtractor={(item) => item.id}
+                                numColumns={ITEMS_PER_ROW}
+                                onEndReached={loadMore}
+                                onEndReachedThreshold={0.5}
+                                ListFooterComponent={renderFooter}
+                                renderItem={({ item, index }) => (
+                                    <TouchableOpacity
+                                        onPress={() => handlePhotoPress(item, index)}
+                                        style={{
+                                            width: ITEM_WIDTH,
+                                            height: ITEM_WIDTH * 1.1,
+                                            padding: 4,
+                                        }}
+                                    >
+                                        <Image
+                                            source={{ uri: item.uri }}
+                                            style={{ width: "100%", height: "100%", borderRadius: 8 }}
+                                        />
+                                    </TouchableOpacity>
+                                )}
+                            />
+                        )}
+                    </View>
+
+                    {/* Panel: Foldery */}
+                    <View style={{ width: SCREEN_WIDTH, flex: 1, paddingRight: 32 }}>
+                        {loading ? (
+                            <AlbumGridSkeleton />
+                        ) : filteredAlbums.length === 0 ? (
+                            <EmptyState
+                                icon={<Ionicons name="folder-open-outline" size={28} color="#9ca3af" />}
+                                text="Nie znaleziono folderów"
+                            />
+                        ) : (
+                            <ScrollView
+                                style={{ flex: 1 }}
+                                contentContainerStyle={{ paddingBottom: 20 }}
+                                showsVerticalScrollIndicator={false}
+                            >
+                                <AlbumGrid
+                                    albums={filteredAlbums}
+                                    onAlbumSelected={handleAlbumSelected}
+                                    onRefresh={getAlbums}
+                                    albumsPerPage="all"
+                                    headerShown={false}
+                                    pickerMode={pickerMode}
+                                    selectedAlbums={selectedAlbums}
+                                />
+                            </ScrollView>
+                        )}
+                    </View>
+                </Animated.View>
+            </View>
 
             {
                 selectedImageData && (

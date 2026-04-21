@@ -2,7 +2,6 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { Link, router } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Modal, Pressable, Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 import AuthForm from "@/components/forms/auth/AuthForm";
 import Button from "@/components/ui/Button";
@@ -14,8 +13,6 @@ const ProfileScreen = () => {
   const { token, isGuest, logout, user } = useAuth();
   const [isModalVisible, setModalVisible] = useState(false);
 
-  // TODO: add theme change later
-  // const { theme, toggleTheme } = useTheme();
 
   useEffect(() => {
     if (token) setModalVisible(false);

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Dimensions, Text, View } from "react-native";
+import { Dimensions, View } from "react-native";
 import { useSharedValue } from "react-native-reanimated";
 import Carousel, {
     ICarouselInstance,

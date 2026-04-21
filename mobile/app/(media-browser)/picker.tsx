@@ -11,8 +11,8 @@ import {
     View,
 } from "react-native";
 
-import SkeletonBox from "@/components/ui/SkeletonBox";
 import Button from "@/components/ui/Button";
+import SkeletonBox from "@/components/ui/SkeletonBox";
 import { useAssetsStore } from "@/lib/store/assetsStore";
 
 export default function Picker() {

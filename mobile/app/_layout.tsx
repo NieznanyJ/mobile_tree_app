@@ -21,90 +21,6 @@ configureReanimatedLogger({
 });
 
 
-const SCREENS_INFO = [
-  {
-    name: "index",
-    options: {
-      headerShown: false,
-    },
-  },
-  {
-    name: "(tabs)",
-    options: {
-      headerShown: false,
-    },
-  },
-  {
-    name: "(auth)",
-    options: {
-      headerShown: false,
-    },
-  },
-  {
-    name: "(media-browser)",
-    options: {
-      headerShown: false,
-      headerTitle: "",
-      headerTitleAlign: "center" as const,
-      headerShadowVisible: false,
-    },
-  },
-  {
-    name: "settings",
-    options: {
-      headerShown: true,
-      headerTitle: "Ustawienia",
-      headerTitleAlign: "center" as const,
-      headerShadowVisible: false,
-    },
-  },
-  {
-    name: "camera",
-    options: {
-      headerShown: false,
-      headerTitle: "Sprawdź gatunek drzewa",
-      headerTitleAlign: "center" as const,
-      headerShadowVisible: false,
-    },
-  },
-  {
-    name: "history",
-    options: {
-      headerShown: true,
-      headerTitle: "Historia",
-      headerTitleAlign: "center" as const,
-      headerShadowVisible: false,
-    },
-  },
-  {
-    name: "tree/[id]",
-    options: {
-      headerShown: true,
-      headerTitle: "",
-      headerTitleAlign: "center" as const,
-      headerShadowVisible: false,
-    },
-  },
-  {
-    name: "prediction/[id]",
-    options: {
-      headerShown: true,
-      headerTitle: "Szczegóły predykcji",
-      headerTitleAlign: "center" as const,
-      headerShadowVisible: false,
-    },
-  },
-  {
-    name: "guest-info",
-    options: {
-      headerShown: true,
-      headerTitle: "Tryb gościa",
-      headerTitleAlign: "center" as const,
-      headerShadowVisible: false,
-    },
-  },
-] as const;
-
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
@@ -178,9 +94,56 @@ function RootLayoutNav() {
         <ErrorBoundary>
           <StatusBar barStyle={"dark-content"} backgroundColor={'#5CE7A0'} />
           <Stack>
-            {SCREENS_INFO.map((screen) => (
-              <Stack.Screen key={screen.name} name={screen.name} options={screen.options} />
-            ))}
+            <Stack.Screen name="index" options={{ headerShown: false }} />
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+            <Stack.Screen name="(media-browser)" options={{ headerShown: false }} />
+            <Stack.Screen
+              name="settings"
+              options={{
+                headerShown: true,
+                headerTitle: "Ustawienia",
+                headerTitleAlign: "center",
+                headerShadowVisible: false,
+              }}
+            />
+            <Stack.Screen name="camera" options={{ headerShown: false }} />
+            <Stack.Screen
+              name="history"
+              options={{
+                headerShown: true,
+                headerTitle: "Historia",
+                headerTitleAlign: "center",
+                headerShadowVisible: false,
+              }}
+            />
+            <Stack.Screen
+              name="tree/[id]"
+              options={{
+                headerShown: true,
+                headerTitle: "",
+                headerTitleAlign: "center",
+                headerShadowVisible: false,
+              }}
+            />
+            <Stack.Screen
+              name="prediction/[id]"
+              options={{
+                headerShown: true,
+                headerTitle: "Szczegóły predykcji",
+                headerTitleAlign: "center",
+                headerShadowVisible: false,
+              }}
+            />
+            <Stack.Screen
+              name="guest-info"
+              options={{
+                headerShown: true,
+                headerTitle: "Tryb gościa",
+                headerTitleAlign: "center",
+                headerShadowVisible: false,
+              }}
+            />
           </Stack>
         </ErrorBoundary>
       </SafeAreaProvider>

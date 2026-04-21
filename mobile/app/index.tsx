@@ -8,12 +8,12 @@ import { useAuth } from "@/lib/context/AuthContext";
 
 export default function Index() {
   const router = useRouter();
-  const { enterAsGuest } = useAuth(); // Pobieramy funkcję z naszego kontekstu
+  const { enterAsGuest } = useAuth();
 
 
   return (
-    <SafeAreaView className="flex-1 flex-col justify-between items-center bg-background ">
-      <View className="size-[500px] bg-secondary absolute rounded-full z-0 top-[-30%] "></View>
+    <SafeAreaView className="flex-1 flex-col justify-between items-center bg-background">
+      <View className="size-[500px] bg-secondary absolute rounded-full z-0 top-[-30%]"></View>
 
       <View className="flex flex-col items-center gap-10">
         <View className="flex flex-col items-center justify-center relative">
@@ -26,14 +26,14 @@ export default function Index() {
             SMART TREE
           </Text>
         </View>
-        <Text className="text-2xl font-bold text-secondary text-center ">
+        <Text className="text-2xl font-bold text-secondary text-center">
           Aplikacja do rozpoznawania drzew
         </Text>
       </View>
-      <View className=" flex-col justify-center items-center gap-4  w-full  ">
+      <View className=" flex-col justify-center items-center gap-4  w-full">
         <Button
           title="Kontynuuj jako gość"
-          onPress={enterAsGuest} // Poprawiona logika - wywołujemy funkcję z kontekstu
+          onPress={enterAsGuest}
         />
         <Button
           title="Zaloguj się"

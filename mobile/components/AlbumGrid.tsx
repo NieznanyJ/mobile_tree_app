@@ -9,6 +9,7 @@ import { useAssetsStore } from "@/lib/store/assetsStore";
 import { useSettingsStore } from "@/lib/store/settingsStore";
 
 import AlbumItem from "./ui/AlbumItem";
+import EmptyState from "./ui/EmptyState";
 
 interface AlbumGridProps {
   albums: MediaLibrary.Album[];
@@ -22,6 +23,7 @@ interface AlbumGridProps {
   selectedAlbumsToDisplay?: MediaLibrary.Album[];
   editMode?: boolean;
   onRemoveAlbum?: (albumId: string) => void;
+  permissionGranted?: boolean;
 }
 
 export default function AlbumGrid({
@@ -36,13 +38,14 @@ export default function AlbumGrid({
   selectedAlbumsToDisplay,
   editMode = false,
   onRemoveAlbum,
+  permissionGranted
 }: AlbumGridProps) {
   const albumsToDisplay =
     selectedAlbumsToDisplay && selectedAlbumsToDisplay.length > 0
       ? selectedAlbumsToDisplay
       : albumsPerPage === "all"
-      ? albums
-      : albums.slice(0, albumsPerPage as number);
+        ? albums
+        : albums.slice(0, albumsPerPage as number);
 
   const { displayOption, setDisplayOption } = useSettingsStore();
   const { setAlbumCount } = useAssetsStore();
@@ -52,23 +55,25 @@ export default function AlbumGrid({
   }, [albums.length]);
 
   return (
-    <View>
+    <View className="relative">
       {headerShown && (
         <View className="w-full flex flex-row items-center justify-between mb-4">
           <Text className="text-xl font-bold">Foldery</Text>
           <View className="flex-row items-center gap-3">
-            <Pressable
-              className="bg-gray-100 rounded-xl p-2"
-              onPress={() =>
-                setDisplayOption(displayOption === "grid" ? "list" : "grid")
-              }
-            >
-              <Ionicons
-                name={displayOption === "grid" ? "list" : "grid"}
-                size={18}
-                color="#00964a"
-              />
-            </Pressable>
+            {selectedAlbumsToDisplay && selectedAlbumsToDisplay.length > 0 && (
+              <Pressable
+                className="bg-gray-100 rounded-xl p-2"
+                onPress={() =>
+                  setDisplayOption(displayOption === "grid" ? "list" : "grid")
+                }
+              >
+                <Ionicons
+                  name={displayOption === "grid" ? "list" : "grid"}
+                  size={18}
+                  color="#00964a"
+                />
+              </Pressable>
+            )}
             <Link
               href="/(media-browser)/all-albums"
               className="text-sm text-gray-600"
@@ -100,10 +105,7 @@ export default function AlbumGrid({
           )}
         />
       ) : (
-        <View className="flex flex-col items-center justify-center gap-2 my-4">
-          <MaterialIcons name="folder-off" size={36} color="#e5e7eb" />
-          <Text>Nie znaleziono albumów lub nie udzielono dostępu.</Text>
-        </View>
+        <EmptyState icon={<Ionicons name="folder-open-outline" size={28} color="#9ca3af" />} text={permissionGranted ? "nie udzielono dostępu" : "Nie znaleziono folderów"} />
       )}
     </View>
   );
