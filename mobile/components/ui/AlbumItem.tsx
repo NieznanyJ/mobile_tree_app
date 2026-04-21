@@ -1,8 +1,7 @@
-import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import * as MediaLibrary from "expo-media-library";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState } from "react";
 import {
-  Animated,
   Dimensions,
   StyleSheet,
   Text,
@@ -36,76 +35,35 @@ const AlbumItem = ({
   editMode = false,
   onRemove,
 }: AlbumItemProps) => {
-  const shakeAnimation = useRef(new Animated.Value(0)).current;
-
   const pathname = usePathname();
   const { selectedAlbums } = useAssetsStore();
-  const [isInSelectedAlbums, setIsInSelectedAlbums] = useState<boolean>(album.id
-    ? selectedAlbums.some((a) => a.id === album.id)
-    : false);
-
-  useEffect(() => {
-    if (editMode) {
-      startShaking();
-    } else {
-      stopShaking();
-    }
-  }, [editMode]);
-
-  const startShaking = () => {
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(shakeAnimation, {
-          toValue: 0.25,
-          duration: 100,
-          useNativeDriver: true,
-        }),
-        Animated.timing(shakeAnimation, {
-          toValue: -0.25,
-          duration: 100,
-          useNativeDriver: true,
-        }),
-        Animated.timing(shakeAnimation, {
-          toValue: 0,
-          duration: 100,
-          useNativeDriver: true,
-        }),
-      ]),
-    ).start();
-  };
-
-  const stopShaking = () => {
-    shakeAnimation.setValue(0);
-    Animated.spring(shakeAnimation, {
-      toValue: 0,
-      useNativeDriver: true,
-    }).start();
-  };
-
-  const animatedStyle = {
-    transform: [
-      {
-        rotate: shakeAnimation.interpolate({
-          inputRange: [-1, 1],
-          outputRange: ["-1deg", "1deg"],
-        }),
-      },
-    ],
-  };
+  const [isInSelectedAlbums] = useState<boolean>(
+    album.id ? selectedAlbums.some((a) => a.id === album.id) : false
+  );
 
   return (
-    <Animated.View style={editMode ? animatedStyle : {}}>
-      {isInSelectedAlbums && pathname !== "/" && (<MaterialIcons name="widgets" size={16} color="#fff" className="absolute bg-secondary p-2 rounded-full z-10 " />)}
-      <TouchableOpacity
-        onPress={() => onAlbumSelected(album)}
-        onLongPress={() => !isInSelectedAlbums && onAlbumLongPress?.(album)}
-        activeOpacity={0.7}
-        style={
-          displayOption === "grid"
-            ? styles.albumGridItemContainer
-            : styles.albumListItemContainer
-        }
-      >
+    <TouchableOpacity
+      onPress={() => editMode ? onRemove?.(album.id) : onAlbumSelected(album)}
+      onLongPress={() => !isInSelectedAlbums && onAlbumLongPress?.(album)}
+      activeOpacity={0.7}
+      style={[
+        displayOption === "grid"
+          ? styles.albumGridItemContainer
+          : styles.albumListItemContainer,
+        editMode && styles.editModeContainer,
+      ]}
+    >
+      {isInSelectedAlbums && pathname !== "/" && (
+        <MaterialIcons name="widgets" size={16} color="#fff" className="absolute bg-secondary p-2 rounded-full z-10" />
+      )}
+      {editMode && (
+        <TouchableOpacity
+          onPress={() => onRemove?.(album.id)}
+          style={styles.removeButton}
+        >
+          <Ionicons name="close" size={12} color="#6b7280" />
+        </TouchableOpacity>
+      )}
         <View
           style={
             displayOption === "grid"
@@ -113,14 +71,6 @@ const AlbumItem = ({
               : styles.albumListItem
           }
         >
-          {editMode && (
-            <TouchableOpacity
-              onPress={() => onRemove?.(album.id)}
-              style={styles.removeButton}
-            >
-              <Text style={styles.removeButtonText}>X</Text>
-            </TouchableOpacity>
-          )}
           <View
             style={
               displayOption === "grid"
@@ -129,7 +79,7 @@ const AlbumItem = ({
             }
           >
             <MaterialIcons name="folder" size={36} color="#e5e7eb" />
-            {displayOption === "grid" && (
+            {displayOption === "grid" && !editMode && (
               <MaterialCommunityIcons
                 name="dots-horizontal"
                 size={24}
@@ -145,7 +95,7 @@ const AlbumItem = ({
               {album.assetCount} {album.assetCount === 1 ? "plik" : "pliki"}
             </Text>
           </View>
-          {displayOption === "list" && (
+          {displayOption === "list" && !editMode && (
             <MaterialCommunityIcons
               name="dots-horizontal"
               size={24}
@@ -176,8 +126,7 @@ const AlbumItem = ({
             </>
           )}
         </View>
-      </TouchableOpacity>
-    </Animated.View>
+    </TouchableOpacity>
   );
 };
 
@@ -199,6 +148,9 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     backgroundColor: "#fff",
     elevation: 2,
+  },
+  editModeContainer: {
+    opacity: 0.85,
   },
   albumGridItem: {
     display: "flex",
@@ -250,20 +202,17 @@ const styles = StyleSheet.create({
   },
   removeButton: {
     position: "absolute",
-    top: -5,
-    right: -5,
-    backgroundColor: "red",
-    width: 24,
-    height: 24,
-    borderRadius: 12,
+    top: -6,
+    right: -6,
+    backgroundColor: "#f3f4f6",
+    width: 22,
+    height: 22,
+    borderRadius: 11,
     alignItems: "center",
     justifyContent: "center",
     zIndex: 10,
-    elevation: 5,
-  },
-  removeButtonText: {
-    color: "white",
-    fontWeight: "bold",
-    fontSize: 14,
+    elevation: 3,
+    borderWidth: 1,
+    borderColor: "#e5e7eb",
   },
 });

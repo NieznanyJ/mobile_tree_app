@@ -7,31 +7,43 @@ import {
   Alert,
   AppState,
   AppStateStatus,
-  Dimensions,
   Pressable,
   StyleSheet,
   Text,
   View,
 } from "react-native";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import { runOnJS, useSharedValue } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import LoadingOverlay from "@/components/ui/LoadingOverlay";
 import { MAX_PREDICTION_ASSETS, useAssetsStore } from "@/lib/store/assetsStore";
-
-const { width, height } = Dimensions.get("window");
 
 export default function CameraScreen() {
   const [permission, requestPermission] = useCameraPermissions();
   const [facing, setFacing] = useState<"front" | "back">("back");
   const [flashMode, setFlashMode] = useState<"on" | "off" | "auto">("auto");
   const [isCapturing, setIsCapturing] = useState(false);
+  const [zoom, setZoom] = useState(0);
   const cameraRef = useRef<CameraView>(null);
   const { selectedAssets, addAssetForPrediction } = useAssetsStore();
   const router = useRouter();
 
-  // AppState handling - pause camera when app goes to background
   const [isCameraActive, setIsCameraActive] = useState(true);
   const appStateRef = useRef(AppState.currentState);
+
+  const baseZoom = useSharedValue(0);
+  const zoomShared = useSharedValue(0);
+
+  const pinchGesture = Gesture.Pinch()
+    .onStart(() => {
+      baseZoom.value = zoomShared.value;
+    })
+    .onUpdate((e) => {
+      const next = Math.min(Math.max(baseZoom.value + (e.scale - 1) * 0.5, 0), 1);
+      zoomShared.value = next;
+      runOnJS(setZoom)(next);
+    });
 
   useEffect(() => {
     const subscription = AppState.addEventListener("change", (nextAppState: AppStateStatus) => {
@@ -47,8 +59,6 @@ export default function CameraScreen() {
   }, []);
 
   const handleRequestPermission = async () => {
-
-    console.log("Camera permission result:", permission);
     const result = await requestPermission();
     if (!result.granted) {
       alert("Aplikacja potrzebuje dostępu do kamery");
@@ -114,7 +124,6 @@ export default function CameraScreen() {
     return (
       <SafeAreaView className="flex-1 bg-black items-center justify-center p-4">
         <View className="items-center gap-4">
-          <MaterialIcons name="camera" size={64} color="#fff" />
           <Text className="text-white text-lg font-semibold text-center">
             Potrzebujemy dostępu do kamery
           </Text>
@@ -137,16 +146,20 @@ export default function CameraScreen() {
       <View style={styles.container}>
         {isCapturing && <LoadingOverlay text="Zapisywanie zdjęcia..." />}
 
-        {isCameraActive && (
-          <CameraView
-            ref={cameraRef}
-            facing={facing}
-            flash={flashMode}
-            mute={true}
-            style={styles.camera}
-          />
-        )}
-
+        <GestureDetector gesture={pinchGesture}>
+          <View style={styles.camera}>
+            {isCameraActive && (
+              <CameraView
+                ref={cameraRef}
+                facing={facing}
+                flash={flashMode}
+                mute={true}
+                zoom={zoom}
+                style={styles.camera}
+              />
+            )}
+          </View>
+        </GestureDetector>
 
         <View className="absolute top-0 left-0 right-0 p-4 flex-row justify-between items-start">
           <Pressable
@@ -183,9 +196,17 @@ export default function CameraScreen() {
           </View>
         </View>
 
-        {/* Bottom Controls */}
+        {zoom > 0.01 && (
+          <View className="absolute top-20 left-0 right-0 items-center">
+            <View className="bg-black/50 px-3 py-1 rounded-full">
+              <Text className="text-white text-sm font-medium">
+                {(1 + zoom * 9).toFixed(1)}×
+              </Text>
+            </View>
+          </View>
+        )}
+
         <View className="absolute bottom-0 left-0 right-0 p-6 flex-row items-end justify-center gap-4">
-          {/* Capture Button */}
           <Pressable
             onPress={takePicture}
             disabled={isCapturing}
@@ -200,10 +221,9 @@ export default function CameraScreen() {
           </Pressable>
         </View>
 
-        {/* Info Text */}
         <View className="absolute bottom-32 left-0 right-0 items-center">
           <Text className="text-white/70 text-sm">
-            {facing === "back" ? "📷 Aparat główny" : "🤳 Aparat przód"}
+            {facing === "back" ? "Aparat główny" : "Aparat przód"}
           </Text>
         </View>
       </View>

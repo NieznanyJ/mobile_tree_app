@@ -14,7 +14,6 @@ export interface SinglePrediction {
 
 export interface PredictionResult {
   predictions: SinglePrediction[];
-  // Dla kompatybilności - główna predykcja
   predicted_class: string;
   tree_id: string;
   confidence: number;

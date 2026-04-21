@@ -1,0 +1,43 @@
+{
+  "classes": [
+    {
+      "name": "Brzoza brodawkowata (Betula pendula)",
+      "id": "betula-pendula"
+    },
+    {
+      "name": "Buk zwyczajny (Fagus sylvatica)",
+      "id": "fagus-sylvatica"
+    },
+    {
+      "name": "Dąb szypułkowy (Quercus robur)",
+      "id": "quercus-robur"
+    },
+    {
+      "name": "Jesion wyniosły (Fraxinus excelsior)",
+      "id": "fraxinus-excelsior"
+    },
+    {
+      "name": "Kasztanowiec pospolity (Aesculus hippocastanum)",
+      "id": "aesculus-hippocastanum"
+    },
+    {
+      "name": "Klon zwyczajny (Acer platanoides)",
+      "id": "acer-platanoides"
+    },
+    {
+      "name": "Sosna zwyczajna (Pinus sylvestris)",
+      "id": "pinus-sylvestris"
+    },
+    {
+      "name": "Świerk pospolity (Picea abies)",
+      "id": "picea-abies"
+    }
+  ],
+  "imageSize": 224,
+  "inputShape": [
+    1,
+    224,
+    224,
+    3
+  ]
+}

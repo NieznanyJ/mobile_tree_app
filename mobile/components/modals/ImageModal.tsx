@@ -78,7 +78,6 @@ export default function AssetModal({
           className="absolute inset-0"
         />
         <View className="w-[90%] mx-5 bg-white rounded-2xl overflow-hidden">
-          {/* Counter badge */}
           <View className="absolute top-3 right-3 z-10 bg-black/60 rounded-full px-3 py-1">
             <Text className="text-white text-xs font-semibold">
               {selectedAssets.length}/{MAX_PREDICTION_ASSETS}

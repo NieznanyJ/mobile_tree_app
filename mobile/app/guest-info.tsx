@@ -4,7 +4,7 @@ import React from "react";
 import { Pressable, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-const LIMITATIONS = [
+export const LIMITATIONS = [
   {
     icon: "time-outline" as const,
     title: "Historia przewidywań",
@@ -16,11 +16,6 @@ const LIMITATIONS = [
     description:
       "Nie masz dostępu do zaawansowanego modelu klasyfikatora działającego na serwerze. Dostępny jest tylko model lokalny.",
   },
-  // {
-  //   icon: "bookmark-outline" as const,
-  //   title: "Zapisywanie wyników",
-  //   description: "Nie możesz zapisywać i eksportować wyników rozpoznawania drzew.",
-  // },
 ];
 
 export default function GuestInfoScreen() {

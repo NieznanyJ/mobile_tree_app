@@ -1,12 +1,12 @@
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import { FlashList } from "@shopify/flash-list";
 import * as MediaLibrary from "expo-media-library";
-import { router, useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams, usePathname } from "expo-router";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
-  Dimensions,
   Image,
+  Pressable,
   Text,
   TouchableOpacity,
   View,
@@ -16,45 +16,18 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import ImageModal from "@/components/modals/ImageModal";
 import PhotoGridSkeleton from "@/components/skeletons/PhotoGridSkeleton";
 import Button from "@/components/ui/Button";
+import EmptyState from "@/components/ui/EmptyState";
+import Checkbox from "@/components/ui/input/Checkbox";
 import SearchInput from "@/components/ui/input/SearchInput";
+import { DISPLAY_OPTIONS_CALC, num, PAGE_SIZE } from "@/constants/components";
 import { useAssetsStore } from "@/lib/store/assetsStore";
 
-const ITEMS_PER_ROW = 4;
-const ITEM_SPACING = 6;
-const ITEM_WIDTH = Dimensions.get("window").width / ITEMS_PER_ROW - ITEM_SPACING;
 
-export const DISPLAY_OPTIONS_CALC = [
-  {
-    id: 2,
-    ITEMS_PER_ROW: 2,
-    ITEM_SPACING: 10,
-    ITEM_WIDTH: Dimensions.get("window").width / 2 - 14,
-  },
-  {
-    id: 3,
-    ITEMS_PER_ROW: 3,
-    ITEM_SPACING: 8,
-    ITEM_WIDTH: Dimensions.get("window").width / 3 - 10,
-  },
-  {
-    id: 4,
-    ITEMS_PER_ROW: 4,
-    ITEM_SPACING: 6,
-    ITEM_WIDTH: Dimensions.get("window").width / 4 - 6,
-  },
-  {
-    id: 5,
-    ITEMS_PER_ROW: 5,
-    ITEM_SPACING: 6,
-    ITEM_WIDTH: Dimensions.get("window").width / 5 - 6,
-  },
-];
 
-const num = 4;
 
-const PAGE_SIZE = 50;
 
 export default function AllPhotosScreen() {
+  const pathname = usePathname();
   const [permissionResponse, requestPermission] = MediaLibrary.usePermissions({
     mediaTypes: MediaLibrary.MediaType.photo,
   });
@@ -67,7 +40,6 @@ export default function AllPhotosScreen() {
     assets: MediaLibrary.Asset[];
     index: number;
   } | null>(null);
-
   const endCursorRef = useRef<string | undefined>(undefined);
   const hasNextPageRef = useRef(true);
 
@@ -154,7 +126,17 @@ export default function AllPhotosScreen() {
     setSelected(new Set(preselected));
   }, [recentImages, assets]);
 
+
+
   const allSelected = filteredAssets.length > 0 && filteredAssets.every((a) => selected.has(a.id));
+
+  const checkAll = () => {
+    if (allSelected) {
+      setSelected(new Set());
+    } else {
+      setSelected(new Set(filteredAssets.map((a) => a.id)));
+    }
+  }
 
   const renderFooter = () => {
     if (!loadingMore) return null;
@@ -170,31 +152,25 @@ export default function AllPhotosScreen() {
       {!isSingleSelect && (
         <View className="flex-col gap-2 mb-3">
           <Text className="text-lg font-semibold">Wybierz zdjęcia</Text>
-          <View className="flex-row items-center justify-between gap-2">
-            <Button
-              title={allSelected ? "Odznacz wszystkie" : "Zaznacz wszystkie"}
-              variant="outline"
-              className="flex-1 px-4 mt-0"
-              textClassName="text-sm"
-              onPress={() => {
-                if (allSelected) {
-                  setSelected(new Set());
-                } else {
-                  const allIds = new Set(filteredAssets.map((a) => a.id));
-                  setSelected(allIds);
-                }
-              }}
-            />
-            <Button
-              title={`Dodaj (${selected.size})`}
-              className="flex-1 px-6 mt-0"
-              textClassName="text-sm"
+          <View className="flex-row items-center justify-between">
+            <Pressable className="flex flex-row items-center gap-2 flex-1" onPress={checkAll}>
+              <View pointerEvents="none">
+                <Checkbox setIsChecked={() => {}} isChecked={allSelected} />
+              </View>
+              <Text>{allSelected ? "Odznacz wszystkie" : "Zaznacz wszystkie"}</Text>
+            </Pressable>
+
+            <Pressable
+              className="bg-secondary px-4 py-3 rounded-full  flex-row items-center justify-end "
               onPress={() => {
                 const chosen = assets.filter((a) => selected.has(a.id));
                 setRecentImages(chosen);
                 router.back();
               }}
-            />
+            >
+
+              <Text className="text-white text-lg w-24">{`Dodaj (${selected.size})`}</Text>
+            </Pressable>
           </View>
         </View>
       )}
@@ -203,6 +179,7 @@ export default function AllPhotosScreen() {
         onChangeText={setSearchText}
         handleReset={() => setSearchText("")}
         placeholder="Szukaj"
+        showDisplayButton={false}
       />
       {loading ? (
         <View className="mt-2">
@@ -216,46 +193,57 @@ export default function AllPhotosScreen() {
           <Text className="text-gray-500">Brak ostatnich zdjęć lub brak dostępu do galerii.</Text>
         </View>
       ) : (
-        <FlashList
-          key={num}
-          contentContainerStyle={{ paddingTop: 8 }}
-          data={filteredAssets}
-          keyExtractor={(item) => item.id}
-          numColumns={num}
-          estimatedItemSize={layout!.ITEM_WIDTH * 1.1}
-          onEndReached={loadMore}
-          onEndReachedThreshold={0.5}
-          ListFooterComponent={renderFooter}
-          renderItem={({ item, index }) => (
-            <TouchableOpacity
-              onPress={() => handleItemPress(item, index)}
-              style={{
-                width: layout?.ITEM_WIDTH,
-                height: layout!.ITEM_WIDTH * 1.1,
-                padding: 4,
-              }}
-            >
-              <Image
-                source={{ uri: item.uri }}
-                style={{ width: "100%", height: "100%", borderRadius: 8 }}
-              />
-              {!isSingleSelect && selected.has(item.id) && (
-                <View
-                  style={{
-                    position: "absolute",
-                    inset: 4,
-                    borderRadius: 8,
-                    backgroundColor: "rgba(0,0,0,0.35)",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <Text className="text-white font-bold">✓</Text>
-                </View>
+        filteredAssets.length > 0 ?
+          (
+            <FlashList
+              key={num}
+              contentContainerStyle={{ paddingTop: 8 }}
+              data={filteredAssets}
+              keyExtractor={(item) => item.id}
+              numColumns={num}
+              onEndReached={loadMore}
+              onEndReachedThreshold={0.5}
+              ListFooterComponent={renderFooter}
+              renderItem={({ item, index }) => (
+                <>
+
+                  {recentImages.some((img) => img.id === item.id) && pathname !== "/" && (<MaterialIcons name="widgets" size={16} color="#fff" className="absolute bg-secondary p-2 rounded-full z-10 " />)}
+
+                  <TouchableOpacity
+                    onPress={() => handleItemPress(item, index)}
+                    style={{
+                      width: layout?.ITEM_WIDTH,
+                      height: layout!.ITEM_WIDTH * 1.1,
+                      padding: 4,
+                    }}
+                  >
+                    <Image
+                      source={{ uri: item.uri }}
+                      style={{ width: "100%", height: "100%", borderRadius: 8 }}
+                    />
+                    {!isSingleSelect && selected.has(item.id) && (
+                      <View
+                        style={{
+                          position: "absolute",
+                          inset: 4,
+                          borderRadius: 8,
+                          backgroundColor: "rgba(0,0,0,0.35)",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
+                        <Text className="text-white font-bold">✓</Text>
+                      </View>
+                    )}
+                  </TouchableOpacity></>
               )}
-            </TouchableOpacity>
-          )}
-        />
+            />
+          ) : (
+            <EmptyState
+              icon={<Ionicons name="image-outline" size={28} color="#9ca3af" />}
+              text="Brak zdjęć"
+            />
+          )
       )}
       {isSingleSelect && selectedImageData && (
         <ImageModal

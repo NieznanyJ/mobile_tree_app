@@ -1,3 +1,4 @@
+import { MaterialIcons } from "@expo/vector-icons";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import * as MediaLibrary from "expo-media-library";
 import { router } from "expo-router";
@@ -8,12 +9,10 @@ import AlbumGrid from "@/components/AlbumGrid";
 import ImageModal from "@/components/modals/ImageModal";
 import RecentPhotosRow from "@/components/RecentPhotosRow";
 import Button from "@/components/ui/Button";
+import { colors } from "@/constants/colors";
 import { useMediaLibrary } from "@/lib/hooks/useMediaLibrary";
 import { useAssetsStore } from "@/lib/store/assetsStore";
 import { useSettingsStore } from "@/lib/store/settingsStore";
-import { MaterialIcons } from "@expo/vector-icons";
-import { colors } from "@/constants/colors";
-import { set } from "zod";
 
 interface MediaBrowserProps {
   permissionResponse: MediaLibrary.PermissionResponse | null;
@@ -99,20 +98,25 @@ const MediaBrowser = ({ permissionResponse, requestPermission }: MediaBrowserPro
       <Pressable
         onLongPress={() => setEditMode(true)}
       >
-        {editMode && (
+        {editMode ? (
           <View className="flex-row justify-between items-center mb-4">
-            <Pressable onPress={handleClearAll} className=" bg-background" disabled={selectedAlbums.length === 0} >
+            <Pressable onPress={handleClearAll} disabled={selectedAlbums.length === 0}>
               <View className="flex flex-row items-center gap-4 justify-start" style={{ opacity: selectedAlbums.length === 0 ? 0.5 : 1 }}>
                 <MaterialIcons name="clear-all" className="bg-gray-50 rounded-full p-2" size={24} color={selectedAlbums.length === 0 ? colors.gray[500] : colors.secondary} />
-
               </View>
             </Pressable>
             <Pressable
               onPress={() => setEditMode(false)}
-              className="flex-row items-center   rounded-full">
-              <Text className=" text-gray-700 ">Zakończ edycję</Text>
+              className="flex-row items-center rounded-full">
+              <Text className="text-gray-700">Zakończ edycję</Text>
             </Pressable>
           </View>
+        ) : (
+          selectedAlbums.length > 0 && (
+            <Text className="text-xs text-gray-400  mb-2">
+              Przytrzymaj, aby edytować foldery
+            </Text>
+          )
         )}
         {widgetsEnabled && activeWidgets.albums && (
           <AlbumGrid

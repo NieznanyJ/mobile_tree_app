@@ -23,6 +23,7 @@ import {
   getImageUrl,
   HistoryDetail,
 } from "@/lib/services/historyService";
+import { formatDate, getConfidenceColor } from "@/lib/utils/helpers";
 
 export default function PredictionDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -54,22 +55,6 @@ export default function PredictionDetail() {
     loadPrediction();
   }, [token, id]);
 
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString("pl-PL", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-
-  const getConfidenceColor = (confidence: number) => {
-    if (confidence >= 90) return colors.success;
-    if (confidence >= 75) return colors.warning;
-    return colors.error;
-  };
 
   const handleDelete = () => {
     Alert.alert(

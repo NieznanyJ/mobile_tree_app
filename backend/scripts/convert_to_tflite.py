@@ -1,44 +1,60 @@
 """
-Skrypt do konwersji modelu Keras do formatów:
-1. TFLite - dla natywnych aplikacji i React Native z expo-tfjs
-2. TensorFlow.js - dla React Native z @tensorflow/tfjs-react-native
+Skrypt do konwersji modeli Keras (B0/B3) do formatu TFLite.
 
 Użycie:
     cd backend
-    python scripts/convert_to_tflite.py
+    python scripts/convert_to_tflite.py --model b0
+    python scripts/convert_to_tflite.py --model b3
 """
 
+import argparse
 import json
 import os
 import shutil
-import struct
 import sys
-
-# Dodaj ścieżkę do głównego katalogu backend
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import numpy as np
 import tensorflow as tf
 
+TRAINER_MODELS_DIR = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+    "..", "..", "model_trainer_E3", "model", "models",
+)
 
-def convert_keras_to_tflite(
-    keras_model_path: str,
-    tflite_output_path: str,
-    quantize: bool = True,
-) -> None:
-    """
-    Konwertuje model Keras do formatu TFLite.
-    """
-    print(f"Ładowanie modelu Keras z: {keras_model_path}")
+MOBILE_MODELS_DIR = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+    "..", "mobile", "assets", "models",
+)
 
-    if not os.path.exists(keras_model_path):
-        raise FileNotFoundError(f"Nie znaleziono modelu: {keras_model_path}")
+CLASSES = [
+    {"name": "Brzoza brodawkowata (Betula pendula)", "id": "betula-pendula"},
+    {"name": "Buk zwyczajny (Fagus sylvatica)",      "id": "fagus-sylvatica"},
+    {"name": "Dąb szypułkowy (Quercus robur)",       "id": "quercus-robur"},
+    {"name": "Jesion wyniosły (Fraxinus excelsior)",  "id": "fraxinus-excelsior"},
+    {"name": "Kasztanowiec pospolity (Aesculus hippocastanum)", "id": "aesculus-hippocastanum"},
+    {"name": "Klon zwyczajny (Acer platanoides)",    "id": "acer-platanoides"},
+    {"name": "Sosna zwyczajna (Pinus sylvestris)",   "id": "pinus-sylvestris"},
+    {"name": "Świerk pospolity (Picea abies)",        "id": "picea-abies"},
+]
 
-    model = tf.keras.models.load_model(keras_model_path)
-    print(f"Model załadowany. Input shape: {model.input_shape}")
+MODEL_CONFIG = {
+    "b0": {"keras": "model_b0.keras", "size": 224, "tflite": "tree_classifier_b0.tflite"},
+    "b3": {"keras": "model_b3.keras", "size": 300, "tflite": "tree_classifier_b3.tflite"},
+}
+
+
+def convert(model_choice: str, quantize: bool = True) -> None:
+    cfg = MODEL_CONFIG[model_choice]
+    keras_path = os.path.join(TRAINER_MODELS_DIR, cfg["keras"])
+
+    if not os.path.exists(keras_path):
+        raise FileNotFoundError(f"Nie znaleziono modelu: {keras_path}")
+
+    print(f"\nŁadowanie modelu: {keras_path}")
+    model = tf.keras.models.load_model(keras_path)
+    print(f"Input shape: {model.input_shape}")
 
     converter = tf.lite.TFLiteConverter.from_keras_model(model)
-
     if quantize:
         print("Stosowanie dynamic range quantization...")
         converter.optimizations = [tf.lite.Optimize.DEFAULT]
@@ -46,162 +62,43 @@ def convert_keras_to_tflite(
     print("Konwersja do TFLite...")
     tflite_model = converter.convert()
 
-    with open(tflite_output_path, "wb") as f:
+    os.makedirs(MOBILE_MODELS_DIR, exist_ok=True)
+    tflite_dst = os.path.join(MOBILE_MODELS_DIR, cfg["tflite"])
+
+    with open(tflite_dst, "wb") as f:
         f.write(tflite_model)
 
-    keras_size = os.path.getsize(keras_model_path)
-    tflite_size = os.path.getsize(tflite_output_path)
-    reduction = (1 - tflite_size / keras_size) * 100
-
+    keras_size  = os.path.getsize(keras_path)
+    tflite_size = os.path.getsize(tflite_dst)
     print(f"\n{'=' * 50}")
-    print(f"TFLite: Konwersja zakończona!")
-    print(f"{'=' * 50}")
-    print(f"Model Keras:  {keras_size / 1024 / 1024:.2f} MB")
-    print(f"Model TFLite: {tflite_size / 1024 / 1024:.2f} MB")
-    print(f"Redukcja:     {reduction:.1f}%")
-    print(f"Plik: {tflite_output_path}")
+    print(f"Model Keras:  {keras_size  / 1024 / 1024:.2f} MB")
+    print(f"Model TFLite: {tflite_size / 1024 / 1024:.2f} MB  ({(1 - tflite_size/keras_size)*100:.1f}% mniejszy)")
+    print(f"Zapisano: {tflite_dst}")
 
-
-def convert_keras_to_tfjs(keras_model_path: str, tfjs_output_dir: str) -> None:
-    """
-    Konwertuje model Keras do formatu TensorFlow.js (Layers Model).
-    """
-    print(f"\n{'=' * 50}")
-    print("TensorFlow.js: Rozpoczynam konwersję...")
-    print(f"{'=' * 50}")
-
-    if not os.path.exists(keras_model_path):
-        raise FileNotFoundError(f"Nie znaleziono modelu: {keras_model_path}")
-
-    os.makedirs(tfjs_output_dir, exist_ok=True)
-
-    # Wczytaj model
-    model = tf.keras.models.load_model(keras_model_path)
-
-    # Pobierz konfigurację modelu (topologia)
-    model_config = model.get_config()
-
-    # Pobierz wagi
-    weights = model.get_weights()
-
-    # Przygotuj manifest wag
-    weights_manifest = []
-    weights_data = b""
-    offset = 0
-
-    for i, layer in enumerate(model.layers):
-        layer_weights = layer.get_weights()
-        if not layer_weights:
-            continue
-
-        for j, w in enumerate(layer_weights):
-            weight_name = f"{layer.name}/{['kernel', 'bias', 'gamma', 'beta', 'moving_mean', 'moving_variance'][j] if j < 6 else f'weight_{j}'}"
-
-            # Konwertuj do float32
-            w_float32 = w.astype(np.float32)
-            w_bytes = w_float32.tobytes()
-
-            weights_manifest.append(
-                {
-                    "name": weight_name,
-                    "shape": list(w.shape),
-                    "dtype": "float32",
-                }
-            )
-
-            weights_data += w_bytes
-
-    # Zapisz wagi
-    weights_path = os.path.join(tfjs_output_dir, "group1-shard1of1.bin")
-    with open(weights_path, "wb") as f:
-        f.write(weights_data)
-
-    weights_size = len(weights_data)
-    print(f"Wagi zapisane: {weights_size / 1024 / 1024:.2f} MB")
-
-    # Utwórz model.json z topologią Keras
-    model_json = {
-        "format": "layers-model",
-        "generatedBy": "keras v" + tf.keras.__version__,
-        "convertedBy": "convert_to_tflite.py",
-        "modelTopology": {
-            "keras_version": tf.keras.__version__,
-            "backend": "tensorflow",
-            "model_config": {"class_name": "Sequential", "config": model_config},
-        },
-        "weightsManifest": [
-            {
-                "paths": ["group1-shard1of1.bin"],
-                "weights": weights_manifest,
-            }
-        ],
+    img_size = cfg["size"]
+    labels = {
+        "classes": CLASSES,
+        "imageSize": img_size,
+        "inputShape": [1, img_size, img_size, 3],
     }
-
-    model_json_path = os.path.join(tfjs_output_dir, "model.json")
-    with open(model_json_path, "w") as f:
-        json.dump(model_json, f, indent=2)
-
-    print(f"Utworzono: {model_json_path}")
-    print(f"Utworzono: {weights_path}")
-    print(f"Liczba warstw z wagami: {len(weights_manifest)}")
+    labels_dst = os.path.join(MOBILE_MODELS_DIR, f"labels_{model_choice}.json")
+    with open(labels_dst, "w", encoding="utf-8") as f:
+        json.dump(labels, f, ensure_ascii=False, indent=2)
+    print(f"Zapisano: {labels_dst}")
 
 
 def main():
-    backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    keras_model_path = os.path.join(backend_dir, "best_model.keras")
-
-    tflite_output_path = os.path.join(backend_dir, "best_model.tflite")
-    tfjs_output_dir = os.path.join(backend_dir, "tfjs_model")
-
-    mobile_models_dir = os.path.join(backend_dir, "..", "mobile", "assets", "models")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--model", choices=["b0", "b3"], required=True, help="Model do konwersji")
+    parser.add_argument("--no-quantize", action="store_true", help="Wyłącz quantization")
+    args = parser.parse_args()
 
     try:
-        # 1. Konwertuj do TFLite
-        convert_keras_to_tflite(
-            keras_model_path=keras_model_path,
-            tflite_output_path=tflite_output_path,
-            quantize=True,
-        )
-
-        # 2. Konwertuj do TensorFlow.js
-        convert_keras_to_tfjs(
-            keras_model_path=keras_model_path,
-            tfjs_output_dir=tfjs_output_dir,
-        )
-
-        # 3. Kopiuj pliki do mobile assets
-        print(f"\n{'=' * 50}")
-        print("Kopiowanie do mobile/assets/models/...")
-        print(f"{'=' * 50}")
-
-        os.makedirs(mobile_models_dir, exist_ok=True)
-
-        # Kopiuj pliki TF.js
-        for filename in os.listdir(tfjs_output_dir):
-            src = os.path.join(tfjs_output_dir, filename)
-            dst = os.path.join(mobile_models_dir, filename)
-            if os.path.isfile(src):
-                shutil.copy2(src, dst)
-                size = os.path.getsize(src)
-                print(f"  Skopiowano: {filename} ({size / 1024 / 1024:.2f} MB)")
-
-        # Kopiuj TFLite
-        tflite_dst = os.path.join(mobile_models_dir, "tree_classifier.tflite")
-        shutil.copy2(tflite_output_path, tflite_dst)
-        size = os.path.getsize(tflite_output_path)
-        print(f"  Skopiowano: tree_classifier.tflite ({size / 1024 / 1024:.2f} MB)")
-
-        print(f"\n{'=' * 50}")
-        print("SUKCES! Wszystkie konwersje zakończone.")
-        print(f"{'=' * 50}")
-
-    except FileNotFoundError as e:
-        print(f"Błąd: {e}")
-        sys.exit(1)
+        convert(args.model, quantize=not args.no_quantize)
+        print(f"\nSUKCES! Model {args.model.upper()} gotowy.")
     except Exception as e:
-        print(f"Błąd podczas konwersji: {e}")
+        print(f"Błąd: {e}")
         import traceback
-
         traceback.print_exc()
         sys.exit(1)
 

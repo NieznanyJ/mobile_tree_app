@@ -41,7 +41,7 @@ export default function MediaBrowser() {
   async function getAssets(album: MediaLibrary.Album) {
     const albumAssets = await MediaLibrary.getAssetsAsync({
       album: album.id,
-      first: 100, // Get first 100 assets
+      first: 100,
       sortBy: [MediaLibrary.SortBy.creationTime],
       mediaType: [MediaLibrary.MediaType.photo],
     });

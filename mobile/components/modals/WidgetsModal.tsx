@@ -23,8 +23,8 @@ interface WidgetItem {
 
 const widgets: WidgetItem[] = [
   { id: "treeFacts", name: "Ciekawostki o drzewach", icon: "eco" },
-  { id: "recentPhotos", name: "Ostatnie zdjęcia", icon: "photo-library" },
-  { id: "albums", name: "Foldery", icon: "folder" },
+  // { id: "recentPhotos", name: "Ostatnie zdjęcia", icon: "photo-library" },
+  // { id: "albums", name: "Foldery", icon: "folder" },
 ];
 
 export default function WidgetsModal({ visible, onClose }: WidgetsModalProps) {

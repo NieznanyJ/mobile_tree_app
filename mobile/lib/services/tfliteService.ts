@@ -16,10 +16,9 @@ import * as ImageManipulator from "expo-image-manipulator";
 import * as jpeg from "jpeg-js";
 import { loadTensorflowModel, TensorflowModel } from "react-native-fast-tflite";
 
-import labelsData from "@/assets/models/labels.json";
+import labelsData from "@/assets/models/labels_b3.json";
 
-// Konfiguracja z labels.json
-const IMAGE_SIZE = labelsData.imageSize; // 224
+const IMAGE_SIZE = labelsData.imageSize;
 const CLASSES = labelsData.classes;
 
 export interface SingleLocalPrediction {
@@ -60,19 +59,15 @@ class TFLiteService {
 
   private async _doInitialize(): Promise<void> {
     try {
-      // Ładowanie modelu TFLite
-      console.log("[TFLite] Ładowanie modelu tree_classifier.tflite...");
+      console.log("[TFLite] Ładowanie modelu tree_classifier_b3.tflite...");
       this.model = await loadTensorflowModel(
-        require("@/assets/models/tree_classifier.tflite"),
+        require("@/assets/models/tree_classifier_b3.tflite"),
       );
-
       console.log("[TFLite] Model załadowany pomyślnie");
-
       this.isInitialized = true;
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : "Nieznany błąd";
       console.error("[TFLite] Błąd inicjalizacji:", errorMsg);
-
       this.initError = `Model ML niedostępny: ${errorMsg}`;
       this.initPromise = null;
       this.isInitialized = false;
@@ -216,12 +211,19 @@ class TFLiteService {
       throw new Error("Brak obrazów do predykcji");
     }
 
-    // Zbierz prawdopodobieństwa ze wszystkich obrazów
-    const allProbabilities: number[][] = [];
+    if (!this.isReady() || !this.model) {
+      throw new Error("Model nie jest zainicjalizowany");
+    }
 
-    for (const uri of imageUris) {
-      const probs = await this.predictSingle(uri);
-      allProbabilities.push(probs);
+    // Preprocessing równolegle, inference sekwencyjnie (model nie jest thread-safe)
+    const preprocessed = await Promise.all(
+      imageUris.map((uri) => this.preprocessImage(uri)),
+    );
+
+    const allProbabilities: number[][] = [];
+    for (const inputData of preprocessed) {
+      const outputs = this.model.runSync([inputData]);
+      allProbabilities.push(Array.from(outputs[0] as Float32Array));
     }
 
     // Uśrednianie prawdopodobieństw
@@ -235,19 +237,33 @@ class TFLiteService {
       avgProbabilities[i] /= allProbabilities.length;
     }
 
-    // Stwórz tablicę indeksów i posortuj malejąco wg prawdopodobieństwa
+    const MIN_TOP_CONFIDENCE = 0.40;
+    const SECONDARY_RATIO    = 0.30;
+
     const indices = avgProbabilities.map((_, i) => i);
     indices.sort((a, b) => avgProbabilities[b] - avgProbabilities[a]);
 
-    // Weź top K predykcji
-    const topIndices = indices.slice(0, topK);
-    const predictions: SingleLocalPrediction[] = topIndices.map((idx) => ({
-      predicted_class: CLASSES[idx].name,
-      tree_id: CLASSES[idx].id,
-      confidence: Math.round(avgProbabilities[idx] * 100 * 100) / 100,
-    }));
+    const topConfidence = avgProbabilities[indices[0]];
 
-    // Główna predykcja (pierwsza z listy)
+    if (topConfidence < MIN_TOP_CONFIDENCE) {
+      return {
+        predictions: [],
+        predicted_class: "Nie rozpoznano drzewa",
+        tree_id: "",
+        confidence: Math.round(topConfidence * 100 * 100) / 100,
+      };
+    }
+
+    const minSecondary = topConfidence * SECONDARY_RATIO;
+    const predictions: SingleLocalPrediction[] = indices
+      .filter((idx) => avgProbabilities[idx] >= minSecondary)
+      .slice(0, topK)
+      .map((idx) => ({
+        predicted_class: CLASSES[idx].name,
+        tree_id: CLASSES[idx].id,
+        confidence: Math.round(avgProbabilities[idx] * 100 * 100) / 100,
+      }));
+
     const topPrediction = predictions[0];
 
     return {

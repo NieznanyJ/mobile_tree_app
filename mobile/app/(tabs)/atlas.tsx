@@ -94,28 +94,16 @@ const Atlas = () => {
     return (
         <View className="flex-1 pt-4 bg-background">
             <View className="px-4 pt-2 pb-3 gap-3">
-                <View className="flex-row items-center justify-between">
-                    <Text className="text-2xl font-bold text-gray-900">
-                        Atlas drzew
-                    </Text>
-                    <Pressable
-                        className="bg-gray-100 rounded-xl p-2"
-                        onPress={() => {
-                            setDisplayOption(displayOption === "grid" ? "list" : "grid");
-                        }}
-                    >
-                        <Ionicons
-                            name={displayOption === "grid" ? "list" : "grid"}
-                            size={20}
-                            color="#00964a"
-                        />
-                    </Pressable>
-                </View>
+                <Text className="text-2xl font-bold text-gray-900">
+                    Atlas drzew
+                </Text>
                 <SearchInput
                     value={search}
                     onChangeText={setSearch}
                     handleReset={() => setSearch("")}
                     placeholder="Szukaj drzewa..."
+                    displayOption={displayOption}
+                    onPress={setDisplayOption}
                 />
             </View>
 

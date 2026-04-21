@@ -14,9 +14,6 @@ export default function Index() {
   const { enableTreeFacts, widgetsEnabled, activeWidgets } = useSettingsStore();
   const { user } = useAuth();
   const [permissionResponse, requestPermission] = MediaLibrary.usePermissions();
-  const { treeFacts, ...others } = activeWidgets;
-  const areAllWidgetsDisabled = Object.values(others).every(value => value === false);
-  const shouldShowCTA = !widgetsEnabled || areAllWidgetsDisabled;
 
   useEffect(() => {
     if (permissionResponse && permissionResponse.status === "undetermined") {
@@ -65,28 +62,29 @@ export default function Index() {
       <ScrollView
         contentContainerStyle={{ flexGrow: 1, padding: 8, paddingTop: 0 }}
       >
-
-        <View className=" pb-4 mb-4">
-          <Text className="text-2xl font-bold text-secondary">{user?.username ? welcomeMessage.user.title : welcomeMessage.guest.title}</Text>
-          <Text className="text-sm text-gray-600 mt-2">
-            {user?.username ? welcomeMessage.user.info : welcomeMessage.guest.info} {!user?.username && <Text className="underline" onPress={() => router.push('/guest-info')}>Dowiedz się więcej</Text>}
-          </Text>
-        </View>
+        {/* 
+          Niepotrzbne widgety        
+        */}
 
 
-
-        {enableTreeFacts && widgetsEnabled && activeWidgets.treeFacts && (
-          <View className="pb-8 mt-4">
-            <Text className="text-2xl font-semibold text-center mb-4 text-black">Ciekawostki</Text>
-            <CarouselComponent content={createTreeFactsElements(treeFactsPL)} />
-          </View>
-        )}
-        <CTA />
-        <MediaBrowser
+        {/* <MediaBrowser
           permissionResponse={permissionResponse}
           requestPermission={handleRequestPermission}
-        />
+          /> */}
+          <View className=" pb-4 mb-4">
+            <Text className="text-2xl font-bold text-secondary">{user?.username ? welcomeMessage.user.title : welcomeMessage.guest.title}</Text>
+            <Text className="text-sm text-gray-600 mt-2">
+              {user?.username ? welcomeMessage.user.info : welcomeMessage.guest.info} {!user?.username && <Text className="underline" onPress={() => router.push('/guest-info')}>Dowiedz się więcej</Text>}
+            </Text>
+          </View>
+          {enableTreeFacts && widgetsEnabled && activeWidgets.treeFacts && (
+            <View className="pb-8 mt-4">
+              <Text className="text-2xl font-semibold text-center mb-4 text-black">Ciekawostki</Text>
+              <CarouselComponent content={createTreeFactsElements(treeFactsPL)} />
+            </View>
+          )}
 
+          <CTA />
       </ScrollView>
     </View>
   );

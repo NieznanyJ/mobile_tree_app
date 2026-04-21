@@ -16,13 +16,7 @@ import SearchInput from "@/components/ui/input/SearchInput";
 import { useMediaLibrary } from "@/lib/hooks/useMediaLibrary";
 import { useAssetsStore } from "@/lib/store/assetsStore";
 
-interface AssetModalProps {
-  visible: boolean;
-  album: MediaLibrary.Album | null;
-  assets: MediaLibrary.Asset[];
-  onClose: () => void;
-  onPhotoSelected: (asset: MediaLibrary.Asset) => void;
-}
+
 
 export default function AlbumPage() {
   const { albumId } = useLocalSearchParams();
@@ -78,6 +72,7 @@ export default function AlbumPage() {
           onChangeText={setSearchText}
           placeholder="Szukaj"
           handleReset={() => setSearchText("")}
+          showDisplayButton={false}
         />
         <FlatList
           key="asset-grid"

@@ -3,26 +3,22 @@ import { router } from "expo-router";
 import React from "react";
 import {
   ActivityIndicator,
-  Dimensions,
-  Image,
   Pressable,
   Text,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 import ImagePreviewModal from "@/components/modals/ImagePreviewModal";
 import PredictionModal from "@/components/modals/PredictionModal";
 import Button from "@/components/ui/Button";
+import PredictionImageGrid from "@/components/ui/PredictionImageGrid";
 import { colors } from "@/constants/colors";
+import { GRID_SPACING, SLOT_SIZE } from "@/constants/components";
 import { useImagePreview } from "@/lib/hooks/useImagePreview";
 import { useSmartPrediction } from "@/lib/hooks/useSmartPrediction";
 import { MAX_PREDICTION_ASSETS, useAssetsStore } from "@/lib/store/assetsStore";
 
-const GRID_SPACING = 12;
-const GRID_COLUMNS = 2;
-const SLOT_SIZE =
-  (Dimensions.get("window").width - 32 - GRID_SPACING) / GRID_COLUMNS;
+
 
 const PredictPage = () => {
   const { selectedAssets, removeAssetForPrediction } = useAssetsStore();
@@ -63,47 +59,7 @@ const PredictPage = () => {
       </Pressable>
       <View className="flex-1 p-4 flex-col items-center justify-between bg-background">
         <View className="w-full flex-1">
-          {/* 2x2 Grid */}
-          <View
-            className="flex-row flex-wrap justify-between"
-            style={{ gap: GRID_SPACING }}
-          >
-            {slots.map((asset, index) => (
-              <View
-                key={asset?.id ?? `empty-${index}`}
-                style={{ width: SLOT_SIZE, height: SLOT_SIZE }}
-                className="rounded-xl overflow-hidden"
-              >
-                {asset ? (
-                  <View className="relative w-full h-full">
-                    <Pressable onPress={() => preview.open(index)}>
-                      <Image
-                        source={{ uri: asset.uri }}
-                        className="w-full h-full"
-                        resizeMode="cover"
-                      />
-                    </Pressable>
-                    <Pressable
-                      onPress={() => removeAssetForPrediction(asset.id)}
-                      className="absolute top-2 right-2 bg-black/60 rounded-full w-7 h-7 items-center justify-center"
-                    >
-                      <Ionicons name="close" size={18} color="#fff" />
-                    </Pressable>
-                  </View>
-                ) : (
-                  <Pressable
-                    onPress={() =>
-                      router.push("/(tabs)/gallery")
-                    }
-                    className="w-full h-full border-2 border-dashed border-gray-300 rounded-xl items-center justify-center bg-gray-50"
-                  >
-                    <Ionicons name="add" size={32} color={colors.text.muted} />
-                    <Text className="text-gray-400 text-xs mt-1">Dodaj</Text>
-                  </Pressable>
-                )}
-              </View>
-            ))}
-          </View>
+          <PredictionImageGrid slots={slots} preview={preview} removeAssetForPrediction={removeAssetForPrediction} colors={colors} GRID_SPACING={GRID_SPACING} SLOT_SIZE={SLOT_SIZE} />
 
           <View className="flex-row items-center mt-4 px-1 gap-2">
             <Ionicons
@@ -159,7 +115,7 @@ const PredictPage = () => {
                 color={colors.gray[400]}
               />
               <Text className="text-xs text-gray-400">
-                Tryb offline - wyniki mogą być mniej dokładne
+                Tryb offline - wyniki nie będą zapisywane do historii
               </Text>
             </View>
           )}
