@@ -3,6 +3,7 @@ import { router } from "expo-router";
 import React from "react";
 import {
   ActivityIndicator,
+  Alert,
   Pressable,
   Text,
   View,
@@ -29,6 +30,8 @@ const PredictPage = () => {
     isCompressing,
     predict,
     clearPrediction,
+    clearError,
+    error,
     source,
   } = useSmartPrediction();
 
@@ -36,6 +39,12 @@ const PredictPage = () => {
     if (selectedAssets.length === 0) return;
     await predict(selectedAssets);
   };
+
+  React.useEffect(() => {
+    if (error) {
+      Alert.alert("Błąd identyfikacji", error, [{ text: "OK", onPress: clearError }]);
+    }
+  }, [error]);
 
   const handleClearAll = () => {
     selectedAssets.forEach((asset) => removeAssetForPrediction(asset.id));
