@@ -203,7 +203,6 @@ export async function clearOldThumbnailCache(
 
           if (fileModTime && now - fileModTime > thresholdMs) {
             await FileSystem.deleteAsync(filePath);
-            console.log(`Deleted old cache: ${fileName}`);
           }
         }
       } catch (err) {
