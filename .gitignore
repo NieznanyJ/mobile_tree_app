@@ -1,20 +1,14 @@
-# Plik ze zmiennymi środowiskowymi
+# Wspólne reguły dla całego repo.
+# Reguły specyficzne dla części projektu: backend/.gitignore, mobile/.gitignore
+
+# Pliki ze zmiennymi środowiskowymi (wzór w .env.example)
 .env
-
-# Folder wirtualnego środowiska
-.venv/
-
-# Pliki cache Pythona
-__pycache__/
-*.pyc
+.env.*
+!.env.example
 
 # Pliki generowane przez IDE (np. PyCharm)
 .idea/
 
-# Modele Machine Learning
-.keras
-*.tflite
-*.bin
-*.h5
-saved_model*/
-tfjs_model/
+# Pliki systemowe
+.DS_Store
+Thumbs.db

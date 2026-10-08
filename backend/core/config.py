@@ -14,7 +14,7 @@ class Settings(BaseSettings):
 
     # CORS - domeny dozwolone dla requestów cross-origin
     # W produkcji ustaw na konkretne domeny, np. "https://myapp.com,https://api.myapp.com"
-    CORS_ORIGINS: str = "http://localhost:3000,http://localhost:8081,http://192.168.1.104:8081,http://192.168.1.104:19006"
+    CORS_ORIGINS: str = "http://localhost:3000,http://localhost:8081"
 
     @field_validator("SECRET_KEY")
     @classmethod

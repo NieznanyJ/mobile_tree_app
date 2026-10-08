@@ -3,13 +3,13 @@
  *
  * Odpowiedzialności:
  * - Ładowanie modelu TFLite do pamięci
- * - Preprocessing obrazu (resize 224x224, RGB)
+ * - Preprocessing obrazu (resize 300x300, RGB)
  * - Inference za pomocą JSI (natywna wydajność)
- * - Postprocessing (argmax, confidence)
+ * - Postprocessing (uśrednienie, top 3, confidence)
  *
- * Model: EfficientNet B0 (4.65 MB)
- * Input: (1, 224, 224, 3) - RGB [0-255] (EfficientNet ma wbudowaną normalizację)
- * Output: (1, 4) - Softmax probabilities
+ * Model: EfficientNet B3 (tree_classifier_b3.tflite, etykiety: labels_b3.json)
+ * Input: (1, 300, 300, 3) - RGB [0-255] (EfficientNet ma wbudowaną normalizację)
+ * Output: (1, 8) - Softmax probabilities
  */
 
 import * as ImageManipulator from "expo-image-manipulator";
@@ -59,11 +59,10 @@ class TFLiteService {
 
   private async _doInitialize(): Promise<void> {
     try {
-      console.log("[TFLite] Ładowanie modelu tree_classifier_b3.tflite...");
       this.model = await loadTensorflowModel(
         require("@/assets/models/tree_classifier_b3.tflite"),
       );
-      console.log("[TFLite] Model załadowany pomyślnie");
+      if (__DEV__) console.log("[TFLite] Model załadowany pomyślnie");
       this.isInitialized = true;
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : "Nieznany błąd";
@@ -163,8 +162,6 @@ class TFLiteService {
       throw new Error("Model nie jest zainicjalizowany");
     }
 
-    console.log("[TFLite] predictSingle - URI:", imageUri);
-
     // Preprocessing
     const inputData = await this.preprocessImage(imageUri);
 
@@ -175,14 +172,7 @@ class TFLiteService {
       );
     }
 
-    console.log("[TFLite] inputData ready, length:", inputData.length);
-    console.log(
-      "[TFLite] inputData sample (first 10):",
-      Array.from(inputData.slice(0, 10)),
-    );
-
     // Inference - react-native-fast-tflite przyjmuje array of TypedArrays
-    console.log("[TFLite] Wywołuję model.runSync...");
     const outputs = this.model.runSync([inputData]);
 
     if (!outputs || !outputs[0]) {
@@ -191,10 +181,6 @@ class TFLiteService {
 
     // Output to tablica softmax probabilities
     const probabilities = outputs[0];
-    console.log(
-      "[TFLite] Wynik predykcji:",
-      Array.from(probabilities as Float32Array),
-    );
 
     return Array.from(probabilities as Float32Array);
   }

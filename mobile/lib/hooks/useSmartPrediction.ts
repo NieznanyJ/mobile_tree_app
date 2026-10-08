@@ -44,12 +44,14 @@ export function useSmartPrediction(): UseSmartPredictionReturn {
   const predict = useCallback(
     async (assets: PredictionAsset[]): Promise<PredictionResult | null> => {
       if (shouldUseServer) {
-        console.log("[SmartPrediction] Używam serwera API");
+        if (__DEV__) console.log("[SmartPrediction] Używam serwera API");
         return remote.predict(assets);
       } else {
-        console.log(
-          `[SmartPrediction] Używam lokalnego modelu (isOnline=${isOnline}, isGuest=${isGuest}, token=${!!token})`,
-        );
+        if (__DEV__) {
+          console.log(
+            `[SmartPrediction] Używam lokalnego modelu (isOnline=${isOnline}, isGuest=${isGuest}, token=${!!token})`,
+          );
+        }
         return local.predict(assets);
       }
     },

@@ -50,7 +50,9 @@ export function useLocalPrediction(): UseLocalPredictionReturn {
           } else {
             // Model nie załadował się, ale nie rzucił błędu
             const errorMsg = tfliteService.getInitError() || "Model ML niedostępny";
-            console.log("[useLocalPrediction] Model niedostępny:", errorMsg);
+            if (__DEV__) {
+              console.log("[useLocalPrediction] Model niedostępny:", errorMsg);
+            }
             setState((prev) => ({
               ...prev,
               error: errorMsg,
