@@ -89,6 +89,10 @@ Backend używa wzorca **Layered Architecture**:
 | `/auth/login` | POST | Logowanie | ❌ |
 | `/auth/me` | GET | Aktualny user | ✅ |
 | `/predict/` | POST | Predykcja ML | ✅ |
+| `/predictions/` | GET | Historia predykcji | ✅ |
+| `/predictions/{id}` | GET | Szczegóły predykcji | ✅ |
+| `/predictions/{id}` | DELETE | Usunięcie predykcji | ✅ |
+| `/predictions/` | DELETE | Usunięcie całej historii | ✅ |
 
 ### Bezpieczeństwo
 
@@ -201,4 +205,8 @@ EXPO_PUBLIC_API_URL="http://localhost:8000"
 1. Brzoza brodawkowata (Betula pendula)
 2. Buk zwyczajny (Fagus sylvatica)
 3. Dąb szypułkowy (Quercus robur)
-4. Klon zwyczajny (Acer platanoides)
+4. Jesion wyniosły (Fraxinus excelsior)
+5. Kasztanowiec pospolity (Aesculus hippocastanum)
+6. Klon zwyczajny (Acer platanoides)
+7. Sosna zwyczajna (Pinus sylvestris)
+8. Świerk pospolity (Picea abies)

@@ -234,7 +234,11 @@ Retry-After: 45
 | `betula-pendula` | Brzoza brodawkowata | Betula pendula |
 | `fagus-sylvatica` | Buk zwyczajny | Fagus sylvatica |
 | `quercus-robur` | Dąb szypułkowy | Quercus robur |
+| `fraxinus-excelsior` | Jesion wyniosły | Fraxinus excelsior |
+| `aesculus-hippocastanum` | Kasztanowiec pospolity | Aesculus hippocastanum |
 | `acer-platanoides` | Klon zwyczajny | Acer platanoides |
+| `pinus-sylvestris` | Sosna zwyczajna | Pinus sylvestris |
+| `picea-abies` | Świerk pospolity | Picea abies |
 
 ---
 
