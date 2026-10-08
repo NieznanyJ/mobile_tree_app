@@ -3,13 +3,13 @@
  *
  * Odpowiedzialności:
  * - Ładowanie modelu TFLite do pamięci
- * - Preprocessing obrazu (resize 224x224, RGB)
+ * - Preprocessing obrazu (resize 300x300, RGB)
  * - Inference za pomocą JSI (natywna wydajność)
- * - Postprocessing (argmax, confidence)
+ * - Postprocessing (uśrednienie, top 3, confidence)
  *
- * Model: EfficientNet B0 (4.65 MB)
- * Input: (1, 224, 224, 3) - RGB [0-255] (EfficientNet ma wbudowaną normalizację)
- * Output: (1, 4) - Softmax probabilities
+ * Model: EfficientNet B3 (tree_classifier_b3.tflite, etykiety: labels_b3.json)
+ * Input: (1, 300, 300, 3) - RGB [0-255] (EfficientNet ma wbudowaną normalizację)
+ * Output: (1, 8) - Softmax probabilities
  */
 
 import * as ImageManipulator from "expo-image-manipulator";
